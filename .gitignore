@@ -1,0 +1,5 @@
+/build/
+/pydist/
+/node_modules/
+*.tar.gz
+*.tgz

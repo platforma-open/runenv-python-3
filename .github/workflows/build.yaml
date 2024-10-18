@@ -1,0 +1,91 @@
+name: Build NPM package
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    branches:
+      - 'main'
+  push:
+    branches:
+      - 'main'
+
+jobs:
+  init:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: milaboratory/github-ci/actions/context/init@v4
+        with:
+          version-canonize: false
+          branch-versioning: main
+  run:
+    needs:
+      - init
+
+    uses: milaboratory/github-ci/.github/workflows/node-python-matrix.yaml@v4
+    with:
+      app-name: Python 3 PL package
+      app-name-slug: 'runenv-python-3'
+      notify-telegram: true
+
+      node-version: '20.x'
+      always-auth: 'true'
+
+      python-version: '3.12'
+
+      build-artifacts: |
+        pydist/*/*
+        pkg-*.tgz
+
+      sign-binaries: |
+        pydist/**/*.so
+        pydist/**/bin/python
+        pydist/**/bin/python3
+        pydist/**/bin/pip
+        pydist/**/bin/pip3
+
+      # pydist/3.12.6/macosx-x64/<python package root>
+      notarize-paths: |
+        pydist/*/*
+
+      build-script-name: 'build'
+
+      test: false
+      test-script-name: 'test'
+
+      aws-login-enable: true
+      gcp-login-enable: true
+      npmrc-config: |
+        {
+          "registries": {
+            "https://registry.npmjs.org/": {
+              "scopes": ["platforma-open"],
+              "tokenVar": "NPMJS_TOKEN"
+            }
+          }
+        }
+
+    secrets:
+      env: |
+        {
+          "PL_REGISTRY_PLATFORMA_OPEN_UPLOAD_URL": ${{ toJSON(secrets.PL_REGISTRY_PLOPEN_UPLOAD_URL) }},
+          "NPMJS_TOKEN": ${{ toJSON(secrets.NPMJS_TOKEN) }}
+        }
+
+      MAC_SIGN_CERT_ID: '5MJ3ML3YR9'
+      MAC_SIGN_CERT: ${{ secrets.MAC_CERTS }}
+      MAC_SIGN_CERT_PWD: ${{ secrets.MAC_CERTS_PASSWORD }}
+      MAC_NOTR_API_KEY: ${{ secrets.MAC_API_KEY }}
+      MAC_NOTR_API_KEY_ID: ${{ secrets.MAC_API_KEY_ID }}
+      MAC_NOTR_API_KEY_ISSUER_ID: ${{ secrets.MAC_API_KEY_ISSUER_ID }}
+      WIN_SIGN_CERT: ${{ secrets.WIN_CODE_SIGN_CHAIN }}
+
+      AWS_ASSUME_ROLE: ${{ secrets.AWS_CI_IAM_MONOREPO_SIMPLE_ROLE }}
+      AWS_ASSUME_REGION: 'eu-central-1'
+
+      GCP_KMS_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_KMS_WORKLOAD_IDENTITY_PROVIDER }}
+      GCP_KMS_SERVICE_ACCOUNT: ${{ secrets.GCP_KMS_SERVICE_ACCOUNT }}
+      GCP_KMS_LOCATION: ${{ secrets.GCP_KMS_LOCATION }}
+      GCP_KMS_KEYRING: ${{ secrets.GCP_KMS_KEYRING }}
+      GCP_KMS_KEY_NAME: ${{ secrets.GCP_KMS_KEY_NAME }}
+
+      TELEGRAM_NOTIFICATION_TARGET: ${{ secrets.TG_CHANNEL_MIBUILDS }}
+      TELEGRAM_API_TOKEN: ${{ secrets.TG_CI_BOT_TOKEN }}

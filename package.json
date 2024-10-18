@@ -1,0 +1,42 @@
+{
+  "name": "@platforma-open/milaboratories.runenv-python-3",
+  "version": "1.0.0",
+  "description": "Python 3 run environments for Platforma",
+  "scripts": {
+    "build": "rm -rf ./pydist/ && node ./scripts/build.js 3.12.6",
+    "publish:packages": "node ./scripts/publish.js 3.12.6",
+    "publish:descriptors": "pl-pkg publish descriptors",
+    "prepublishOnly": "npm run pkg:build && npm run publish:packages"
+  },
+  "files": [
+    "dist/"
+  ],
+  "block-software": {
+    "entrypoints": {
+      "3.12.6": {
+        "environment": {
+          "artifact": {
+            "type": "environment",
+            "runtime": "python",
+            "registry": "platforma-open",
+            "version": "3.12.6",
+            "roots": {
+              "linux-x64": "./pydist/v3.12.6/linux-x64/",
+              "linux-aarch64": "./pydist/v3.12.6/linux-aarch64/",
+              "macosx-x64": "./pydist/v3.12.6/macosx-x64/",
+              "macosx-aarch64": "./pydist/v3.12.6/macosx-aarch64/",
+              "windows-x64": "./pydist/v3.12.6/windows-x64/"
+            },
+            "binDir": "bin"
+          }
+        }
+      }
+    }
+  },
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@platforma-sdk/package-builder": "^2.9.2",
+    "tar": "^7.4.3",
+    "unzipper": "^0.12.3"
+  }
+}

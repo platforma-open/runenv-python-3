@@ -190,7 +190,7 @@ async function getPortableWindows(version, archType, installDir) {
   const pipFile = path.join(packageDist, pipName);
   const pyBinRoot = path.join(installDir, 'bin');
 
-  await downloadFile(pythonZipUrl, pythonZipFile)
+  await downloadFile(pythonZipUrl, pythonZipFile);
   await downloadFile(pipUrl, pipFile);
   await unzipFile(pythonZipFile, pyBinRoot);
 
@@ -226,37 +226,20 @@ import site
   const version = args[0];
   const osType = currentOS();
   const archType = currentArch();
-  const installDir = path.join(packageDist, `v${version}`, `${osType}-${archType}`);
+  const installDir = path.join(
+    packageDist,
+    `v${version}`,
+    `${osType}-${archType}`
+  );
 
   if (!fs.existsSync(packageDist)) {
     fs.mkdirSync(packageDist, { recursive: true }); // create install dir and all its parents
   }
 
-  if (version === '0.0.1') {
-    // TODO: drop this hack once we finish with CI for python builds
-
-    runCommand('pip', ['install', 'click']); // run at least one pip command to init cache
-    const installBinDir = path.join(installDir, 'bin');
-    if (!fs.existsSync(installBinDir)) {
-      fs.mkdirSync(installBinDir, { recursive: true });
-    }
-    const pyBin = path.join(installBinDir, 'python');
-    fs.writeFileSync(
-      pyBin,
-      `#!/usr/bin/env sh
-
-echo "this is fake python for fast CI iterations"
-`
-    );
-    const stats = fs.statSync(pyBin);
-    const newMode = stats.mode | 0o111;
-    fs.chmodSync(pyBin, newMode);
+  if (osType === os_windows) {
+    await getPortableWindows(version, archType, installDir);
   } else {
-    if (osType === os_windows) {
-      await getPortableWindows(version, archType, installDir);
-    } else {
-      buildFromSources(version, osType, archType, installDir);
-    }
+    buildFromSources(version, osType, archType, installDir);
   }
 
   runCommand('pl-pkg', ['build', 'packages', `--package-id=${version}`]);

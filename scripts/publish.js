@@ -58,7 +58,7 @@ if (!fs.existsSync(entrypointPath)) {
   console.log(`
 No software descriptor found at '${entrypointPath}'.
 
-Looks like you're going to publish new version of amazon corretto java distribution.
+Looks like you're going to publish new version of python.
 See README.md for the instructions on how to do this properly.
 `);
 

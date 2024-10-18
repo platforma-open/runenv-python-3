@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "description": "Python 3 run environments for Platforma",
   "scripts": {
-    "build": "rm -rf ./pydist/ && node ./scripts/build.js 3.12.6",
-    "publish:packages": "node ./scripts/publish.js 3.12.6",
-    "publish:descriptors": "pl-pkg publish descriptors",
-    "prepublishOnly": "npm run pkg:build && npm run publish:packages"
+    "build": "rm -rf ./pydist/ && ./scripts/build.js 3.12.6",
+    "publish:packages": "./scripts/publish.js 3.12.6",
+
+    "prepublishOnly": "npm run publish:packages"
   },
   "files": [
     "dist/"

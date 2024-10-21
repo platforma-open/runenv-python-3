@@ -123,7 +123,6 @@ function untarPythonArchive(archivePath, targetDir) {
 }
 
 function buildFromSources(version, osType, archType, installDir) {
-  return;
   runCommand('pipx', ['install', 'portable-python']);
   runCommand('portable-python', ['build', version]);
 

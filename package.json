@@ -12,13 +12,13 @@
   ],
   "block-software": {
     "entrypoints": {
-      "3.12.6": {
+      "0.0.2": {
         "environment": {
           "artifact": {
             "type": "environment",
             "runtime": "python",
             "registry": "platforma-open",
-            "version": "0.0.1",
+            "version": "0.0.2",
             "roots": {
               "linux-x64": "./pydist/v3.12.6/linux-x64/",
               "linux-aarch64": "./pydist/v3.12.6/linux-aarch64/",

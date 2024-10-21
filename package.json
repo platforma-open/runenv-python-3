@@ -1,6 +1,6 @@
 {
   "name": "@platforma-open/milaboratories.runenv-python-3",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Python 3 run environments for Platforma",
   "scripts": {
     "build": "node ./scripts/build.js 3.12.6",

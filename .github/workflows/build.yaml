@@ -53,6 +53,8 @@ jobs:
 
       aws-login-enable: true
       gcp-login-enable: true
+
+      publish-to-public: true
       npmrc-config: |
         {
           "registries": {

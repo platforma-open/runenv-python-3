@@ -20,7 +20,7 @@ jobs:
     needs:
       - init
 
-    uses: milaboratory/github-ci/.github/workflows/node-python-matrix.yaml@v4
+    uses: milaboratory/github-ci/.github/workflows/node-python-matrix.yaml@v4-beta
     with:
       app-name: Python 3 PL package
       app-name-slug: 'runenv-python-3'
@@ -37,6 +37,7 @@ jobs:
 
       sign-binaries: |
         pydist/**/*.so
+        pydist/**/*.dylib
         pydist/**/bin/python
         pydist/**/bin/python3
         pydist/**/bin/pip

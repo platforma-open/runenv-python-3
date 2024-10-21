@@ -1,11 +1,10 @@
 {
   "name": "@platforma-open/milaboratories.runenv-python-3",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Python 3 run environments for Platforma",
   "scripts": {
-    "build": "rm -rf ./pydist/ && node ./scripts/build.js 3.12.6",
+    "build": "node ./scripts/build.js 3.12.6",
     "publish:packages": "node ./scripts/publish.js 3.12.6",
-
     "prepublishOnly": "npm run publish:packages"
   },
   "files": [
@@ -19,7 +18,7 @@
             "type": "environment",
             "runtime": "python",
             "registry": "platforma-open",
-            "version": "0.0.0",
+            "version": "0.0.1",
             "roots": {
               "linux-x64": "./pydist/v3.12.6/linux-x64/",
               "linux-aarch64": "./pydist/v3.12.6/linux-aarch64/",

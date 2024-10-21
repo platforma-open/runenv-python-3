@@ -101,6 +101,27 @@ function runCommand(command, args) {
   }
 }
 
+function checkDescriptor(version) {
+  const entrypointPath = path.join(
+    packageRoot,
+    'dist',
+    'tengo',
+    'software',
+    `${version}.sw.json`
+  );
+
+  if (!fs.existsSync(entrypointPath)) {
+    console.log(`
+  No software descriptor found at '${entrypointPath}'.
+
+  Looks like you're going to publish new version of python.
+  See README.md for the instructions on how to do this properly.
+  `);
+
+    exit(1);
+  }
+}
+
 function detectTarGzArchive(searchDir) {
   const files = fs.readdirSync(searchDir);
   for (const file of files) {
@@ -223,7 +244,7 @@ import site
 
 async function isBinaryOSX(filePath) {
   const { stdout } = await exec(`file --no-dereference ${filePath}`);
-  const attributes = (stdout.split(':')[1]).trim().split(' ');
+  const attributes = stdout.split(':')[1].trim().split(' ');
   return (
     attributes.includes('Mach-O') ||
     (attributes.includes('executable') && !attributes.includes('script'))
@@ -331,6 +352,8 @@ async function consolidateLibsOSX(installDir) {
     `v${version}`,
     `${osType}-${archType}`
   );
+
+  checkDescriptor(version);
 
   if (!fs.existsSync(packageDist)) {
     fs.mkdirSync(packageDist, { recursive: true }); // create install dir and all its parents

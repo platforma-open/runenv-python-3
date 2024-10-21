@@ -10,7 +10,8 @@ if (args.length !== 1) {
   process.exit(1);
 }
 
-const { spawnSync } = require('child_process');
+const cp = require('child_process');
+const { promisify } = require('util');
 const fs = require('fs');
 const path = require('path');
 const tar = require('tar');
@@ -18,10 +19,12 @@ const os = require('os');
 const { get } = require('https');
 const unzipper = require('unzipper');
 
+const exec = promisify(cp.exec);
+
 /*
  * Init script state
  */
-const packageRoot = path.resolve(__dirname, '..');
+const packageRoot = path.relative(process.cwd(), path.resolve(__dirname, '..'));
 const packageDist = path.join(packageRoot, 'pydist');
 
 // supported OSes
@@ -85,7 +88,7 @@ function runCommand(command, args) {
     command = 'cmd';
   }
 
-  const result = spawnSync(command, args, {
+  const result = cp.spawnSync(command, args, {
     stdio: 'inherit'
   });
 
@@ -120,6 +123,7 @@ function untarPythonArchive(archivePath, targetDir) {
 }
 
 function buildFromSources(version, osType, archType, installDir) {
+  return;
   runCommand('pipx', ['install', 'portable-python']);
   runCommand('portable-python', ['build', version]);
 
@@ -218,6 +222,103 @@ import site
   // TODO: check this package really works as we expect. I did not test windows package yet
 }
 
+async function isBinaryOSX(filePath) {
+  const { stdout } = await exec(`file --no-dereference ${filePath}`);
+  const attributes = (stdout.split(':')[1]).trim().split(' ');
+  return (
+    attributes.includes('Mach-O') ||
+    (attributes.includes('executable') && !attributes.includes('script'))
+  );
+}
+
+async function alterLibLoadPathOSX(binary, oldLibPath, newLibPath) {
+  console.log(`\tPatching library '${oldLibPath}' load path in '${binary}'...`);
+  await exec(`install_name_tool -change ${oldLibPath} ${newLibPath} ${binary}`);
+}
+
+async function listLibsOSX(binPath) {
+  const { stdout } = await exec(`otool -L ${binPath}`);
+
+  const lines = stdout.split('\n');
+  const libraries = [];
+
+  // Skip the first line as it contains the binary path
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (line) {
+      const libraryPath = line.split(' ')[0].trim();
+      libraries.push(libraryPath);
+    }
+  }
+
+  return libraries;
+}
+
+function dropSystemLibsOSX(libraries) {
+  const result = [];
+
+  for (const [i, libName] of libraries.entries()) {
+    if (libName.startsWith('/System/Library/Frameworks/')) continue;
+    if (libName === '/usr/lib/libSystem.B.dylib') continue;
+
+    result.push(libName);
+  }
+
+  return result;
+}
+
+async function consolidateLibsOSX(installDir) {
+  console.log(`Consolidating libraries...`);
+
+  const binDir = path.join(installDir, 'bin');
+  const libDir = path.join(installDir, 'lib');
+
+  // Ensure libDir exists
+  if (!fs.existsSync(libDir)) {
+    fs.mkdirSync(libDir, { recursive: true });
+  }
+
+  // List all files in bin directory
+  const files = fs.readdirSync(binDir);
+  for (const file of files) {
+    const binaryPath = path.join(binDir, file);
+    const fileStat = fs.statSync(binaryPath);
+
+    if (!fileStat.isFile()) {
+      console.log(`\t(file '${binaryPath}' was skipped: not a file)`);
+      continue;
+    }
+
+    if (!(await isBinaryOSX(binaryPath))) {
+      console.log(`\t(file '${binaryPath}' was skipped: not a binary file)`);
+      continue;
+    }
+
+    // Get libraries list for the binary
+    const libraries = await listLibsOSX(binaryPath);
+    const nonSystemLibs = dropSystemLibsOSX(libraries);
+
+    for (const lib of nonSystemLibs) {
+      // Do not patch paths to libraries, that are already relative
+      if (!lib.startsWith('/')) continue;
+
+      const libName = path.basename(lib);
+      const libDest = path.join(libDir, libName);
+
+      if (!fs.existsSync(libDest)) {
+        fs.copyFileSync(lib, libDest);
+      }
+
+      alterLibLoadPathOSX(
+        binaryPath,
+        lib,
+        `@executable_path/../lib/${libName}`
+      );
+      return;
+    }
+  }
+}
+
 /*
  * Script body
  */
@@ -238,6 +339,9 @@ import site
 
   if (osType === os_windows) {
     await getPortableWindows(version, archType, installDir);
+  } else if (osType === os_macosx) {
+    buildFromSources(version, osType, archType, installDir);
+    await consolidateLibsOSX(installDir);
   } else {
     buildFromSources(version, osType, archType, installDir);
   }

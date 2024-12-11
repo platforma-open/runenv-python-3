@@ -69,10 +69,8 @@ jobs:
 
     secrets:
       env: |
-        {
-          "PL_REGISTRY_PLATFORMA_OPEN_UPLOAD_URL": ${{ toJSON(secrets.PL_REGISTRY_PLOPEN_UPLOAD_URL) }},
-          "NPMJS_TOKEN": ${{ toJSON(secrets.NPMJS_TOKEN) }}
-        }
+        { "PL_REGISTRY_PLATFORMA_OPEN_UPLOAD_URL": ${{ toJSON(secrets.PL_REGISTRY_PLOPEN_UPLOAD_URL) }},
+          "NPMJS_TOKEN": ${{ toJSON(secrets.NPMJS_TOKEN) }} }
 
       MAC_SIGN_CERT_ID: '5MJ3ML3YR9'
       MAC_SIGN_CERT: ${{ secrets.MAC_CERTS }}

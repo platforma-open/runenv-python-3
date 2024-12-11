@@ -397,7 +397,7 @@ function downloadPackages(dependenciesFile, destinationDir) {
   }
 
   const packagesDir = path.join(installDir, 'packages');
-  const dependenciesFile = path.join(packageRoot, 'requirements.txt');
+  const dependenciesFile = path.join(packageRoot, 'packages.txt');
 
   downloadPackages(dependenciesFile, packagesDir);
 

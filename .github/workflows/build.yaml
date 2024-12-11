@@ -20,7 +20,7 @@ jobs:
     needs:
       - init
 
-    uses: milaboratory/github-ci/.github/workflows/node-python-matrix.yaml@v4-beta
+    uses: milaboratory/github-ci/.github/workflows/node-matrix.yaml@v4-beta
     with:
       app-name: Python 3 PL package
       app-name-slug: 'runenv-python-3'
@@ -41,6 +41,15 @@ jobs:
       # pydist/3.12.6/macosx-x64/<python package root>
       notarize-paths: |
         pydist/*/*
+
+      # Python main get new .so files during dependencies installation.
+      # We have to disable libraries validation to not break Python runtime.
+      mac-sign-entitlements: |
+        <key>com.apple.security.automation.apple-events</key>               <true/>
+        <key>com.apple.security.cs.allow-dyld-environment-variables</key>   <true/>
+        <key>com.apple.security.cs.allow-jit</key>                          <true/>
+        <key>com.apple.security.cs.disable-library-validation</key>         <true/>
+        <key>com.apple.security.get-task-allow</key>                        <true/>
 
       build-script-name: 'build'
 

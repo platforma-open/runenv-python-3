@@ -348,7 +348,7 @@ async function consolidateLibsOSX(installDir) {
 
 function downloadPackages(pyBin, dependenciesFile, destinationDir) {
   const depsContent = fs.readFileSync(dependenciesFile, 'utf-8');
-  const lines = depsContent.split('\n');
+  const depsList = depsContent.split('\n');
 
   for (const depSpec of depsList) {
     const depSpecClean = depSpec.trim()

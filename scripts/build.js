@@ -368,5 +368,13 @@ async function consolidateLibsOSX(installDir) {
     buildFromSources(version, osType, archType, installDir);
   }
 
+  runCommand(path.join(installDir, 'bin', 'python3'), [
+    '-m',
+    'pip',
+    'install',
+    '-r',
+    path.join(packageRoot, 'requirements.txt')
+  ]);
+
   runCommand('pl-pkg', ['build', 'packages', `--package-id=${version}`]);
 })();

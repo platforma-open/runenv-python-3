@@ -39,8 +39,11 @@ jobs:
         pydist/
 
       # pydist/3.12.6/macosx-x64/<python package root>
+      # Do not try to notarizr 'packages' directory with whl files, as whl is an archive and we
+      # have to sign all .so files inside first to not tirgger notarisation errors
       notarize-paths: |
-        pydist/*/*
+        pydist/*/*/bin
+        pydist/*/*/lib
 
       # Python main get new .so files during dependencies installation.
       # We have to disable libraries validation to not break Python runtime.

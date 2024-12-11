@@ -239,6 +239,13 @@ import site
   // drop pip binaries, as they are 'bound' to absolute paths on host and will not work after pl package installation anyway
   fs.rmSync(path.join(pyBinRoot, 'Scripts'), { recursive: true });
 
+  // Also make python binary to be available via python3 name, like we have
+  // in Linux and Mac OS X (just for consistency).
+  fs.copyFileSync(
+    path.join(pyBinRoot, 'python.exe'),
+    path.join(pyBinRoot, 'python3.exe')
+  );
+
   // TODO: check this package really works as we expect. I did not test windows package yet
 }
 
@@ -368,7 +375,7 @@ async function consolidateLibsOSX(installDir) {
     buildFromSources(version, osType, archType, installDir);
   }
 
-  runCommand(path.join(installDir, 'bin', 'python3'), [
+  runCommand(path.join(installDir, 'bin', 'python'), [
     '-m',
     'pip',
     'install',

@@ -350,10 +350,13 @@ function downloadPackages(pyBin, dependenciesFile, destinationDir) {
   const depsContent = fs.readFileSync(dependenciesFile, 'utf-8');
   const lines = depsContent.split('\n');
 
-  // Filter out lines that start with '#'
-  const depsList = lines.filter((line) => !line.trim().startsWith('#'));
-
   for (const depSpec of depsList) {
+    const depSpecClean = depSpec.trim()
+    if (depSpecClean.startsWith('#') || !depSpecClean) {
+      // Skip comments and empty lines
+      continue
+    }
+
     runCommand(pyBin, [
       '-m',
       'pip',

@@ -351,10 +351,10 @@ function downloadPackages(pyBin, dependenciesFile, destinationDir) {
   const depsList = depsContent.split('\n');
 
   for (const depSpec of depsList) {
-    const depSpecClean = depSpec.trim()
+    const depSpecClean = depSpec.trim();
     if (depSpecClean.startsWith('#') || !depSpecClean) {
       // Skip comments and empty lines
-      continue
+      continue;
     }
 
     runCommand(pyBin, [

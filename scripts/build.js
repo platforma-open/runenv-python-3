@@ -346,6 +346,27 @@ async function consolidateLibsOSX(installDir) {
   }
 }
 
+function downloadPackages(dependenciesFile, destinationDir) {
+  const depsContent = fs.readFileSync(dependenciesFile, 'utf-8');
+  const lines = depsContent.split('\n');
+
+  // Filter out lines that start with '#'
+  const depsList = lines.filter((line) => !line.trim().startsWith('#'));
+
+  for (const depSpec of depsList) {
+    runCommand(path.join(installDir, 'bin', 'python'), [
+      '-m',
+      'pip',
+      'download',
+      depSpec.trim(),
+      '--only-binary',
+      ':all:',
+      '--dest',
+      destinationDir
+    ]);
+  }
+}
+
 /*
  * Script body
  */
@@ -375,13 +396,10 @@ async function consolidateLibsOSX(installDir) {
     buildFromSources(version, osType, archType, installDir);
   }
 
-  runCommand(path.join(installDir, 'bin', 'python'), [
-    '-m',
-    'pip',
-    'install',
-    '-r',
-    path.join(packageRoot, 'requirements.txt')
-  ]);
+  const packagesDir = path.join(installDir, 'packages');
+  const dependenciesFile = path.join(packageRoot, 'requirements.txt');
+
+  downloadPackages(dependenciesFile, packagesDir);
 
   runCommand('pl-pkg', ['build', 'packages', `--package-id=${version}`]);
 })();

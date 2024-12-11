@@ -1,0 +1,10 @@
+# This file supports comments, if you need.
+#
+# It looks like regular python requirements.txt, but it is not: 
+# regular requirements.txt does not allow to specify several versions of the same package,
+# while this file does. The build script iterates this file line-by-line and requests pip to download
+# pacakges, specified here.
+# Put packages and version specifiers the same way you usually do for `pip install` command and keep
+# in mind, that the version number here
+pandas==2.2.3
+pandas==2.2.1

@@ -346,7 +346,7 @@ async function consolidateLibsOSX(installDir) {
   }
 }
 
-function downloadPackages(dependenciesFile, destinationDir) {
+function downloadPackages(pyBin, dependenciesFile, destinationDir) {
   const depsContent = fs.readFileSync(dependenciesFile, 'utf-8');
   const lines = depsContent.split('\n');
 
@@ -354,7 +354,7 @@ function downloadPackages(dependenciesFile, destinationDir) {
   const depsList = lines.filter((line) => !line.trim().startsWith('#'));
 
   for (const depSpec of depsList) {
-    runCommand(path.join(installDir, 'bin', 'python'), [
+    runCommand(pyBin, [
       '-m',
       'pip',
       'download',
@@ -396,10 +396,11 @@ function downloadPackages(dependenciesFile, destinationDir) {
     buildFromSources(version, osType, archType, installDir);
   }
 
+  const pyBin = path.join(installDir, 'bin', 'python');
   const packagesDir = path.join(installDir, 'packages');
   const dependenciesFile = path.join(packageRoot, 'packages.txt');
 
-  downloadPackages(dependenciesFile, packagesDir);
+  downloadPackages(pyBin, dependenciesFile, packagesDir);
 
   runCommand('pl-pkg', ['build', 'packages', `--package-id=${version}`]);
 })();

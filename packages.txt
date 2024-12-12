@@ -8,3 +8,4 @@
 # in mind, that the version number here
 pandas==2.2.3
 pandas==2.2.1
+msgspec==0.18.6

@@ -31,6 +31,15 @@ jobs:
 
       python-version: '3.12'
 
+      matrix: |
+        [
+            {"os":"windows-latest", "arch":"amd64"},
+            {"os":"rockylinux8-amd64", "arch":"amd64"},
+            {"os":"rockylinux8-arm64", "arch":"arm64"},
+            {"os":"macos-13", "arch":"amd64"},
+            {"os":"macos-14", "arch":"arm64"}
+        ]
+
       build-artifacts: |
         pydist/*/*
         pkg-*.tgz

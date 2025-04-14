@@ -10,4 +10,6 @@ pandas==2.2.3
 pandas==2.2.1
 msgspec==0.18.6
 polars-lts-cpu==1.23.0
+polars-lts-cpu==1.27.1
+polars-hash==0.5.2
 RapidFuzz==3.12.1

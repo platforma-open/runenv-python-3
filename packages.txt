@@ -13,3 +13,7 @@ polars-lts-cpu==1.23.0
 polars-lts-cpu==1.27.1
 polars-hash==0.5.2
 RapidFuzz==3.12.1
+numpy==1.26.4
+scipy==1.14.0
+scikit-learn==1.5.0
+parasail==1.3.4

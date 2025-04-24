@@ -80,7 +80,7 @@ function currentArch() {
   return os.arch();
 }
 
-function runCommand(command, args) {
+function runCommand(command, args, custom_options) {
   console.log(`running: '${[command, ...args].join("' '")}'...`);
 
   if (currentOS() === os_windows) {
@@ -88,9 +88,11 @@ function runCommand(command, args) {
     command = 'cmd';
   }
 
-  const result = cp.spawnSync(command, args, {
+  const options = { ...{
     stdio: 'inherit'
-  });
+  }, ...custom_options };
+
+  const result = cp.spawnSync(command, args, options);
 
   if (result.error) {
     throw result.error;
@@ -100,6 +102,8 @@ function runCommand(command, args) {
     throw new Error(`command exited with non-zero exit code ${result.status}`);
   }
 }
+
+
 
 function checkDescriptor(version) {
   const entrypointPath = path.join(
@@ -358,6 +362,18 @@ function downloadPackages(pyBin, dependenciesFile, destinationDir, osType, archT
     }
 
     if (archType === arch_aarch64 && depSpecClean.startsWith('parasail')) {
+        runCommand(
+            'git',
+            'clone',
+            'https://github.com/jeffdaily/parasail-python.git',
+        )
+        const dir = path.join(__dirname, './parasail-python');
+        runCommand(pyBin, [
+            'setup.py',
+            'bdist_wheel',
+        ], {
+            cwd: dir
+        });
       continue;
     }
 

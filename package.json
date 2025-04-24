@@ -19,7 +19,7 @@
             "type": "environment",
             "runtime": "python",
             "registry": "platforma-open",
-            "version": "3.12.6-10",
+            "version": "3.12.6-11",
             "roots": {
               "linux-x64": "./pydist/v3.12.6/linux-x64/",
               "linux-aarch64": "./pydist/v3.12.6/linux-aarch64/",

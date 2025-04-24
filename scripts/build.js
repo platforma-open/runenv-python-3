@@ -346,7 +346,7 @@ async function consolidateLibsOSX(installDir) {
   }
 }
 
-function downloadPackages(pyBin, dependenciesFile, destinationDir) {
+function downloadPackages(pyBin, dependenciesFile, destinationDir, osType) {
   const depsContent = fs.readFileSync(dependenciesFile, 'utf-8');
   const depsList = depsContent.split('\n');
 
@@ -354,6 +354,10 @@ function downloadPackages(pyBin, dependenciesFile, destinationDir) {
     const depSpecClean = depSpec.trim();
     if (depSpecClean.startsWith('#') || !depSpecClean) {
       // Skip comments and empty lines
+      continue;
+    }
+
+    if (osType === os_macosx && depSpecClean.startsWith('parasail')) {
       continue;
     }
 
@@ -403,7 +407,6 @@ function downloadPackages(pyBin, dependenciesFile, destinationDir) {
   const packagesDir = path.join(installDir, 'packages');
   const dependenciesFile = path.join(packageRoot, 'packages.txt');
 
-  downloadPackages(pyBin, dependenciesFile, packagesDir);
-
+  downloadPackages(pyBin, dependenciesFile, packagesDir, osType);
   runCommand('pl-pkg', ['build', 'packages', `--package-id=${version}`]);
 })();

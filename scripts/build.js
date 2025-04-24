@@ -236,6 +236,7 @@ import site
   );
 
   runCommand(path.join(pyBinRoot, 'python.exe'), [pipFile, 'install', 'pip']);
+  runCommand(path.join(pyBinRoot, 'python.exe'), [pipFile, 'install', '-m', 'venv']);
   // drop pip binaries, as they are 'bound' to absolute paths on host and will not work after pl package installation anyway
   fs.rmSync(path.join(pyBinRoot, 'Scripts'), { recursive: true });
 

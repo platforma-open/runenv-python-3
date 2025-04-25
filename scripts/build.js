@@ -219,13 +219,6 @@ async function getPortableWindows(version, archType, installDir) {
   await downloadFile(pipUrl, pipFile);
   await unzipFile(pythonZipFile, pyBinRoot);
 
-  const virtualenvUrl = 'https://bootstrap.pypa.io/virtualenv/virtualenv.pyz';
-  const virtualenvName = 'virtualenv.pyz';
-  const virtualenvFile = path.join(packageDist, virtualenvName);
-
-  await downloadFile(virtualenvUrl, virtualenvFile);
-  await unzipFile(pythonZipFile, pyBinRoot);
-
   const [major, minor] = version.split('.');
   const pyName = `python${major}${minor}`;
 
@@ -253,6 +246,13 @@ import site
   fs.copyFileSync(
     path.join(pyBinRoot, 'python.exe'),
     path.join(pyBinRoot, 'python3.exe'),
+  );
+
+  // We have to support the same tool set for all operation systems.
+  // Will rename virtualenv to venv. 
+  copyDirSync(
+      path.join(pyBinRoot, 'Lib', 'site-packages', 'virtualenv'),
+      path.join(pyBinRoot, 'Lib', 'site-packages', 'venv')
   );
 
   // TODO: check this package really works as we expect. I did not test windows package yet
@@ -380,6 +380,25 @@ function downloadPackages(pyBin, dependenciesFile, destinationDir, osType, archT
       '--dest',
       destinationDir
     ]);
+  }
+}
+
+function copyDirSync(src, dest) {
+  if (!fs.existsSync(dest)) {
+    fs.mkdirSync(dest, { recursive: true });
+  }
+
+  const entries = fs.readdirSync(src, { withFileTypes: true });
+
+  for (let entry of entries) {
+    const srcPath = path.join(src, entry.name);
+    const destPath = path.join(dest, entry.name);
+
+    if (entry.isDirectory()) {
+      copyDirSync(srcPath, destPath); // recursive copy
+    } else {
+      fs.copyFileSync(srcPath, destPath); // copy file
+    }
   }
 }
 

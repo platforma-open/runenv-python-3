@@ -20,7 +20,7 @@ jobs:
     needs:
       - init
 
-    uses: milaboratory/github-ci/.github/workflows/node-matrix.yaml@test
+    uses: milaboratory/github-ci/.github/workflows/node-matrix.yaml@v4-beta
     with:
       app-name: Python 3 PL package
       app-name-slug: 'runenv-python-3'
@@ -33,7 +33,11 @@ jobs:
 
       matrix: |
         [
-            {"os":"windows-latest", "arch":"amd64"}
+            {"os":"windows-latest", "arch":"amd64"},
+            {"os":"ubuntu-large-amd64", "arch":"amd64"},
+            {"os":"ubuntu-large-arm64", "arch":"arm64"},
+            {"os":"macos-13", "arch":"amd64"},
+            {"os":"macos-14", "arch":"arm64"}
         ]
 
       build-artifacts: |
@@ -46,7 +50,7 @@ jobs:
         pydist/**/bin/python
         pydist/**/bin/python3
         pydist/**/bin/pip
-        pydist/**/bin/virtualenv
+        pydist/**/bin/venv
         pydist/**/bin/pip3
 
       # pydist/3.12.6/macosx-x64/<python package root>

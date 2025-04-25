@@ -33,11 +33,7 @@ jobs:
 
       matrix: |
         [
-            {"os":"windows-latest", "arch":"amd64"},
-            {"os":"ubuntu-large-amd64", "arch":"amd64"},
-            {"os":"ubuntu-large-arm64", "arch":"arm64"},
-            {"os":"macos-13", "arch":"amd64"},
-            {"os":"macos-14", "arch":"arm64"}
+            {"os":"windows-latest", "arch":"amd64"}
         ]
 
       build-artifacts: |
@@ -50,6 +46,7 @@ jobs:
         pydist/**/bin/python
         pydist/**/bin/python3
         pydist/**/bin/pip
+        pydist/**/bin/virtualenv
         pydist/**/bin/pip3
 
       # pydist/3.12.6/macosx-x64/<python package root>

@@ -209,6 +209,7 @@ async function getPortableWindows(version, archType, installDir) {
   const archiveName = `python-${version}-embed-amd64.zip`;
   const pythonZipFile = path.join(packageDist, archiveName);
   const pythonZipUrl = `https://www.python.org/ftp/python/${version}/${archiveName}`;
+
   const pipUrl = 'https://bootstrap.pypa.io/pip/pip.pyz';
   const pipName = 'pip.pyz';
   const pipFile = path.join(packageDist, pipName);
@@ -216,6 +217,13 @@ async function getPortableWindows(version, archType, installDir) {
 
   await downloadFile(pythonZipUrl, pythonZipFile);
   await downloadFile(pipUrl, pipFile);
+  await unzipFile(pythonZipFile, pyBinRoot);
+
+  const virtualenvUrl = 'https://bootstrap.pypa.io/virtualenv/virtualenv.pyz';
+  const virtualenvName = 'virtualenv.pyz';
+  const virtualenvFile = path.join(packageDist, virtualenvName);
+
+  await downloadFile(virtualenvUrl, virtualenvFile);
   await unzipFile(pythonZipFile, pyBinRoot);
 
   const [major, minor] = version.split('.');
@@ -236,7 +244,7 @@ import site
   );
 
   runCommand(path.join(pyBinRoot, 'python.exe'), [pipFile, 'install', 'pip']);
-  runCommand(path.join(pyBinRoot, 'python.exe'), [pipFile, 'install', '-m', 'venv']);
+  runCommand(path.join(pyBinRoot, 'python.exe'), [pipFile, 'install', 'virtualenv']);
   // drop pip binaries, as they are 'bound' to absolute paths on host and will not work after pl package installation anyway
   fs.rmSync(path.join(pyBinRoot, 'Scripts'), { recursive: true });
 
@@ -244,7 +252,7 @@ import site
   // in Linux and Mac OS X (just for consistency).
   fs.copyFileSync(
     path.join(pyBinRoot, 'python.exe'),
-    path.join(pyBinRoot, 'python3.exe')
+    path.join(pyBinRoot, 'python3.exe'),
   );
 
   // TODO: check this package really works as we expect. I did not test windows package yet

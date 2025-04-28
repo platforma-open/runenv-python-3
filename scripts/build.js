@@ -209,6 +209,7 @@ async function getPortableWindows(version, archType, installDir) {
   const archiveName = `python-${version}-embed-amd64.zip`;
   const pythonZipFile = path.join(packageDist, archiveName);
   const pythonZipUrl = `https://www.python.org/ftp/python/${version}/${archiveName}`;
+
   const pipUrl = 'https://bootstrap.pypa.io/pip/pip.pyz';
   const pipName = 'pip.pyz';
   const pipFile = path.join(packageDist, pipName);
@@ -236,6 +237,7 @@ import site
   );
 
   runCommand(path.join(pyBinRoot, 'python.exe'), [pipFile, 'install', 'pip']);
+  runCommand(path.join(pyBinRoot, 'python.exe'), [pipFile, 'install', 'virtualenv']);
   // drop pip binaries, as they are 'bound' to absolute paths on host and will not work after pl package installation anyway
   fs.rmSync(path.join(pyBinRoot, 'Scripts'), { recursive: true });
 
@@ -243,7 +245,14 @@ import site
   // in Linux and Mac OS X (just for consistency).
   fs.copyFileSync(
     path.join(pyBinRoot, 'python.exe'),
-    path.join(pyBinRoot, 'python3.exe')
+    path.join(pyBinRoot, 'python3.exe'),
+  );
+
+  // We have to support the same tool set for all operation systems.
+  // Will rename virtualenv to venv. 
+  copyDirSync(
+      path.join(pyBinRoot, 'Lib', 'site-packages', 'virtualenv'),
+      path.join(pyBinRoot, 'Lib', 'site-packages', 'venv')
   );
 
   // TODO: check this package really works as we expect. I did not test windows package yet
@@ -371,6 +380,25 @@ function downloadPackages(pyBin, dependenciesFile, destinationDir, osType, archT
       '--dest',
       destinationDir
     ]);
+  }
+}
+
+function copyDirSync(src, dest) {
+  if (!fs.existsSync(dest)) {
+    fs.mkdirSync(dest, { recursive: true });
+  }
+
+  const entries = fs.readdirSync(src, { withFileTypes: true });
+
+  for (let entry of entries) {
+    const srcPath = path.join(src, entry.name);
+    const destPath = path.join(dest, entry.name);
+
+    if (entry.isDirectory()) {
+      copyDirSync(srcPath, destPath); // recursive copy
+    } else {
+      fs.copyFileSync(srcPath, destPath); // copy file
+    }
   }
 }
 

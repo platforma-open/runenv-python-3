@@ -50,6 +50,7 @@ jobs:
         pydist/**/bin/python
         pydist/**/bin/python3
         pydist/**/bin/pip
+        pydist/**/bin/venv
         pydist/**/bin/pip3
 
       # pydist/3.12.6/macosx-x64/<python package root>

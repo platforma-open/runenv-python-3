@@ -20,7 +20,7 @@ jobs:
     needs:
       - init
 
-    uses: milaboratory/github-ci/.github/workflows/node-matrix.yaml@v4-beta
+    uses: milaboratory/github-ci/.github/workflows/node-matrix.yaml@v4
     with:
       app-name: Python 3 PL package
       app-name-slug: 'runenv-python-3'

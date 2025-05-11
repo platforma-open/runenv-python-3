@@ -223,14 +223,14 @@ async function getPortableWindows(version, archType, installDir) {
   const pyName = `python${major}${minor}`;
 
   const stdLibArchive = path.join(pyBinRoot, `${pyName}.zip`);
-  const stdLibPath = path.join(pyBinRoot, pyName);
+  const stdLibPath = path.join(pyBinRoot, "python_stdlib");
   await unzipFile(stdLibArchive, stdLibPath);
   fs.rmSync(stdLibArchive);
 
   fs.writeFileSync(
     path.join(pyBinRoot, `${pyName}._pth`),
     `
-python312
+python_stdlib
 .
 import site
 `
@@ -254,8 +254,6 @@ import site
       path.join(pyBinRoot, 'Lib', 'site-packages', 'virtualenv'),
       path.join(pyBinRoot, 'Lib', 'site-packages', 'venv')
   );
-
-  // TODO: check this package really works as we expect. I did not test windows package yet
 }
 
 async function isBinaryOSX(filePath) {

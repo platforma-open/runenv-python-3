@@ -7,20 +7,13 @@
 # Put packages and version specifiers the same way you usually do for `pip install` command and keep
 # in mind, that the version number here
 pandas==2.2.3
-pandas==2.2.1
-msgspec==0.18.6
-polars-lts-cpu==1.23.0
-polars-lts-cpu==1.27.1
-polars-ds==0.9.0
+msgspec==0.19.0
 polars-lts-cpu==1.30.0
+polars-ds==0.9.0
 polars-hash==0.5.4
-RapidFuzz==3.12.1
-numpy==1.26.4
-scipy==1.14.0
-scikit-learn==1.5.0
-parasail==1.3.4
-numpy==2.2.5
+scipy==1.15.3
 scikit-learn==1.6.1
-scipy==1.15.2
+parasail==1.3.4
+numpy==2.2.6
 umap-learn==0.5.7
 PyYAML==6.0.2

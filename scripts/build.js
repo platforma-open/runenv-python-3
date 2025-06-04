@@ -371,8 +371,8 @@ function downloadPackages(pyBin, dependenciesFile, destinationDir, osType, archT
     runCommand(pyBin, [
       '-m',
       'pip',
-      '--extra-index-url=https://pypi.nvidia.com',
       'download',
+      '--extra-index-url=https://pypi.nvidia.com',
       depSpec.trim(),
       '--only-binary',
       ':all:',

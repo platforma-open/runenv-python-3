@@ -1,0 +1,35 @@
+{
+  "skip": {
+    "cudf-cu12": {
+      "macosx-x64": "CUDA packages not supported on macOS",
+      "macosx-aarch64": "CUDA packages not supported on macOS", 
+      "windows-x64": "CUDA packages not supported on Windows"
+    },
+    "cupy-cuda12x": {
+      "macosx-x64": "CUDA packages not supported on macOS",
+      "macosx-aarch64": "CUDA packages not supported on macOS",
+      "windows-x64": "CUDA packages not supported on Windows"
+    }
+  },
+  "forceSource": {
+    "parasail": {
+      "linux-aarch64": "parasail has no binary wheels for Linux ARM64",
+      "macosx-aarch64": "parasail has no binary wheels for macOS ARM64"
+    },
+    "pynacl": {
+      "windows-x64": "pynacl often fails to build on Windows, prefer source"
+    }
+  },
+  "platformSpecific": {
+    "tensorflow": {
+      "linux-aarch64": {
+        "action": "skip",
+        "reason": "TensorFlow has limited ARM64 support"
+      },
+      "macosx-aarch64": {
+        "action": "forceSource", 
+        "reason": "TensorFlow ARM64 builds are experimental"
+      }
+    }
+  }
+} 

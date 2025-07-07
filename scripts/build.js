@@ -353,7 +353,7 @@ async function consolidateLibsOSX(installDir) {
   }
 }
 
-function downloadPackages(pyBin, dependenciesFile, destinationDir, osType, archType) {
+async function downloadPackages(pyBin, dependenciesFile, destinationDir, osType, archType) {
   const depsContent = fs.readFileSync(dependenciesFile, 'utf-8');
   const depsList = depsContent.split('\n');
 
@@ -364,21 +364,45 @@ function downloadPackages(pyBin, dependenciesFile, destinationDir, osType, archT
       continue;
     }
 
-    if (archType === arch_aarch64 && depSpecClean.startsWith('parasail')) {
-      continue;
+    console.log(`\nProcessing package: ${depSpecClean}`);
+    
+    try {
+      // First, try to download binary wheel
+      console.log(`  Attempting to download binary wheel...`);
+      runCommand(pyBin, [
+        '-m',
+        'pip',
+        'download',
+        '--extra-index-url=https://pypi.nvidia.com',
+        depSpecClean,
+        '--only-binary',
+        ':all:',
+        '--dest',
+        destinationDir
+      ]);
+      console.log(`  ✓ Successfully downloaded binary wheel for ${depSpecClean}`);
+    } catch (error) {
+      console.log(`  ✗ Binary wheel not available for ${depSpecClean}, building from source...`);
+      
+      // If binary wheel download fails, build from source
+      try {
+        runCommand(pyBin, [
+          '-m',
+          'pip',
+          'download',
+          '--extra-index-url=https://pypi.nvidia.com',
+          depSpecClean,
+          '--no-binary',
+          ':all:',
+          '--dest',
+          destinationDir
+        ]);
+        console.log(`  ✓ Successfully downloaded source for ${depSpecClean}`);
+      } catch (sourceError) {
+        console.error(`  ✗ Failed to download source for ${depSpecClean}: ${sourceError.message}`);
+        throw sourceError;
+      }
     }
-
-    runCommand(pyBin, [
-      '-m',
-      'pip',
-      'download',
-      '--extra-index-url=https://pypi.nvidia.com',
-      depSpec.trim(),
-      '--only-binary',
-      ':all:',
-      '--dest',
-      destinationDir
-    ]);
   }
 }
 
@@ -434,6 +458,6 @@ function copyDirSync(src, dest) {
   const packagesDir = path.join(installDir, 'packages');
   const dependenciesFile = path.join(packageRoot, 'packages.txt');
 
-  downloadPackages(pyBin, dependenciesFile, packagesDir, osType, archType);
+  await downloadPackages(pyBin, dependenciesFile, packagesDir, osType, archType);
   runCommand('pl-pkg', ['build', 'packages', `--package-id=${version}`]);
 })();

@@ -5,10 +5,15 @@
  */
 const args = process.argv.slice(2);
 
-if (args.length !== 1) {
-  console.error(`Usage: ${process.argv[0]} <version>`);
+if (args.length < 1 || args.length > 2) {
+  console.error(`Usage: ${process.argv[0]} <version> [extra-index-urls]`);
+  console.error('  extra-index-urls: Comma-separated list of additional PyPI index URLs');
+  console.error('  Example: node build.js 3.12.6 "https://pypi.org/simple/,https://custom.pypi.org/simple/"');
   process.exit(1);
 }
+
+const version = args[0];
+const extraIndexUrls = args[1] ? args[1].split(',').map(url => url.trim()) : [];
 
 const cp = require('child_process');
 const { promisify } = require('util');
@@ -35,6 +40,24 @@ const os_windows = 'windows';
 // supported architectures
 const arch_x64 = 'x64';
 const arch_aarch64 = 'aarch64';
+
+// Load package exceptions configuration
+let PACKAGE_EXCEPTIONS = {
+  skip: {},
+  forceSource: {},
+  platformSpecific: {}
+};
+
+try {
+  const exceptionsPath = path.join(packageRoot, 'package-exceptions.json');
+  if (fs.existsSync(exceptionsPath)) {
+    PACKAGE_EXCEPTIONS = JSON.parse(fs.readFileSync(exceptionsPath, 'utf-8'));
+    console.log('Loaded package exceptions configuration');
+  }
+} catch (error) {
+  console.warn('Failed to load package exceptions configuration:', error.message);
+  // Fall back to default empty configuration
+}
 
 /*
  * Function definitions
@@ -353,7 +376,83 @@ async function consolidateLibsOSX(installDir) {
   }
 }
 
-function downloadPackages(pyBin, dependenciesFile, destinationDir, osType, archType) {
+function getPackageName(packageSpec) {
+  // Extract package name from spec (e.g., "parasail==1.3.4" -> "parasail")
+  return packageSpec.split(/[<>=!]/)[0].trim();
+}
+
+function shouldSkipPackage(packageName, osType, archType) {
+  const platformKey = `${osType}-${archType}`;
+  
+  // Check simple skip configuration
+  const skipConfig = PACKAGE_EXCEPTIONS.skip[packageName];
+  if (skipConfig && skipConfig[platformKey]) {
+    console.log(`  ⚠️  Skipping ${packageName} for ${platformKey}: ${skipConfig[platformKey]}`);
+    return true;
+  }
+  
+  // Check platform-specific configuration
+  const platformConfig = PACKAGE_EXCEPTIONS.platformSpecific[packageName];
+  if (platformConfig && platformConfig[platformKey]) {
+    const action = platformConfig[platformKey].action;
+    const reason = platformConfig[platformKey].reason;
+    
+    if (action === 'skip') {
+      console.log(`  ⚠️  Skipping ${packageName} for ${platformKey}: ${reason}`);
+      return true;
+    }
+  }
+  
+  return false;
+}
+
+function shouldForceSource(packageName, osType, archType) {
+  const platformKey = `${osType}-${archType}`;
+  
+  // Check simple forceSource configuration
+  const forceSourceConfig = PACKAGE_EXCEPTIONS.forceSource[packageName];
+  if (forceSourceConfig && forceSourceConfig[platformKey]) {
+    console.log(`  ℹ️  Forcing source build for ${packageName} on ${platformKey}: ${forceSourceConfig[platformKey]}`);
+    return true;
+  }
+  
+  // Check platform-specific configuration
+  const platformConfig = PACKAGE_EXCEPTIONS.platformSpecific[packageName];
+  if (platformConfig && platformConfig[platformKey]) {
+    const action = platformConfig[platformKey].action;
+    const reason = platformConfig[platformKey].reason;
+    
+    if (action === 'forceSource') {
+      console.log(`  ℹ️  Forcing source build for ${packageName} on ${platformKey}: ${reason}`);
+      return true;
+    }
+  }
+  
+  return false;
+}
+
+function buildPipArgs(packageSpec, destinationDir, extraIndexUrls = []) {
+  const args = [
+    '-m',
+    'pip',
+    'download',
+    packageSpec,
+    '--dest',
+    destinationDir
+  ];
+  
+  // Add default NVIDIA index
+  args.push('--extra-index-url=https://pypi.nvidia.com');
+  
+  // Add additional index URLs
+  for (const url of extraIndexUrls) {
+    args.push('--extra-index-url=' + url);
+  }
+  
+  return args;
+}
+
+async function downloadPackages(pyBin, dependenciesFile, destinationDir, osType, archType, extraIndexUrls = []) {
   const depsContent = fs.readFileSync(dependenciesFile, 'utf-8');
   const depsList = depsContent.split('\n');
 
@@ -364,21 +463,52 @@ function downloadPackages(pyBin, dependenciesFile, destinationDir, osType, archT
       continue;
     }
 
-    if (archType === arch_aarch64 && depSpecClean.startsWith('parasail')) {
+    const packageName = getPackageName(depSpecClean);
+    console.log(`\nProcessing package: ${depSpecClean}`);
+    
+    // Check if package should be skipped for this platform
+    if (shouldSkipPackage(packageName, osType, archType)) {
       continue;
     }
-
-    runCommand(pyBin, [
-      '-m',
-      'pip',
-      'download',
-      '--extra-index-url=https://pypi.nvidia.com',
-      depSpec.trim(),
-      '--only-binary',
-      ':all:',
-      '--dest',
-      destinationDir
-    ]);
+    
+    // Check if package should be forced to build from source
+    const forceSource = shouldForceSource(packageName, osType, archType);
+    
+    if (forceSource) {
+      // Skip binary wheel attempt and go straight to source
+      console.log(`  Building from source (forced)...`);
+      try {
+        const pipArgs = buildPipArgs(depSpecClean, destinationDir, extraIndexUrls);
+        pipArgs.push('--no-binary', ':all:');
+        runCommand(pyBin, pipArgs);
+        console.log(`  ✓ Successfully downloaded source for ${depSpecClean}`);
+      } catch (sourceError) {
+        console.error(`  ✗ Failed to download source for ${depSpecClean}: ${sourceError.message}`);
+        throw sourceError;
+      }
+    } else {
+      // Try binary wheel first, then fall back to source
+      try {
+        console.log(`  Attempting to download binary wheel...`);
+        const pipArgs = buildPipArgs(depSpecClean, destinationDir, extraIndexUrls);
+        pipArgs.push('--only-binary', ':all:');
+        runCommand(pyBin, pipArgs);
+        console.log(`  ✓ Successfully downloaded binary wheel for ${depSpecClean}`);
+      } catch (error) {
+        console.log(`  ✗ Binary wheel not available for ${depSpecClean}, building from source...`);
+        
+        // If binary wheel download fails, build from source
+        try {
+          const pipArgs = buildPipArgs(depSpecClean, destinationDir, extraIndexUrls);
+          pipArgs.push('--no-binary', ':all:');
+          runCommand(pyBin, pipArgs);
+          console.log(`  ✓ Successfully downloaded source for ${depSpecClean}`);
+        } catch (sourceError) {
+          console.error(`  ✗ Failed to download source for ${depSpecClean}: ${sourceError.message}`);
+          throw sourceError;
+        }
+      }
+    }
   }
 }
 
@@ -406,7 +536,6 @@ function copyDirSync(src, dest) {
  */
 
 (async () => {
-  const version = args[0];
   const osType = currentOS();
   const archType = currentArch();
   const installDir = path.join(
@@ -434,6 +563,10 @@ function copyDirSync(src, dest) {
   const packagesDir = path.join(installDir, 'packages');
   const dependenciesFile = path.join(packageRoot, 'packages.txt');
 
-  downloadPackages(pyBin, dependenciesFile, packagesDir, osType, archType);
+  if (extraIndexUrls.length > 0) {
+    console.log(`\nUsing additional PyPI index URLs: ${extraIndexUrls.join(', ')}`);
+  }
+
+  await downloadPackages(pyBin, dependenciesFile, packagesDir, osType, archType, extraIndexUrls);
   runCommand('pl-pkg', ['build', 'packages', `--package-id=${version}`]);
 })();

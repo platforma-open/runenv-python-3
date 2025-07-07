@@ -9,6 +9,29 @@ As we do not maintain/build our own java, the version of this package is not bou
 specific version of python, but newer python version publications produce newer entrypoints
 in this package.
 
+## Package Management
+
+The build system automatically handles package installation with intelligent fallback:
+- First attempts to download binary wheels from PyPI
+- Falls back to building from source if binary wheels are unavailable
+- Supports platform-specific exceptions for packages with limited platform support
+- Supports additional PyPI index URLs for custom package sources
+
+### Usage
+
+```bash
+# Basic build
+npm run build
+
+# Build with additional PyPI index URLs
+node ./scripts/build.js 3.12.6 "https://custom.pypi.org/simple/,https://another.pypi.org/simple/"
+
+# Build with single additional index
+node ./scripts/build.js 3.12.6 "https://custom.pypi.org/simple/"
+```
+
+See [PACKAGE_EXCEPTIONS.md](PACKAGE_EXCEPTIONS.md) for details on configuring package-specific behavior.
+
 ## How to release new version of python run environment
 
 1. Update `package.json`:

@@ -5,15 +5,14 @@
  */
 const args = process.argv.slice(2);
 
-if (args.length < 1 || args.length > 2) {
-  console.error(`Usage: ${process.argv[0]} <version> [extra-index-urls]`);
-  console.error('  extra-index-urls: Comma-separated list of additional PyPI index URLs');
-  console.error('  Example: node build.js 3.12.6 "https://pypi.org/simple/,https://custom.pypi.org/simple/"');
+if (args.length > 1) {
+  console.error(`Usage: ${process.argv[0]} <python-version>`);
+  console.error('  python-version: Python version to build (e.g., 3.12.10)');
+  console.error('  Example: node build.js 3.12.10');
   process.exit(1);
 }
 
-const version = args[0];
-const extraIndexUrls = args[1] ? args[1].split(',').map(url => url.trim()) : [];
+
 
 const cp = require('child_process');
 const { promisify } = require('util');
@@ -23,6 +22,8 @@ const tar = require('tar');
 const os = require('os');
 const { get } = require('https');
 const unzipper = require('unzipper');
+const { exit } = require('process');
+const { mergeConfig, validateConfig } = require('./config-merger');
 
 const exec = promisify(cp.exec);
 
@@ -30,7 +31,6 @@ const exec = promisify(cp.exec);
  * Init script state
  */
 const packageRoot = path.relative(process.cwd(), path.resolve(__dirname, '..'));
-const packageDist = path.join(packageRoot, 'pydist');
 
 // supported OSes
 const os_macosx = 'macosx';
@@ -41,23 +41,30 @@ const os_windows = 'windows';
 const arch_x64 = 'x64';
 const arch_aarch64 = 'aarch64';
 
-// Load package exceptions configuration
-let PACKAGE_EXCEPTIONS = {
-  skip: {},
-  forceSource: {},
-  platformSpecific: {}
-};
+// Get Python version from command line arguments
+const pythonVersion = args[0];
 
-try {
-  const exceptionsPath = path.join(packageRoot, 'package-exceptions.json');
-  if (fs.existsSync(exceptionsPath)) {
-    PACKAGE_EXCEPTIONS = JSON.parse(fs.readFileSync(exceptionsPath, 'utf-8'));
-    console.log('Loaded package exceptions configuration');
-  }
-} catch (error) {
-  console.warn('Failed to load package exceptions configuration:', error.message);
-  // Fall back to default empty configuration
+if (!pythonVersion) {
+  console.error('Usage: node build.js <python-version>');
+  console.error('Example: node build.js 3.12.10');
+  process.exit(1);
 }
+
+// Load and merge configuration
+let config;
+try {
+  config = mergeConfig(pythonVersion);
+  validateConfig(pythonVersion, config);
+} catch (error) {
+  console.error('Configuration error:', error.message);
+  process.exit(1);
+}
+
+console.log(`Building Python ${pythonVersion} with configuration:`);
+console.log(`- Dependencies: ${config.packages.dependencies.length} packages`);
+
+// Ensure software descriptors are up-to-date before building
+runCommand('pl-pkg', ['build', 'descriptors']);
 
 /*
  * Function definitions
@@ -124,27 +131,6 @@ function runCommand(command, args) {
   }
 }
 
-function checkDescriptor(version) {
-  const entrypointPath = path.join(
-    packageRoot,
-    'dist',
-    'tengo',
-    'software',
-    `${version}.sw.json`
-  );
-
-  if (!fs.existsSync(entrypointPath)) {
-    console.log(`
-  No software descriptor found at '${entrypointPath}'.
-
-  Looks like you're going to publish new version of python.
-  See README.md for the instructions on how to do this properly.
-  `);
-
-    exit(1);
-  }
-}
-
 function detectTarGzArchive(searchDir) {
   const files = fs.readdirSync(searchDir);
   for (const file of files) {
@@ -173,7 +159,13 @@ function buildFromSources(version, osType, archType, installDir) {
   const archiveDir = 'dist'; // portable-python always creates python archive in 'dist' dir
   const tarGzName = detectTarGzArchive(archiveDir);
 
-  const tarGzPath = path.join(packageDist, tarGzName);
+  // Create version-specific pydist directory
+  const versionPydist = path.join(packageRoot, `python-${version}`, 'pydist');
+  if (!fs.existsSync(versionPydist)) {
+    fs.mkdirSync(versionPydist, { recursive: true });
+  }
+
+  const tarGzPath = path.join(versionPydist, tarGzName);
   fs.renameSync(path.join(archiveDir, tarGzName), tarGzPath);
 
   untarPythonArchive(tarGzPath, packageRoot, version);
@@ -385,14 +377,14 @@ function shouldSkipPackage(packageName, osType, archType) {
   const platformKey = `${osType}-${archType}`;
   
   // Check simple skip configuration
-  const skipConfig = PACKAGE_EXCEPTIONS.skip[packageName];
+  const skipConfig = config.packages.skip[packageName];
   if (skipConfig && skipConfig[platformKey]) {
     console.log(`  ⚠️  Skipping ${packageName} for ${platformKey}: ${skipConfig[platformKey]}`);
     return true;
   }
   
   // Check platform-specific configuration
-  const platformConfig = PACKAGE_EXCEPTIONS.platformSpecific[packageName];
+  const platformConfig = config.packages.platformSpecific[packageName];
   if (platformConfig && platformConfig[platformKey]) {
     const action = platformConfig[platformKey].action;
     const reason = platformConfig[platformKey].reason;
@@ -410,14 +402,14 @@ function shouldForceSource(packageName, osType, archType) {
   const platformKey = `${osType}-${archType}`;
   
   // Check simple forceSource configuration
-  const forceSourceConfig = PACKAGE_EXCEPTIONS.forceSource[packageName];
+  const forceSourceConfig = config.packages.forceSource[packageName];
   if (forceSourceConfig && forceSourceConfig[platformKey]) {
     console.log(`  ℹ️  Forcing source build for ${packageName} on ${platformKey}: ${forceSourceConfig[platformKey]}`);
     return true;
   }
   
   // Check platform-specific configuration
-  const platformConfig = PACKAGE_EXCEPTIONS.platformSpecific[packageName];
+  const platformConfig = config.packages.platformSpecific[packageName];
   if (platformConfig && platformConfig[platformKey]) {
     const action = platformConfig[platformKey].action;
     const reason = platformConfig[platformKey].reason;
@@ -431,7 +423,7 @@ function shouldForceSource(packageName, osType, archType) {
   return false;
 }
 
-function buildPipArgs(packageSpec, destinationDir, extraIndexUrls = []) {
+function buildPipArgs(packageSpec, destinationDir) {
   const args = [
     '-m',
     'pip',
@@ -441,25 +433,22 @@ function buildPipArgs(packageSpec, destinationDir, extraIndexUrls = []) {
     destinationDir
   ];
   
-  // Add default NVIDIA index
-  args.push('--extra-index-url=https://pypi.nvidia.com');
-  
-  // Add additional index URLs
-  for (const url of extraIndexUrls) {
+  // Add all configured registries
+  const allRegistries = [...config.registries.default, ...config.registries.additional];
+  for (const url of allRegistries) {
     args.push('--extra-index-url=' + url);
   }
   
   return args;
 }
 
-async function downloadPackages(pyBin, dependenciesFile, destinationDir, osType, archType, extraIndexUrls = []) {
-  const depsContent = fs.readFileSync(dependenciesFile, 'utf-8');
-  const depsList = depsContent.split('\n');
+async function downloadPackages(pyBin, destinationDir, osType, archType) {
+  const depsList = config.packages.dependencies || [];
 
   for (const depSpec of depsList) {
     const depSpecClean = depSpec.trim();
-    if (depSpecClean.startsWith('#') || !depSpecClean) {
-      // Skip comments and empty lines
+    if (!depSpecClean) {
+      // Skip empty lines
       continue;
     }
 
@@ -478,7 +467,7 @@ async function downloadPackages(pyBin, dependenciesFile, destinationDir, osType,
       // Skip binary wheel attempt and go straight to source
       console.log(`  Building from source (forced)...`);
       try {
-        const pipArgs = buildPipArgs(depSpecClean, destinationDir, extraIndexUrls);
+        const pipArgs = buildPipArgs(depSpecClean, destinationDir);
         pipArgs.push('--no-binary', ':all:');
         runCommand(pyBin, pipArgs);
         console.log(`  ✓ Successfully downloaded source for ${depSpecClean}`);
@@ -490,7 +479,7 @@ async function downloadPackages(pyBin, dependenciesFile, destinationDir, osType,
       // Try binary wheel first, then fall back to source
       try {
         console.log(`  Attempting to download binary wheel...`);
-        const pipArgs = buildPipArgs(depSpecClean, destinationDir, extraIndexUrls);
+        const pipArgs = buildPipArgs(depSpecClean, destinationDir);
         pipArgs.push('--only-binary', ':all:');
         runCommand(pyBin, pipArgs);
         console.log(`  ✓ Successfully downloaded binary wheel for ${depSpecClean}`);
@@ -499,7 +488,7 @@ async function downloadPackages(pyBin, dependenciesFile, destinationDir, osType,
         
         // If binary wheel download fails, build from source
         try {
-          const pipArgs = buildPipArgs(depSpecClean, destinationDir, extraIndexUrls);
+          const pipArgs = buildPipArgs(depSpecClean, destinationDir);
           pipArgs.push('--no-binary', ':all:');
           runCommand(pyBin, pipArgs);
           console.log(`  ✓ Successfully downloaded source for ${depSpecClean}`);
@@ -538,35 +527,35 @@ function copyDirSync(src, dest) {
 (async () => {
   const osType = currentOS();
   const archType = currentArch();
+  
+  // Create version-specific pydist directory
+  const versionPydist = path.join(packageRoot, `python-${pythonVersion}`, 'pydist');
+  if (!fs.existsSync(versionPydist)) {
+    fs.mkdirSync(versionPydist, { recursive: true });
+  }
+  
   const installDir = path.join(
-    packageDist,
-    `v${version}`,
+    versionPydist,
     `${osType}-${archType}`
   );
 
-  checkDescriptor(version);
-
-  if (!fs.existsSync(packageDist)) {
-    fs.mkdirSync(packageDist, { recursive: true }); // create install dir and all its parents
-  }
-
   if (osType === os_windows) {
-    await getPortableWindows(version, archType, installDir);
+    await getPortableWindows(pythonVersion, archType, installDir);
   } else if (osType === os_macosx) {
-    buildFromSources(version, osType, archType, installDir);
+    buildFromSources(pythonVersion, osType, archType, installDir);
     await consolidateLibsOSX(installDir);
   } else {
-    buildFromSources(version, osType, archType, installDir);
+    buildFromSources(pythonVersion, osType, archType, installDir);
   }
 
   const pyBin = path.join(installDir, 'bin', 'python');
   const packagesDir = path.join(installDir, 'packages');
-  const dependenciesFile = path.join(packageRoot, 'packages.txt');
 
-  if (extraIndexUrls.length > 0) {
-    console.log(`\nUsing additional PyPI index URLs: ${extraIndexUrls.join(', ')}`);
-  }
+  // Log configured registries and packages
+  const allRegistries = [...config.registries.default, ...config.registries.additional];
+  console.log(`\nUsing PyPI registries: ${allRegistries.join(', ')}`);
+  console.log(`\nInstalling ${config.packages.dependencies.length} packages from configuration`);
 
-  await downloadPackages(pyBin, dependenciesFile, packagesDir, osType, archType, extraIndexUrls);
-  runCommand('pl-pkg', ['build', 'packages', `--package-id=${version}`]);
+  await downloadPackages(pyBin, packagesDir, osType, archType);
+  runCommand('pl-pkg', ['build', 'packages']);
 })();

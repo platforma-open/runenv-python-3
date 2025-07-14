@@ -1,5 +1,10 @@
-/build/
-/pydist/
-/node_modules/
+build/
+pydist/
+node_modules/
+dist/
+test-dry-run.json
+.turbo
+.cache/
 *.tar.gz
 *.tgz
+*.zip

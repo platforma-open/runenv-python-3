@@ -1,0 +1,34 @@
+{
+  "name": "@platforma-open/milaboratories.runenv-python-3",
+  "version": "1.1.17",
+  "description": "Python 3 run environments for Platforma Backend",
+  "scripts": {
+    "cleanup": "rm -rf ./pkg-*.tgz && rm -rf ./dist/",
+    "build": "pl-pkg build"
+  },
+  "block-software": {
+    "entrypoints": {
+      "3.12.10": {
+        "reference": "@platforma-open/milaboratories.runenv-python-3.12.10/dist/tengo/software/main.sw.json"
+      },
+      "3.11.8": {
+        "reference": "@platforma-open/milaboratories.runenv-python-3.11.9/dist/tengo/software/main.sw.json"
+      },
+      "3.10.13": {
+        "reference": "@platforma-open/milaboratories.runenv-python-3.10.18/dist/tengo/software/main.sw.json"
+      }
+    }
+  },
+  "files": [
+    "dist/"
+  ],
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@platforma-open/milaboratories.runenv-python-3.12.10": "workspace:*",
+    "@platforma-open/milaboratories.runenv-python-3.11.9": "workspace:*",
+    "@platforma-open/milaboratories.runenv-python-3.10.18": "workspace:*"
+  },
+  "devDependencies": {
+    "@platforma-sdk/package-builder": "catalog:"
+  }
+} 

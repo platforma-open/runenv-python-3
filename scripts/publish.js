@@ -41,34 +41,9 @@ function runCommand(command, args) {
   }
 }
 
-/*
- * Script body
- */
-
-const version = args[0];
-const entrypointPath = path.join(
-  packageRoot,
-  'dist',
-  'tengo',
-  'software',
-  `${version}.sw.json`
-);
-
-if (!fs.existsSync(entrypointPath)) {
-  console.log(`
-No software descriptor found at '${entrypointPath}'.
-
-Looks like you're going to publish new version of python.
-See README.md for the instructions on how to do this properly.
-`);
-
-  exit(1);
-}
-
 runCommand('pl-pkg', [
   'sign',
   'packages',
-  `--package-id=${version}`,
   '--all-platforms',
   `--sign-command=["gcloud-kms-sign", "{pkg}", "{pkg}.sig"]`
 ]);
@@ -76,7 +51,6 @@ runCommand('pl-pkg', [
 runCommand('pl-pkg', [
   'publish',
   'packages',
-  `--package-id=${version}`,
   '--force',
   '--all-platforms'
 ]);

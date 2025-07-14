@@ -1,0 +1,12 @@
+{
+  "packages": {
+    "dependencies": [],
+    "overrides": {},
+    "skip": {
+      "tensorflow": {
+        "linux-aarch64": "TensorFlow 2.15+ not compatible with Python 3.11 on ARM64",
+        "macosx-aarch64": "TensorFlow 2.15+ not compatible with Python 3.11 on ARM64"
+      }
+    }
+  }
+} 

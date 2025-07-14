@@ -5,13 +5,24 @@
     "build": {
       "inputs": ["$TURBO_DEFAULT$"],
       "outputs": ["./dist/**"],
-      "dependsOn": ["^build"]
+      "dependsOn": ["^build"],
+      "passThroughEnv": [
+        "PL_REGISTRY_PLATFORMA_OPEN_UPLOAD_URL",
+        "AWS_DEFAULT_REGION",
+        "AWS_ACCESS_KEY_ID",
+        "AWS_SECRET_ACCESS_KEY",
+        "AWS_SESSION_TOKEN"
+      ]
     },
     "postbuild-publish": {
-      "dependsOn": ["build", "^postbuild-publish"]
-    },
-    "upload-packages": {
-      "dependsOn": ["build", "^upload-packages"]
+      "dependsOn": ["build", "^postbuild-publish"],
+      "passThroughEnv": [
+        "PL_REGISTRY_PLATFORMA_OPEN_UPLOAD_URL",
+        "AWS_DEFAULT_REGION",
+        "AWS_ACCESS_KEY_ID",
+        "AWS_SECRET_ACCESS_KEY",
+        "AWS_SESSION_TOKEN"
+      ]
     }
   }
 }

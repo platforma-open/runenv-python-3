@@ -72,20 +72,20 @@ jobs:
         pkg-*.tgz
 
       sign-binaries: |
-        pydist/**/*.so
-        pydist/**/*.dylib
-        pydist/**/bin/python
-        pydist/**/bin/python3
-        pydist/**/bin/pip
-        pydist/**/bin/venv
-        pydist/**/bin/pip3
+        python-*/pydist/**/*.so
+        python-*/pydist/**/*.dylib
+        python-*/pydist/**/bin/python
+        python-*/pydist/**/bin/python3
+        python-*/pydist/**/bin/pip
+        python-*/pydist/**/bin/venv
+        python-*/pydist/**/bin/pip3
 
       # pydist/3.12.6/macosx-x64/<python package root>
       # Do not try to notarizr 'packages' directory with whl files, as whl is an archive and we
       # have to sign all .so files inside first to not tirgger notarisation errors
       notarize-paths: |
-        pydist/*/bin
-        pydist/*/lib
+        python-*/pydist/*/bin
+        python-*/pydist/*/lib
 
       # Python main get new .so files during dependencies installation.
       # We have to disable libraries validation to not break Python runtime.

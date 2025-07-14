@@ -1,10 +1,10 @@
 {
-  "name": "@platforma-open/milaboratories.runenv-python-3.10.18",
+  "name": "@platforma-open/milaboratories.runenv-python-3.10.11",
   "version": "1.0.0",
-  "description": "Python 3.10.18 run environment for Platforma Backend",
+  "description": "Python 3.10.11 run environment for Platforma Backend",
   "scripts": {
     "cleanup": "rm -rf ./pkg-*.tgz && rm -rf ./pydist && rm -rf ./dist/",
-    "build": "node ../scripts/build.js 3.10.18",
+    "build": "node ../scripts/build.js 3.10.11",
     "postbuild-publish": "pl-pkg publish packages --all-platforms --force"
   },
   "files": [

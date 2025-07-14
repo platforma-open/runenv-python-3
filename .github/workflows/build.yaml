@@ -32,6 +32,7 @@ jobs:
       test-script-name: 'test'
       pnpm-recursive-tests: false
       team-id: 'ciplopen-runenv-python-3'
+      aws-login-duration: 43199
 
       publish-to-public: 'true'
       package-path: 'catalogue'

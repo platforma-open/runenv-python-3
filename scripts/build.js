@@ -32,6 +32,9 @@ const exec = promisify(cp.exec);
  */
 const packageRoot = path.relative(process.cwd(), path.resolve(__dirname, '..'));
 
+// Define version-specific packageDist directory (will be set after pythonVersion is available)
+let packageDist;
+
 // supported OSes
 const os_macosx = 'macosx';
 const os_linux = 'linux';
@@ -48,6 +51,14 @@ if (!pythonVersion) {
   console.error('Usage: node build.js <python-version>');
   console.error('Example: node build.js 3.12.10');
   process.exit(1);
+}
+
+// Set version-specific packageDist directory
+packageDist = path.join(packageRoot, `python-${pythonVersion}`, 'pydist');
+
+// Ensure packageDist directory exists
+if (!fs.existsSync(packageDist)) {
+  fs.mkdirSync(packageDist, { recursive: true });
 }
 
 // Load and merge configuration

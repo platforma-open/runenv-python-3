@@ -2,8 +2,8 @@
   "name": "runenv-python-3",
   "scripts": {
     "cleanup": "pnpm -r cleanup",
-    "build": "turbo run build --force",
-    "postbuild-publish": "turbo run postbuild-publish",
+    "build": "turbo run build --force -vv",
+    "postbuild-publish": "turbo run postbuild-publish -vv",
     "test": "turbo run test",
     "test:dry-run": "turbo run test --dry-run=json",
     "changeset": "changeset",

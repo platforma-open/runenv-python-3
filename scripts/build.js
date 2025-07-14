@@ -75,7 +75,7 @@ console.log(`Building Python ${pythonVersion} with configuration:`);
 console.log(`- Dependencies: ${config.packages.dependencies.length} packages`);
 
 // Ensure software descriptors are up-to-date before building
-runCommand('pl-pkg', ['build', 'descriptors']);
+runCommand('npx', ['pl-pkg', 'build', 'descriptors']);
 
 /*
  * Function definitions
@@ -536,37 +536,62 @@ function copyDirSync(src, dest) {
  */
 
 (async () => {
-  const osType = currentOS();
-  const archType = currentArch();
-  
-  // Create version-specific pydist directory
-  const versionPydist = path.join(packageRoot, `python-${pythonVersion}`, 'pydist');
-  if (!fs.existsSync(versionPydist)) {
-    fs.mkdirSync(versionPydist, { recursive: true });
+  try {
+    console.log(`[DEBUG] Starting build for Python ${pythonVersion}`);
+    console.log(`[DEBUG] Current working directory: ${process.cwd()}`);
+    console.log(`[DEBUG] Package root: ${packageRoot}`);
+    
+    const osType = currentOS();
+    const archType = currentArch();
+    console.log(`[DEBUG] Detected OS: ${osType}, Arch: ${archType}`);
+    
+    // Create version-specific pydist directory
+    const versionPydist = path.join(packageRoot, `python-${pythonVersion}`, 'pydist');
+    console.log(`[DEBUG] Creating pydist directory: ${versionPydist}`);
+    if (!fs.existsSync(versionPydist)) {
+      fs.mkdirSync(versionPydist, { recursive: true });
+    }
+    
+    const installDir = path.join(
+      versionPydist,
+      `${osType}-${archType}`
+    );
+    console.log(`[DEBUG] Install directory: ${installDir}`);
+
+    console.log(`[DEBUG] Starting Python distribution build...`);
+    if (osType === os_windows) {
+      console.log(`[DEBUG] Building Windows distribution...`);
+      await getPortableWindows(pythonVersion, archType, installDir);
+    } else if (osType === os_macosx) {
+      console.log(`[DEBUG] Building macOS distribution...`);
+      buildFromSources(pythonVersion, osType, archType, installDir);
+      console.log(`[DEBUG] Consolidating macOS libraries...`);
+      await consolidateLibsOSX(installDir);
+    } else {
+      console.log(`[DEBUG] Building Linux distribution...`);
+      buildFromSources(pythonVersion, osType, archType, installDir);
+    }
+
+    const pyBin = path.join(installDir, 'bin', 'python');
+    const packagesDir = path.join(installDir, 'packages');
+    console.log(`[DEBUG] Python binary: ${pyBin}`);
+    console.log(`[DEBUG] Packages directory: ${packagesDir}`);
+
+    // Log configured registries and packages
+    const allRegistries = [...config.registries.default, ...config.registries.additional];
+    console.log(`\nUsing PyPI registries: ${allRegistries.join(', ')}`);
+    console.log(`\nInstalling ${config.packages.dependencies.length} packages from configuration`);
+
+    console.log(`[DEBUG] Starting package downloads...`);
+    await downloadPackages(pyBin, packagesDir, osType, archType);
+    
+    console.log(`[DEBUG] Running pl-pkg build packages...`);
+    runCommand('pl-pkg', ['build', 'packages']);
+    
+    console.log(`[DEBUG] Build completed successfully`);
+  } catch (error) {
+    console.error(`[ERROR] Build failed: ${error.message}`);
+    console.error(`[ERROR] Stack trace: ${error.stack}`);
+    process.exit(1);
   }
-  
-  const installDir = path.join(
-    versionPydist,
-    `${osType}-${archType}`
-  );
-
-  if (osType === os_windows) {
-    await getPortableWindows(pythonVersion, archType, installDir);
-  } else if (osType === os_macosx) {
-    buildFromSources(pythonVersion, osType, archType, installDir);
-    await consolidateLibsOSX(installDir);
-  } else {
-    buildFromSources(pythonVersion, osType, archType, installDir);
-  }
-
-  const pyBin = path.join(installDir, 'bin', 'python');
-  const packagesDir = path.join(installDir, 'packages');
-
-  // Log configured registries and packages
-  const allRegistries = [...config.registries.default, ...config.registries.additional];
-  console.log(`\nUsing PyPI registries: ${allRegistries.join(', ')}`);
-  console.log(`\nInstalling ${config.packages.dependencies.length} packages from configuration`);
-
-  await downloadPackages(pyBin, packagesDir, osType, archType);
-  runCommand('pl-pkg', ['build', 'packages']);
 })();

@@ -47,7 +47,7 @@ jobs:
           }
         }
 
-      pre-calculate-task-list: |
+      pre-calculated-task-list: |
         [
             {"os":"windows-latest", "arch":"amd64", "python_version":"3.12.10"},
             {"os":"windows-latest", "arch":"amd64", "python_version":"3.11.9"},

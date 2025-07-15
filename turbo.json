@@ -4,7 +4,6 @@
     "build": {
       "inputs": ["$TURBO_DEFAULT$"],
       "outputs": ["./dist/**"],
-      "dependsOn": ["^build"]
     },
     "postbuild-publish": {
       "dependsOn": ["build"],

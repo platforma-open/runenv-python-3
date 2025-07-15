@@ -5,8 +5,7 @@ This package provides multiple Python runtime environments for Platforma Backend
 ## Supported Python Versions
 
 - **Python 3.12.10** - Latest stable version with newest package compatibility
-- **Python 3.11.9** - LTS version with broad package support
-- **Python 3.10.18** - Legacy version for older package compatibility
+- **Python 3.10.11** - Legacy version for older package compatibility
 
 ## Architecture
 
@@ -18,12 +17,10 @@ runenv-python-3/
 ├── python-3.12.10/            # Python 3.12.10 specific package
 │   ├── config.json            # Version-specific overrides
 │   └── package.json           # Package metadata
-├── python-3.11.9/             # Python 3.11.9 specific package
+├── python-3.10.11/            # Python 3.10.11 specific package
 │   ├── config.json            # Version-specific overrides
 │   └── package.json           # Package metadata
-├── python-3.10.18/            # Python 3.10.18 specific package
-│   ├── config.json            # Version-specific overrides
-│   └── package.json           # Package metadata
+├── catalogue/                  # Main package referencing all versions
 ├── scripts/                   # Build and publish scripts
 ├── scripts/config-merger.js   # Configuration merger utility
 └── package.json               # Root package with all entrypoints
@@ -199,21 +196,23 @@ pnpm build
 
 ### Building Specific Version
 ```bash
-pnpm build:3.12.10
-pnpm build:3.11.9
-pnpm build:3.10.18
+# Using Turbo filter
+pnpm build --filter=@platforma-open/milaboratories.runenv-python-3.12.10
+pnpm build --filter=@platforma-open/milaboratories.runenv-python-3.10.11
+
+# Direct script usage
+node scripts/build.js 3.12.10
+node scripts/build.js 3.10.11
 ```
 
-### Publishing All Versions
+### Publishing
 ```bash
-pnpm publish:packages
-```
+# Publish all packages
+pnpm postbuild-publish
 
-### Publishing Specific Version
-```bash
-pnpm publish:3.12.10
-pnpm publish:3.11.9
-pnpm publish:3.10.18
+# Publish specific version (from version directory)
+cd python-3.12.10 && pnpm postbuild-publish
+cd python-3.10.11 && pnpm postbuild-publish
 ```
 
 ### Cleanup
@@ -221,13 +220,7 @@ pnpm publish:3.10.18
 pnpm cleanup
 ```
 
-### Direct Script Usage
-```bash
-# Build a specific Python version
-node scripts/build.js 3.12.10
-```
-
-The script will automatically merge `shared-config.json` and `python-3.12.10/config.json`.
+The script will automatically merge `shared-config.json` and `python-<version>/config.json`.
 
 ## Adding a New Python Version
 
@@ -252,9 +245,39 @@ The script will automatically merge `shared-config.json` and `python-3.12.10/con
    {
      "name": "@platforma-open/milaboratories.runenv-python-3.13.0",
      "version": "1.0.0",
+     "description": "Python 3.13.0 run environment for Platforma Backend",
      "scripts": {
+       "cleanup": "rm -rf ./pkg-*.tgz && rm -rf ./pydist && rm -rf ./dist/ && rm -rf ./build/",
        "build": "node ../scripts/build.js 3.13.0",
-       "publish:packages": "node ../scripts/publish.js 3.13.0"
+       "postbuild-publish": "pl-pkg publish --force"
+     },
+     "files": ["dist/"],
+     "block-software": {
+       "entrypoints": {
+         "main": {
+           "environment": {
+             "artifact": {
+               "type": "environment",
+               "runtime": "python",
+               "registry": "platforma-open",
+               "roots": {
+                 "linux-x64": "./pydist/linux-x64",
+                 "linux-aarch64": "./pydist/linux-aarch64",
+                 "macosx-x64": "./pydist/macosx-x64",
+                 "macosx-aarch64": "./pydist/macosx-aarch64",
+                 "windows-x64": "./pydist/windows-x64"
+               },
+               "binDir": "bin"
+             }
+           }
+         }
+       }
+     },
+     "license": "UNLICENSED",
+     "devDependencies": {
+       "@platforma-sdk/package-builder": "catalog:",
+       "tar": "catalog:",
+       "unzipper": "catalog:"
      }
    }
    ```
@@ -265,11 +288,39 @@ The script will automatically merge `shared-config.json` and `python-3.12.10/con
      - python-3.13.0
    ```
 
-5. **Update root package.json** entrypoints
+5. **Update catalogue package.json** to include the new version:
+   ```json
+   {
+     "dependencies": {
+       "@platforma-open/milaboratories.runenv-python-3.12.10": "workspace:*",
+       "@platforma-open/milaboratories.runenv-python-3.10.11": "workspace:*",
+       "@platforma-open/milaboratories.runenv-python-3.13.0": "workspace:*"
+     }
+   }
+   ```
 
-6. **Test the build**:
+6. **Update catalogue block-software entrypoints**:
+   ```json
+   {
+     "block-software": {
+       "entrypoints": {
+         "3.12.10": {
+           "reference": "@platforma-open/milaboratories.runenv-python-3.12.10/dist/tengo/software/main.sw.json"
+         },
+         "3.10.11": {
+           "reference": "@platforma-open/milaboratories.runenv-python-3.10.11/dist/tengo/software/main.sw.json"
+         },
+         "3.13.0": {
+           "reference": "@platforma-open/milaboratories.runenv-python-3.13.0/dist/tengo/software/main.sw.json"
+         }
+       }
+     }
+   }
+   ```
+
+7. **Test the build**:
    ```bash
-   pnpm build:3.13.0
+   pnpm build --filter=@platforma-open/milaboratories.runenv-python-3.13.0
    ```
 
 ## Package Compatibility
@@ -277,19 +328,15 @@ The script will automatically merge `shared-config.json` and `python-3.12.10/con
 Each Python version has different package compatibility:
 
 ### Python 3.12.10
-- Latest package versions
-- Full CUDA support
+- Latest package versions (uses shared configuration)
+- Full CUDA support with platform-specific exclusions
 - Experimental TensorFlow ARM64 builds
+- **Dependencies**: pandas 2.2.3, numpy 2.2.6, scipy 1.15.3, scikit-learn 1.6.1, etc.
 
-### Python 3.11.9
-- Stable package versions
-- Limited TensorFlow ARM64 support
-- Full CUDA support
-
-### Python 3.10.18
-- Legacy package versions
-- No TensorFlow ARM64 support
-- Limited CUDA support on ARM64
+### Python 3.10.11
+- Legacy package versions for older compatibility
+- Limited TensorFlow ARM64 support (excluded on ARM64)
+- **Dependencies**: pandas 2.0.3, numpy 1.24.3, scipy 1.10.1, scikit-learn 1.3.0, etc.
 
 ## Platform Support
 
@@ -311,9 +358,34 @@ pnpm install
 
 ### Development Workflow
 1. Make changes to shared or version-specific configs
-2. Test with `pnpm build:<version>`
+2. Test with `pnpm build --filter=<package-name>`
 3. Run full build with `pnpm build`
-4. Publish with `pnpm publish:packages`
+4. Publish with `pnpm postbuild-publish`
+
+## Build System
+
+### Turbo Configuration
+The project uses Turbo for build orchestration with a simplified configuration:
+
+```json
+{
+  "tasks": {
+    "build": {
+      "inputs": ["$TURBO_DEFAULT$"],
+      "outputs": ["./dist/**"]
+    },
+    "postbuild-publish": {
+      "dependsOn": ["build"],
+      "passThroughEnv": [...]
+    }
+  }
+}
+```
+
+### Key Features
+- **Independent builds**: Each Python version builds independently
+- **Environment passthrough**: Proper AWS and registry credentials handling
+- **Cleanup scripts**: Comprehensive cleanup including build directories
 
 ## Best Practices
 
@@ -357,9 +429,16 @@ If the build fails to load the exceptions configuration:
 
 The build will continue with an empty configuration if the files cannot be loaded.
 
+### Build Artifacts
+- **Large packages**: Some builds may produce large artifacts (200MB+) due to dependencies
+- **Platform-specific**: Builds are optimized for each platform (Linux, macOS, Windows)
+- **Cleanup**: Use `pnpm cleanup` to remove build artifacts and free disk space
+
 ## Notes
 
 - There is no longer a `python` section or a single `build-config.json`.
 - No config override file is needed; the system is automatic.
 - The build system automatically tries binary wheels first, then falls back to source builds.
 - Multiple PyPI registries are supported via configuration.
+- The catalogue package provides a unified interface to all Python versions.
+- Build artifacts are stored in `pydist/` directories for each platform.

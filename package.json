@@ -4,8 +4,6 @@
     "cleanup": "pnpm -r cleanup",
     "build": "turbo run build",
     "postbuild-publish": "turbo run postbuild-publish",
-    "test": "turbo run test",
-    "test:dry-run": "turbo run test --dry-run=json",
     "changeset": "changeset",
     "version-packages": "changeset version"
   },

@@ -3,7 +3,7 @@
   "tasks": {
     "build": {
       "inputs": ["$TURBO_DEFAULT$"],
-      "outputs": ["./dist/**"],
+      "outputs": ["./dist/**"]
     },
     "postbuild-publish": {
       "dependsOn": ["build"],

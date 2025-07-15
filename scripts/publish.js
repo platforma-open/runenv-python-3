@@ -44,13 +44,11 @@ function runCommand(command, args) {
 runCommand('pl-pkg', [
   'sign',
   'packages',
-  '--all-platforms',
   `--sign-command=["gcloud-kms-sign", "{pkg}", "{pkg}.sig"]`
 ]);
 
 runCommand('pl-pkg', [
   'publish',
   'packages',
-  '--force',
-  '--all-platforms'
+  '--force'
 ]);

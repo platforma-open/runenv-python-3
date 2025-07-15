@@ -75,7 +75,7 @@ console.log(`Building Python ${pythonVersion} with configuration:`);
 console.log(`- Dependencies: ${config.packages.dependencies.length} packages`);
 
 // Ensure software descriptors are up-to-date before building
-runCommand('npx', ['pl-pkg', 'build', 'descriptors']);
+runCommand('pl-pkg', ['build', 'descriptors']);
 
 /*
  * Function definitions

@@ -11,9 +11,6 @@
       "3.12.10": {
         "reference": "@platforma-open/milaboratories.runenv-python-3.12.10/dist/tengo/software/main.sw.json"
       },
-      "3.11.9": {
-        "reference": "@platforma-open/milaboratories.runenv-python-3.11.9/dist/tengo/software/main.sw.json"
-      },
       "3.10.11": {
         "reference": "@platforma-open/milaboratories.runenv-python-3.10.11/dist/tengo/software/main.sw.json"
       }
@@ -25,7 +22,6 @@
   "license": "UNLICENSED",
   "dependencies": {
     "@platforma-open/milaboratories.runenv-python-3.12.10": "workspace:*",
-    "@platforma-open/milaboratories.runenv-python-3.11.9": "workspace:*",
     "@platforma-open/milaboratories.runenv-python-3.10.11": "workspace:*"
   },
   "devDependencies": {

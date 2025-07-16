@@ -48,6 +48,7 @@ jobs:
           }
         }
 
+      main-metapackage-name: '@platforma-open/milaboratories.runenv-python-3'
       pre-calculated-task-list: |
         [
             {"os":"windows-latest", "arch":"amd64", "python_version":"3.12.10"},

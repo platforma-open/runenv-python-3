@@ -387,23 +387,11 @@ function getPackageName(packageSpec) {
 function shouldSkipPackage(packageName, osType, archType) {
   const platformKey = `${osType}-${archType}`;
   
-  // Check simple skip configuration
+  // Check skip configuration
   const skipConfig = config.packages.skip[packageName];
   if (skipConfig && skipConfig[platformKey]) {
     console.log(`  ⚠️  Skipping ${packageName} for ${platformKey}: ${skipConfig[platformKey]}`);
     return true;
-  }
-  
-  // Check platform-specific configuration
-  const platformConfig = config.packages.platformSpecific[packageName];
-  if (platformConfig && platformConfig[platformKey]) {
-    const action = platformConfig[platformKey].action;
-    const reason = platformConfig[platformKey].reason;
-    
-    if (action === 'skip') {
-      console.log(`  ⚠️  Skipping ${packageName} for ${platformKey}: ${reason}`);
-      return true;
-    }
   }
   
   return false;
@@ -412,23 +400,11 @@ function shouldSkipPackage(packageName, osType, archType) {
 function shouldForceSource(packageName, osType, archType) {
   const platformKey = `${osType}-${archType}`;
   
-  // Check simple forceSource configuration
+  // Check forceSource configuration
   const forceSourceConfig = config.packages.forceSource[packageName];
   if (forceSourceConfig && forceSourceConfig[platformKey]) {
     console.log(`  ℹ️  Forcing source build for ${packageName} on ${platformKey}: ${forceSourceConfig[platformKey]}`);
     return true;
-  }
-  
-  // Check platform-specific configuration
-  const platformConfig = config.packages.platformSpecific[packageName];
-  if (platformConfig && platformConfig[platformKey]) {
-    const action = platformConfig[platformKey].action;
-    const reason = platformConfig[platformKey].reason;
-    
-    if (action === 'forceSource') {
-      console.log(`  ℹ️  Forcing source build for ${packageName} on ${platformKey}: ${reason}`);
-      return true;
-    }
   }
   
   return false;
@@ -444,9 +420,9 @@ function buildPipArgs(packageSpec, destinationDir) {
     destinationDir
   ];
   
-  // Add all configured registries
-  const allRegistries = [...config.registries.default, ...config.registries.additional];
-  for (const url of allRegistries) {
+  // Add additional registries (pip will use PyPI.org as default)
+  const additionalRegistries = config.registries.additional || [];
+  for (const url of additionalRegistries) {
     args.push('--extra-index-url=' + url);
   }
   

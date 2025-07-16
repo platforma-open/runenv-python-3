@@ -1,7 +1,6 @@
 {
   "registries": {
-    "default": ["https://pypi.nvidia.com"],
-    "additional": []
+    "additional": ["https://pypi.nvidia.com"]
   },
   "packages": {
     "dependencies": [
@@ -37,18 +36,6 @@
       },
       "pynacl": {
         "windows-x64": "pynacl often fails to build on Windows, prefer source"
-      }
-    },
-    "platformSpecific": {
-      "tensorflow": {
-        "linux-aarch64": {
-          "action": "skip",
-          "reason": "TensorFlow has limited ARM64 support"
-        },
-        "macosx-aarch64": {
-          "action": "forceSource",
-          "reason": "TensorFlow ARM64 builds are experimental"
-        }
       }
     }
   },

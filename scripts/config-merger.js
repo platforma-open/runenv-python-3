@@ -35,10 +35,6 @@ function mergeConfig(version) {
       forceSource: {
         ...sharedConfig.packages.forceSource,
         ...versionConfig.packages?.forceSource
-      },
-      platformSpecific: {
-        ...sharedConfig.packages.platformSpecific,
-        ...versionConfig.packages?.platformSpecific
       }
     }
   };

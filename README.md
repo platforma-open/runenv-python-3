@@ -31,7 +31,7 @@ runenv-python-3/
 ### Shared Configuration (`shared-config.json`)
 
 Contains common settings for all Python versions:
-- **Registries**: PyPI mirrors and additional sources
+- **Registries**: PyPI.org as default with NVIDIA PyPI as additional source
 - **Build settings**: Timeouts, logging, parallel downloads
 - **Platform-specific rules**: Skip/force source rules for different platforms
 - **Common dependencies**: Base package list
@@ -55,7 +55,7 @@ The `config-merger.js` utility:
 
 ### Configuration Files
 
-- **shared-config.json**: Contains common settings for all Python versions (registries, dependencies, platform rules, build options).
+- **shared-config.json**: Contains common settings for all Python versions (registries with PyPI.org as default and NVIDIA PyPI as additional, dependencies, platform rules, build options).
 - **python-<version>/config.json**: Contains version-specific overrides (dependencies, overrides, skip/force rules for that version).
 
 ### Configuration Structure
@@ -64,8 +64,7 @@ The `config-merger.js` utility:
 ```json
 {
   "registries": {
-    "default": ["https://pypi.nvidia.com"],
-    "additional": []
+    "additional": ["https://pypi.nvidia.com"]
   },
   "packages": {
     "dependencies": [
@@ -74,8 +73,7 @@ The `config-merger.js` utility:
       "scipy==1.15.3"
     ],
     "skip": { ... },
-    "forceSource": { ... },
-    "platformSpecific": { ... }
+    "forceSource": { ... }
   },
   "build": {
     "enableLogging": true,
@@ -92,8 +90,7 @@ The `config-merger.js` utility:
     "dependencies": [ ... ],
     "overrides": { ... },
     "skip": { ... },
-    "forceSource": { ... },
-    "platformSpecific": { ... }
+    "forceSource": { ... }
   }
 }
 ```
@@ -104,7 +101,7 @@ The `config-merger.js` utility:
 
 ### Package Exceptions
 
-The build system supports intelligent package handling with three types of exceptions:
+The build system supports intelligent package handling with two types of exceptions:
 
 #### 1. Skip Packages
 Packages that should be completely skipped for specific platforms:
@@ -139,27 +136,7 @@ Packages that should always be built from source for specific platforms:
 }
 ```
 
-#### 3. Platform-Specific Configuration
-Advanced configuration with custom actions:
 
-```json
-{
-  "packages": {
-    "platformSpecific": {
-      "tensorflow": {
-        "linux-aarch64": {
-          "action": "skip",
-          "reason": "TensorFlow has limited ARM64 support"
-        },
-        "macosx-aarch64": {
-          "action": "forceSource",
-          "reason": "TensorFlow ARM64 builds are experimental"
-        }
-      }
-    }
-  }
-}
-```
 
 ### Platform Keys
 

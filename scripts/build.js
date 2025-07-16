@@ -554,7 +554,8 @@ function copyDirSync(src, dest) {
     console.log(`[DEBUG] Packages directory: ${packagesDir}`);
 
     // Log configured registries and packages
-    const allRegistries = [...config.registries.default, ...config.registries.additional];
+    const additionalRegistries = config.registries.additional || [];
+    const allRegistries = ['https://pypi.org', ...additionalRegistries];
     console.log(`\nUsing PyPI registries: ${allRegistries.join(', ')}`);
     console.log(`\nInstalling ${config.packages.dependencies.length} packages from configuration`);
 

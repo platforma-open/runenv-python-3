@@ -5,10 +5,14 @@
  */
 const args = process.argv.slice(2);
 
-if (args.length !== 1) {
-  console.error(`Usage: ${process.argv[0]} <version>`);
+if (args.length > 1) {
+  console.error(`Usage: ${process.argv[0]} <python-version>`);
+  console.error('  python-version: Python version to build (e.g., 3.12.10)');
+  console.error('  Example: node build.js 3.12.10');
   process.exit(1);
 }
+
+
 
 const cp = require('child_process');
 const { promisify } = require('util');
@@ -18,6 +22,8 @@ const tar = require('tar');
 const os = require('os');
 const { get } = require('https');
 const unzipper = require('unzipper');
+const { exit } = require('process');
+const { mergeConfig, validateConfig } = require('./config-merger');
 
 const exec = promisify(cp.exec);
 
@@ -25,7 +31,9 @@ const exec = promisify(cp.exec);
  * Init script state
  */
 const packageRoot = path.relative(process.cwd(), path.resolve(__dirname, '..'));
-const packageDist = path.join(packageRoot, 'pydist');
+
+// Define version-specific packageDist directory (will be set after pythonVersion is available)
+let packageDist;
 
 // supported OSes
 const os_macosx = 'macosx';
@@ -35,6 +43,39 @@ const os_windows = 'windows';
 // supported architectures
 const arch_x64 = 'x64';
 const arch_aarch64 = 'aarch64';
+
+// Get Python version from command line arguments
+const pythonVersion = args[0];
+
+if (!pythonVersion) {
+  console.error('Usage: node build.js <python-version>');
+  console.error('Example: node build.js 3.12.10');
+  process.exit(1);
+}
+
+// Set version-specific packageDist directory
+packageDist = path.join(packageRoot, `python-${pythonVersion}`, 'pydist');
+
+// Ensure packageDist directory exists
+if (!fs.existsSync(packageDist)) {
+  fs.mkdirSync(packageDist, { recursive: true });
+}
+
+// Load and merge configuration
+let config;
+try {
+  config = mergeConfig(pythonVersion);
+  validateConfig(pythonVersion, config);
+} catch (error) {
+  console.error('Configuration error:', error.message);
+  process.exit(1);
+}
+
+console.log(`Building Python ${pythonVersion} with configuration:`);
+console.log(`- Dependencies: ${config.packages.dependencies.length} packages`);
+
+// Ensure software descriptors are up-to-date before building
+runCommand('pl-pkg', ['build', 'descriptors']);
 
 /*
  * Function definitions
@@ -101,27 +142,6 @@ function runCommand(command, args) {
   }
 }
 
-function checkDescriptor(version) {
-  const entrypointPath = path.join(
-    packageRoot,
-    'dist',
-    'tengo',
-    'software',
-    `${version}.sw.json`
-  );
-
-  if (!fs.existsSync(entrypointPath)) {
-    console.log(`
-  No software descriptor found at '${entrypointPath}'.
-
-  Looks like you're going to publish new version of python.
-  See README.md for the instructions on how to do this properly.
-  `);
-
-    exit(1);
-  }
-}
-
 function detectTarGzArchive(searchDir) {
   const files = fs.readdirSync(searchDir);
   for (const file of files) {
@@ -150,7 +170,13 @@ function buildFromSources(version, osType, archType, installDir) {
   const archiveDir = 'dist'; // portable-python always creates python archive in 'dist' dir
   const tarGzName = detectTarGzArchive(archiveDir);
 
-  const tarGzPath = path.join(packageDist, tarGzName);
+  // Create version-specific pydist directory
+  const versionPydist = path.join(packageRoot, `python-${version}`, 'pydist');
+  if (!fs.existsSync(versionPydist)) {
+    fs.mkdirSync(versionPydist, { recursive: true });
+  }
+
+  const tarGzPath = path.join(versionPydist, tarGzName);
   fs.renameSync(path.join(archiveDir, tarGzName), tarGzPath);
 
   untarPythonArchive(tarGzPath, packageRoot, version);
@@ -353,32 +379,112 @@ async function consolidateLibsOSX(installDir) {
   }
 }
 
-function downloadPackages(pyBin, dependenciesFile, destinationDir, osType, archType) {
-  const depsContent = fs.readFileSync(dependenciesFile, 'utf-8');
-  const depsList = depsContent.split('\n');
+function getPackageName(packageSpec) {
+  // Extract package name from spec (e.g., "parasail==1.3.4" -> "parasail")
+  return packageSpec.split(/[<>=!]/)[0].trim();
+}
+
+function shouldSkipPackage(packageName, osType, archType) {
+  const platformKey = `${osType}-${archType}`;
+  
+  // Check skip configuration
+  const skipConfig = config.packages.skip[packageName];
+  if (skipConfig && skipConfig[platformKey]) {
+    console.log(`  ⚠️  Skipping ${packageName} for ${platformKey}: ${skipConfig[platformKey]}`);
+    return true;
+  }
+  
+  return false;
+}
+
+function shouldForceSource(packageName, osType, archType) {
+  const platformKey = `${osType}-${archType}`;
+  
+  // Check forceSource configuration
+  const forceSourceConfig = config.packages.forceSource[packageName];
+  if (forceSourceConfig && forceSourceConfig[platformKey]) {
+    console.log(`  ℹ️  Forcing source build for ${packageName} on ${platformKey}: ${forceSourceConfig[platformKey]}`);
+    return true;
+  }
+  
+  return false;
+}
+
+function buildPipArgs(packageSpec, destinationDir) {
+  const args = [
+    '-m',
+    'pip',
+    'download',
+    packageSpec,
+    '--dest',
+    destinationDir
+  ];
+  
+  // Add additional registries (pip will use PyPI.org as default)
+  const additionalRegistries = config.registries.additional || [];
+  for (const url of additionalRegistries) {
+    args.push('--extra-index-url=' + url);
+  }
+  
+  return args;
+}
+
+async function downloadPackages(pyBin, destinationDir, osType, archType) {
+  const depsList = config.packages.dependencies || [];
 
   for (const depSpec of depsList) {
     const depSpecClean = depSpec.trim();
-    if (depSpecClean.startsWith('#') || !depSpecClean) {
-      // Skip comments and empty lines
+    if (!depSpecClean) {
+      // Skip empty lines
       continue;
     }
 
-    if (archType === arch_aarch64 && depSpecClean.startsWith('parasail')) {
+    const packageName = getPackageName(depSpecClean);
+    console.log(`\nProcessing package: ${depSpecClean}`);
+    
+    // Check if package should be skipped for this platform
+    if (shouldSkipPackage(packageName, osType, archType)) {
       continue;
     }
-
-    runCommand(pyBin, [
-      '-m',
-      'pip',
-      'download',
-      '--extra-index-url=https://pypi.nvidia.com',
-      depSpec.trim(),
-      '--only-binary',
-      ':all:',
-      '--dest',
-      destinationDir
-    ]);
+    
+    // Check if package should be forced to build from source
+    const forceSource = shouldForceSource(packageName, osType, archType);
+    
+    if (forceSource) {
+      // Skip binary wheel attempt and go straight to source
+      console.log(`  Building from source (forced)...`);
+      try {
+        const pipArgs = buildPipArgs(depSpecClean, destinationDir);
+        pipArgs.push('--no-binary', ':all:');
+        runCommand(pyBin, pipArgs);
+        console.log(`  ✓ Successfully downloaded source for ${depSpecClean}`);
+      } catch (sourceError) {
+        console.error(`  ✗ Failed to download source for ${depSpecClean}: ${sourceError.message}`);
+        throw sourceError;
+      }
+    } else {
+      // Try binary wheel first, then fall back to source
+      try {
+        console.log(`  Attempting to download binary wheel...`);
+        const pipArgs = buildPipArgs(depSpecClean, destinationDir);
+        pipArgs.push('--only-binary', ':all:');
+        runCommand(pyBin, pipArgs);
+        console.log(`  ✓ Successfully downloaded binary wheel for ${depSpecClean}`);
+      } catch (error) {
+        console.log(`  ✗ Binary wheel not available for ${depSpecClean}, building from source...`);
+        
+        // If binary wheel download fails, build from source
+        try {
+          const pipArgs = buildPipArgs(depSpecClean, destinationDir);
+          pipArgs.push('--no-binary', ':all:');
+          runCommand(pyBin, pipArgs);
+          console.log(`  ✓ Successfully downloaded source for ${depSpecClean}`);
+        } catch (sourceError) {
+          console.error(`  ✗ Failed to download source for ${depSpecClean}: ${sourceError.message}`);
+          throw sourceError;
+        }
+      }
+    }
   }
 }
 
@@ -406,34 +512,63 @@ function copyDirSync(src, dest) {
  */
 
 (async () => {
-  const version = args[0];
-  const osType = currentOS();
-  const archType = currentArch();
-  const installDir = path.join(
-    packageDist,
-    `v${version}`,
-    `${osType}-${archType}`
-  );
+  try {
+    console.log(`[DEBUG] Starting build for Python ${pythonVersion}`);
+    console.log(`[DEBUG] Current working directory: ${process.cwd()}`);
+    console.log(`[DEBUG] Package root: ${packageRoot}`);
+    
+    const osType = currentOS();
+    const archType = currentArch();
+    console.log(`[DEBUG] Detected OS: ${osType}, Arch: ${archType}`);
+    
+    // Create version-specific pydist directory
+    const versionPydist = path.join(packageRoot, `python-${pythonVersion}`, 'pydist');
+    console.log(`[DEBUG] Creating pydist directory: ${versionPydist}`);
+    if (!fs.existsSync(versionPydist)) {
+      fs.mkdirSync(versionPydist, { recursive: true });
+    }
+    
+    const installDir = path.join(
+      versionPydist,
+      `${osType}-${archType}`
+    );
+    console.log(`[DEBUG] Install directory: ${installDir}`);
 
-  checkDescriptor(version);
+    console.log(`[DEBUG] Starting Python distribution build...`);
+    if (osType === os_windows) {
+      console.log(`[DEBUG] Building Windows distribution...`);
+      await getPortableWindows(pythonVersion, archType, installDir);
+    } else if (osType === os_macosx) {
+      console.log(`[DEBUG] Building macOS distribution...`);
+      buildFromSources(pythonVersion, osType, archType, installDir);
+      console.log(`[DEBUG] Consolidating macOS libraries...`);
+      await consolidateLibsOSX(installDir);
+    } else {
+      console.log(`[DEBUG] Building Linux distribution...`);
+      buildFromSources(pythonVersion, osType, archType, installDir);
+    }
 
-  if (!fs.existsSync(packageDist)) {
-    fs.mkdirSync(packageDist, { recursive: true }); // create install dir and all its parents
+    const pyBin = path.join(installDir, 'bin', 'python');
+    const packagesDir = path.join(installDir, 'packages');
+    console.log(`[DEBUG] Python binary: ${pyBin}`);
+    console.log(`[DEBUG] Packages directory: ${packagesDir}`);
+
+    // Log configured registries and packages
+    const additionalRegistries = config.registries.additional || [];
+    const allRegistries = ['https://pypi.org', ...additionalRegistries];
+    console.log(`\nUsing PyPI registries: ${allRegistries.join(', ')}`);
+    console.log(`\nInstalling ${config.packages.dependencies.length} packages from configuration`);
+
+    console.log(`[DEBUG] Starting package downloads...`);
+    await downloadPackages(pyBin, packagesDir, osType, archType);
+    
+    console.log(`[DEBUG] Running pl-pkg build packages...`);
+    runCommand('pl-pkg', ['build', 'packages']);
+    
+    console.log(`[DEBUG] Build completed successfully`);
+  } catch (error) {
+    console.error(`[ERROR] Build failed: ${error.message}`);
+    console.error(`[ERROR] Stack trace: ${error.stack}`);
+    process.exit(1);
   }
-
-  if (osType === os_windows) {
-    await getPortableWindows(version, archType, installDir);
-  } else if (osType === os_macosx) {
-    buildFromSources(version, osType, archType, installDir);
-    await consolidateLibsOSX(installDir);
-  } else {
-    buildFromSources(version, osType, archType, installDir);
-  }
-
-  const pyBin = path.join(installDir, 'bin', 'python');
-  const packagesDir = path.join(installDir, 'packages');
-  const dependenciesFile = path.join(packageRoot, 'packages.txt');
-
-  downloadPackages(pyBin, dependenciesFile, packagesDir, osType, archType);
-  runCommand('pl-pkg', ['build', 'packages', `--package-id=${version}`]);
 })();

@@ -1,0 +1,29 @@
+{
+  "packages": {
+    "dependencies": [
+      "pandas==2.2.3",
+      "numpy==2.2.6",
+      "scipy==1.15.3",
+      "scikit-learn==1.6.1",
+      "matplotlib==3.8.2",
+      "seaborn==0.13.0",
+      "jupyter==1.0.0"
+    ],
+    "overrides": {
+      "numpy": "2.2.6",
+      "pandas": "2.2.3"
+    },
+    "skip": {
+      "cudf-cu12": {
+        "macosx-x64": "CUDA packages not supported on macOS",
+        "macosx-aarch64": "CUDA packages not supported on macOS",
+        "windows-x64": "CUDA packages not supported on Windows"
+      }
+    }
+  },
+  "build": {
+    "enableLogging": true,
+    "parallelDownloads": true,
+    "timeout": 600
+  }
+} 

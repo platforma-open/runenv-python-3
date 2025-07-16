@@ -1,0 +1,47 @@
+{
+  "registries": {
+    "additional": ["https://pypi.nvidia.com"]
+  },
+  "packages": {
+    "dependencies": [
+      "pandas==2.2.3",
+      "msgspec==0.19.0",
+      "polars-lts-cpu==1.30.0",
+      "polars-ds==0.9.0",
+      "polars-hash==0.5.4",
+      "scipy==1.15.3",
+      "scikit-learn==1.6.1",
+      "parasail==1.3.4",
+      "numpy==2.2.6",
+      "umap-learn==0.5.7",
+      "PyYAML==6.0.2",
+      "cudf-cu12==25.6.0"
+    ],
+    "skip": {
+      "cudf-cu12": {
+        "macosx-x64": "CUDA packages not supported on macOS",
+        "macosx-aarch64": "CUDA packages not supported on macOS",
+        "windows-x64": "CUDA packages not supported on Windows"
+      },
+      "cupy-cuda12x": {
+        "macosx-x64": "CUDA packages not supported on macOS",
+        "macosx-aarch64": "CUDA packages not supported on macOS",
+        "windows-x64": "CUDA packages not supported on Windows"
+      }
+    },
+    "forceSource": {
+      "parasail": {
+        "linux-aarch64": "parasail has no binary wheels for Linux ARM64",
+        "macosx-aarch64": "parasail has no binary wheels for macOS ARM64"
+      },
+      "pynacl": {
+        "windows-x64": "pynacl often fails to build on Windows, prefer source"
+      }
+    }
+  },
+  "build": {
+    "enableLogging": true,
+    "parallelDownloads": false,
+    "timeout": 300
+  }
+} 

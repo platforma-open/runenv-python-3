@@ -1,0 +1,11 @@
+packages:
+  - python-3.12.10
+  - python-3.10.11
+  - catalogue
+
+catalog:
+  'turbo': ^2.5.4
+  '@changesets/cli': ^2.29.5
+  '@platforma-sdk/package-builder': 2.16.2 
+  'tar': ^7.4.3
+  'unzipper': ^0.12.3

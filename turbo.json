@@ -2,10 +2,12 @@
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
     "build": {
+      "env": ["RUNNER_OS", "RUNNER_ARCH"],
       "inputs": ["$TURBO_DEFAULT$"],
       "outputs": ["./dist/**"]
     },
     "postbuild-publish": {
+      "env": ["RUNNER_OS", "RUNNER_ARCH"],
       "dependsOn": ["build"],
       "passThroughEnv": [
         "PL_REGISTRY_PLATFORMA_OPEN_UPLOAD_URL",

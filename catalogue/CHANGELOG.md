@@ -1,5 +1,14 @@
 # @platforma-open/milaboratories.runenv-python-3
 
+## 1.2.2
+
+### Patch Changes
+
+- 39a4138: chore: update turbo.json
+- Updated dependencies [39a4138]
+  - @platforma-open/milaboratories.runenv-python-3.10.11@1.0.2
+  - @platforma-open/milaboratories.runenv-python-3.12.10@1.0.2
+
 ## 1.2.1
 
 ### Patch Changes

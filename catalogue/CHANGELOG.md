@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3
 
+## 1.2.3
+
+### Patch Changes
+
+- 9ef85e9: chore: add new python dist
+
 ## 1.2.2
 
 ### Patch Changes

@@ -22,11 +22,22 @@ function mergeConfig(version) {
   // Merge configurations
   const mergedConfig = {
     ...sharedConfig,
+    ...versionConfig, // this will deep merge top-level keys
+    registries: {
+      ...sharedConfig.registries,
+      ...versionConfig.registries,
+      additional: [
+        ...new Set([
+          ...(sharedConfig.registries?.additional || []),
+          ...(versionConfig.registries?.additional || [])
+        ])
+      ]
+    },
     packages: {
       ...sharedConfig.packages,
       ...versionConfig.packages,
-      dependencies: versionConfig.packages?.dependencies?.length > 0 
-        ? versionConfig.packages.dependencies 
+      dependencies: versionConfig.packages?.dependencies?.length > 0
+        ? versionConfig.packages.dependencies
         : sharedConfig.packages.dependencies,
       skip: {
         ...sharedConfig.packages.skip,

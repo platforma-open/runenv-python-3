@@ -433,8 +433,13 @@ function buildPipArgs(packageSpec, destinationDir) {
 
 async function downloadPackages(pyBin, destinationDir, osType, archType) {
   const depsList = config.packages.dependencies || [];
+  
+  // Also include platform-specific dependencies
+  const platformKey = `${osType}-${archType}`;
+  const platformDeps = config.packages.platformSpecific?.[platformKey]?.dependencies || [];
+  const allDeps = [...new Set([...depsList, ...platformDeps])];
 
-  for (const depSpec of depsList) {
+  for (const depSpec of allDeps) {
     const depSpecClean = depSpec.trim();
     if (!depSpecClean) {
       // Skip empty lines
@@ -490,15 +495,23 @@ async function downloadPackages(pyBin, destinationDir, osType, archType) {
   }
 }
 
-function copyVersionSpecificFiles(installDir, osType) {
-    if (!config.packages.copyFiles || config.packages.copyFiles.length === 0) {
-        console.log(`\n[DEBUG] No version-specific files to copy.`);
+function copyVersionSpecificFiles(installDir, osType, archType) {
+    const genericCopyFiles = config.packages.copyFiles || [];
+    
+    const platformKey = `${osType}-${archType}`;
+    const platformSpecificConfig = config.packages.platformSpecific?.[platformKey];
+    const platformCopyFiles = platformSpecificConfig?.copyFiles || [];
+
+    const allCopyOperations = [...genericCopyFiles, ...platformCopyFiles];
+
+    if (allCopyOperations.length === 0) {
+        console.log(`\n[DEBUG] No version-specific files to copy for this platform.`);
         return;
     }
 
     console.log(`\n[DEBUG] Copying version-specific files...`);
 
-    for (const op of config.packages.copyFiles) {
+    for (const op of allCopyOperations) {
         console.log(`[DEBUG] Processing copy operation:`, JSON.stringify(op));
         const sourcePath = path.join(packageRoot, `python-${pythonVersion}`, op.from);
         console.log(`[DEBUG]   Resolved source path: ${sourcePath}`);
@@ -619,7 +632,7 @@ function copyDirSync(src, dest) {
     
     console.log(`[DEBUG] Checking config for copyFiles before execution:`, JSON.stringify(config.packages.copyFiles, null, 2));
     console.log(`[DEBUG] Copying version-specific files...`);
-    copyVersionSpecificFiles(installDir, osType);
+    copyVersionSpecificFiles(installDir, osType, archType);
 
     console.log(`[DEBUG] Running pl-pkg build packages...`);
     runCommand('pl-pkg', ['build', 'packages']);

@@ -44,15 +44,19 @@
         "windows-x64": "Only required on darwin-arm64"
       }
     },
-    "copyFiles": [
-        {
-            "from": "bin/",
-            "to": "bin/"
-        },
-        {
-            "from": "site-packages/",
-            "to": "{site-packages}/"
-        }
-    ]
+    "platformSpecific": {
+      "linux-x64": {
+        "copyFiles": [
+          { "from": "linux-x64/bin/", "to": "bin/" },
+          { "from": "linux-x64/site-packages/", "to": "{site-packages}/" }
+        ]
+      },
+      "macosx-aarch64": {
+        "copyFiles": [
+          { "from": "macosx-aarch64/bin/", "to": "bin/" },
+          { "from": "macosx-aarch64/site-packages/", "to": "{site-packages}/" }
+        ]
+      }
+    }
   }
 }

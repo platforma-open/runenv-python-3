@@ -22,47 +22,90 @@ function mergeConfig(version) {
   
   // Merge configurations
   const mergedConfig = {
-    // Start with a deep copy of the shared config to avoid mutation
-    ...JSON.parse(JSON.stringify(sharedConfig)),
-    // Overwrite top-level keys from version config
+    // Top-level keys from versionConfig will overwrite sharedConfig
+    ...sharedConfig,
     ...versionConfig,
+  };
 
-    // Explicitly deep-merge 'registries'
-    registries: {
-      ...(sharedConfig.registries || {}),
-      ...(versionConfig.registries || {}),
-      additional: [
-        ...new Set([
-          ...(sharedConfig.registries?.additional || []),
-          ...(versionConfig.registries?.additional || []),
-        ]),
-      ],
-    },
+  // Deep merge 'registries'
+  mergedConfig.registries = {
+    ...sharedConfig.registries,
+    ...versionConfig.registries,
+    additional: [
+      ...new Set([
+        ...(sharedConfig.registries?.additional || []),
+        ...(versionConfig.registries?.additional || []),
+      ]),
+    ],
+  };
 
-    // Explicitly deep-merge 'packages'
-    packages: {
-      ...(sharedConfig.packages || {}),
-      ...(versionConfig.packages || {}),
-      // Logic to decide which dependencies list to use
-      dependencies: versionConfig.packages?.dependencies?.length > 0
+  // Deep merge 'packages'
+  mergedConfig.packages = {
+    // Keep all keys from both
+    ...sharedConfig.packages,
+    ...versionConfig.packages,
+
+    // But specifically handle arrays and nested objects
+    dependencies:
+      versionConfig.packages?.dependencies?.length > 0
         ? versionConfig.packages.dependencies
         : sharedConfig.packages.dependencies,
-      // Deep-merge 'skip' and 'forceSource' objects
-      skip: {
-        ...(sharedConfig.packages?.skip || {}),
-        ...(versionConfig.packages?.skip || {}),
-      },
-      forceSource: {
-        ...(sharedConfig.packages?.forceSource || {}),
-        ...(versionConfig.packages?.forceSource || {}),
-      },
-      // Concatenate 'copyFiles' arrays
-      copyFiles: [
-        ...(sharedConfig.packages?.copyFiles || []),
-        ...(versionConfig.packages?.copyFiles || []),
-      ],
+    skip: {
+      ...sharedConfig.packages?.skip,
+      ...versionConfig.packages?.skip,
     },
+    forceSource: {
+      ...sharedConfig.packages?.forceSource,
+      ...versionConfig.packages?.forceSource,
+    },
+    copyFiles: [
+      ...(sharedConfig.packages?.copyFiles || []),
+      ...(versionConfig.packages?.copyFiles || []),
+    ],
   };
+  
+  // Special handling for platformSpecific to deep merge arrays
+  if (sharedConfig.packages?.platformSpecific || versionConfig.packages?.platformSpecific) {
+    const allPlatformKeys = [
+      ...Object.keys(sharedConfig.packages?.platformSpecific || {}),
+      ...Object.keys(versionConfig.packages?.platformSpecific || {})
+    ];
+    const uniquePlatformKeys = [...new Set(allPlatformKeys)];
+
+    mergedConfig.packages.platformSpecific = {};
+    for (const key of uniquePlatformKeys) {
+      const shared = sharedConfig.packages?.platformSpecific?.[key] || {};
+      const version = versionConfig.packages?.platformSpecific?.[key] || {};
+      const mergedPlatform = {
+        ...shared,
+        ...version,
+        dependencies: [
+          ...new Set([
+            ...(shared.dependencies || []),
+            ...(version.dependencies || [])
+          ])
+        ],
+        copyFiles: [
+          ...new Set([
+            ...(shared.copyFiles || []),
+            ...(version.copyFiles || [])
+          ])
+        ]
+      };
+
+      // Clean up empty arrays
+      if (mergedPlatform.dependencies.length === 0) {
+        delete mergedPlatform.dependencies;
+      }
+      if (mergedPlatform.copyFiles.length === 0) {
+        delete mergedPlatform.copyFiles;
+      }
+      
+      if (Object.keys(mergedPlatform).length > 0) {
+        mergedConfig.packages.platformSpecific[key] = mergedPlatform;
+      }
+    }
+  }
   
   // Apply package overrides if specified
   if (versionConfig.packages?.overrides) {

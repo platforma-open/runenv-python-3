@@ -1,6 +1,6 @@
 {
   "registries": {
-    "additional": ["https://pypi.nvidia.com"]
+    "additional": ["https://pypi.nvidia.com", "https://download.pytorch.org/whl/cpu"]
   },
   "packages": {
     "dependencies": [

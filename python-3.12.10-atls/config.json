@@ -1,0 +1,58 @@
+{
+  "registries": {
+    "additional": ["https://download.pytorch.org/whl/cpu"]
+  },
+  "packages": {
+    "dependencies": [
+      "biopython==1.85",
+      "openmm==8.3.1",
+      "torch==2.7.0",
+      "torchvision==0.22.0",
+      "torchaudio==2.7.0",
+      "ImmuneBuilder==1.2"
+    ],
+    "skip": {
+      "biopython": {
+        "linux-aarch64": "Not required on this platform",
+        "macosx-x64": "Not required on this platform",
+        "windows-x64": "Not required on this platform"
+      },
+      "openmm": {
+        "linux-aarch64": "Not required on this platform",
+        "macosx-x64": "Not required on this platform",
+        "windows-x64": "Not required on this platform"
+      },
+      "torch": {
+        "linux-aarch64": "Not required on this platform",
+        "macosx-x64": "Not required on this platform",
+        "windows-x64": "Not required on this platform"
+      },
+      "torchvision": {
+        "linux-aarch64": "Not required on this platform",
+        "macosx-x64": "Not required on this platform",
+        "windows-x64": "Not required on this platform"
+      },
+      "torchaudio": {
+        "linux-aarch64": "Not required on this platform",
+        "macosx-x64": "Not required on this platform",
+        "windows-x64": "Not required on this platform"
+      },
+      "ImmuneBuilder": {
+        "linux-x64": "Only required on darwin-arm64",
+        "linux-aarch64": "Only required on darwin-arm64",
+        "macosx-x64": "Only required on darwin-arm64",
+        "windows-x64": "Only required on darwin-arm64"
+      }
+    },
+    "copyFiles": [
+        {
+            "from": "bin/",
+            "to": "bin/"
+        },
+        {
+            "from": "site-packages/",
+            "to": "{site-packages}/"
+        }
+    ]
+  }
+}

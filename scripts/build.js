@@ -488,6 +488,49 @@ async function downloadPackages(pyBin, destinationDir, osType, archType) {
   }
 }
 
+function copyVersionSpecificFiles(installDir, osType) {
+    if (!config.packages.copyFiles || config.packages.copyFiles.length === 0) {
+        console.log(`\nNo version-specific files to copy.`);
+        return;
+    }
+
+    console.log(`\nCopying version-specific files...`);
+
+    for (const op of config.packages.copyFiles) {
+        const sourcePath = path.join(packageRoot, `python-${pythonVersion}`, op.from);
+        
+        let destPath = op.to;
+        // Dynamically replace site-packages path
+        if (destPath.includes('{site-packages}')) {
+            const [major, minor] = pythonVersion.split('.');
+            const sitePackagesDir = (osType === os_windows) 
+                ? 'Lib/site-packages' 
+                : `lib/python${major}.${minor}/site-packages`;
+            destPath = destPath.replace('{site-packages}', sitePackagesDir);
+        }
+
+        const finalDestPath = path.join(installDir, destPath);
+
+        console.log(`  Copying from '${sourcePath}' to '${finalDestPath}'...`);
+
+        try {
+            const sourceStats = fs.statSync(sourcePath);
+            fs.mkdirSync(path.dirname(finalDestPath), { recursive: true });
+
+            if (sourceStats.isDirectory()) {
+                copyDirSync(sourcePath, finalDestPath);
+            } else {
+                fs.copyFileSync(sourcePath, finalDestPath);
+            }
+            console.log(`  ✓ Successfully copied.`);
+        } catch (error) {
+            console.error(`  ✗ Failed to copy from '${sourcePath}' to '${finalDestPath}': ${error.message}`);
+            throw error;
+        }
+    }
+}
+
+
 function copyDirSync(src, dest) {
   if (!fs.existsSync(dest)) {
     fs.mkdirSync(dest, { recursive: true });
@@ -562,6 +605,9 @@ function copyDirSync(src, dest) {
     console.log(`[DEBUG] Starting package downloads...`);
     await downloadPackages(pyBin, packagesDir, osType, archType);
     
+    console.log(`[DEBUG] Copying version-specific files...`);
+    copyVersionSpecificFiles(installDir, osType);
+
     console.log(`[DEBUG] Running pl-pkg build packages...`);
     runCommand('pl-pkg', ['build', 'packages']);
     

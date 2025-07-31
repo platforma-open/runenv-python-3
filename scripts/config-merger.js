@@ -35,7 +35,11 @@ function mergeConfig(version) {
       forceSource: {
         ...sharedConfig.packages.forceSource,
         ...versionConfig.packages?.forceSource
-      }
+      },
+      copyFiles: [
+        ...(sharedConfig.packages.copyFiles || []),
+        ...(versionConfig.packages?.copyFiles || [])
+      ]
     }
   };
   

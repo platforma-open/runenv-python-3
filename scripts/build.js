@@ -71,6 +71,8 @@ try {
   process.exit(1);
 }
 
+console.log('[DEBUG] Merged configuration:', JSON.stringify(config, null, 2));
+
 console.log(`Building Python ${pythonVersion} with configuration:`);
 console.log(`- Dependencies: ${config.packages.dependencies.length} packages`);
 
@@ -490,28 +492,38 @@ async function downloadPackages(pyBin, destinationDir, osType, archType) {
 
 function copyVersionSpecificFiles(installDir, osType) {
     if (!config.packages.copyFiles || config.packages.copyFiles.length === 0) {
-        console.log(`\nNo version-specific files to copy.`);
+        console.log(`\n[DEBUG] No version-specific files to copy.`);
         return;
     }
 
-    console.log(`\nCopying version-specific files...`);
+    console.log(`\n[DEBUG] Copying version-specific files...`);
 
     for (const op of config.packages.copyFiles) {
+        console.log(`[DEBUG] Processing copy operation:`, JSON.stringify(op));
         const sourcePath = path.join(packageRoot, `python-${pythonVersion}`, op.from);
-        
+        console.log(`[DEBUG]   Resolved source path: ${sourcePath}`);
+
         let destPath = op.to;
         // Dynamically replace site-packages path
         if (destPath.includes('{site-packages}')) {
+            console.log(`[DEBUG]   Found '{site-packages}' in destination.`);
             const [major, minor] = pythonVersion.split('.');
-            const sitePackagesDir = (osType === os_windows) 
-                ? 'Lib/site-packages' 
+            const sitePackagesDir = (osType === os_windows)
+                ? 'Lib/site-packages'
                 : `lib/python${major}.${minor}/site-packages`;
             destPath = destPath.replace('{site-packages}', sitePackagesDir);
+            console.log(`[DEBUG]   Replaced destPath: ${destPath}`);
         }
 
         const finalDestPath = path.join(installDir, destPath);
+        console.log(`[DEBUG]   Resolved final destination path: ${finalDestPath}`);
 
         console.log(`  Copying from '${sourcePath}' to '${finalDestPath}'...`);
+
+        if (!fs.existsSync(sourcePath)) {
+            console.error(`  ✗ ERROR: Source path does not exist: ${sourcePath}`);
+            continue; // Skip to the next operation
+        }
 
         try {
             const sourceStats = fs.statSync(sourcePath);
@@ -605,6 +617,7 @@ function copyDirSync(src, dest) {
     console.log(`[DEBUG] Starting package downloads...`);
     await downloadPackages(pyBin, packagesDir, osType, archType);
     
+    console.log(`[DEBUG] Checking config for copyFiles before execution:`, JSON.stringify(config.packages.copyFiles, null, 2));
     console.log(`[DEBUG] Copying version-specific files...`);
     copyVersionSpecificFiles(installDir, osType);
 

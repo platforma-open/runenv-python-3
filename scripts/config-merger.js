@@ -13,45 +13,55 @@ function mergeConfig(version) {
   
   // Load version-specific configuration
   const versionConfigPath = path.join(__dirname, '..', `python-${version}/config.json`);
-  let versionConfig = {};
   
-  if (fs.existsSync(versionConfigPath)) {
-    versionConfig = JSON.parse(fs.readFileSync(versionConfigPath, 'utf8'));
+  if (!fs.existsSync(versionConfigPath)) {
+      throw new Error(`Version-specific config file not found. Please check the version string and path: ${versionConfigPath}`);
   }
+  
+  const versionConfig = JSON.parse(fs.readFileSync(versionConfigPath, 'utf8'));
   
   // Merge configurations
   const mergedConfig = {
-    ...sharedConfig,
-    ...versionConfig, // this will deep merge top-level keys
+    // Start with a deep copy of the shared config to avoid mutation
+    ...JSON.parse(JSON.stringify(sharedConfig)),
+    // Overwrite top-level keys from version config
+    ...versionConfig,
+
+    // Explicitly deep-merge 'registries'
     registries: {
-      ...sharedConfig.registries,
-      ...versionConfig.registries,
+      ...(sharedConfig.registries || {}),
+      ...(versionConfig.registries || {}),
       additional: [
         ...new Set([
           ...(sharedConfig.registries?.additional || []),
-          ...(versionConfig.registries?.additional || [])
-        ])
-      ]
+          ...(versionConfig.registries?.additional || []),
+        ]),
+      ],
     },
+
+    // Explicitly deep-merge 'packages'
     packages: {
-      ...sharedConfig.packages,
-      ...versionConfig.packages,
+      ...(sharedConfig.packages || {}),
+      ...(versionConfig.packages || {}),
+      // Logic to decide which dependencies list to use
       dependencies: versionConfig.packages?.dependencies?.length > 0
         ? versionConfig.packages.dependencies
         : sharedConfig.packages.dependencies,
+      // Deep-merge 'skip' and 'forceSource' objects
       skip: {
-        ...sharedConfig.packages.skip,
-        ...versionConfig.packages?.skip
+        ...(sharedConfig.packages?.skip || {}),
+        ...(versionConfig.packages?.skip || {}),
       },
       forceSource: {
-        ...sharedConfig.packages.forceSource,
-        ...versionConfig.packages?.forceSource
+        ...(sharedConfig.packages?.forceSource || {}),
+        ...(versionConfig.packages?.forceSource || {}),
       },
+      // Concatenate 'copyFiles' arrays
       copyFiles: [
-        ...(sharedConfig.packages.copyFiles || []),
-        ...(versionConfig.packages?.copyFiles || [])
-      ]
-    }
+        ...(sharedConfig.packages?.copyFiles || []),
+        ...(versionConfig.packages?.copyFiles || []),
+      ],
+    },
   };
   
   // Apply package overrides if specified

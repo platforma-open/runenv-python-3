@@ -45,27 +45,28 @@ const arch_x64 = 'x64';
 const arch_aarch64 = 'aarch64';
 
 // Get Python version from command line arguments
-const pythonVersion = args[0];
+const fullVersion = args[0];
+const pythonVersion = fullVersion.split('-')[0];
 
-if (!pythonVersion) {
+if (!fullVersion) {
   console.error('Usage: node build.js <python-version>');
-  console.error('Example: node build.js 3.12.10');
+  console.error('Example: node build.js 3.12.10 or node build.js 3.12.10-atls');
   process.exit(1);
 }
 
 // Set version-specific packageDist directory
-packageDist = path.join(packageRoot, `python-${pythonVersion}`, 'pydist');
+packageDist = path.join(packageRoot, `python-${fullVersion}`, 'pydist');
 
 // Ensure packageDist directory exists
 if (!fs.existsSync(packageDist)) {
   fs.mkdirSync(packageDist, { recursive: true });
 }
 
-// Load and merge configuration
+// Load and merge configuration using the FULL version string
 let config;
 try {
-  config = mergeConfig(pythonVersion);
-  validateConfig(pythonVersion, config);
+  config = mergeConfig(fullVersion);
+  validateConfig(fullVersion, config);
 } catch (error) {
   console.error('Configuration error:', error.message);
   process.exit(1);
@@ -73,7 +74,7 @@ try {
 
 console.log('[DEBUG] Merged configuration:', JSON.stringify(config, null, 2));
 
-console.log(`Building Python ${pythonVersion} with configuration:`);
+console.log(`Building Python ${fullVersion} (base: ${pythonVersion}) with configuration:`);
 console.log(`- Dependencies: ${config.packages.dependencies.length} packages`);
 
 // Ensure software descriptors are up-to-date before building
@@ -513,7 +514,7 @@ function copyVersionSpecificFiles(installDir, osType, archType) {
 
     for (const op of allCopyOperations) {
         console.log(`[DEBUG] Processing copy operation:`, JSON.stringify(op));
-        const sourcePath = path.join(packageRoot, `python-${pythonVersion}`, op.from);
+        const sourcePath = path.join(packageRoot, `python-${fullVersion}`, op.from);
         console.log(`[DEBUG]   Resolved source path: ${sourcePath}`);
 
         let destPath = op.to;

@@ -166,15 +166,15 @@ function untarPythonArchive(archivePath, targetDir) {
   });
 }
 
-function buildFromSources(version, osType, archType, installDir) {
+function buildFromSources(fullVersion, version, osType, archType, installDir) {
   runCommand('pipx', ['install', 'portable-python']);
   runCommand('portable-python', ['build', version]);
 
   const archiveDir = 'dist'; // portable-python always creates python archive in 'dist' dir
   const tarGzName = detectTarGzArchive(archiveDir);
 
-  // Create version-specific pydist directory
-  const versionPydist = path.join(packageRoot, `python-${version}`, 'pydist');
+  // The build should be placed in the pydist directory of the full version (e.g., python-3.12.10-atls)
+  const versionPydist = path.join(packageRoot, `python-${fullVersion}`, 'pydist');
   if (!fs.existsSync(versionPydist)) {
     fs.mkdirSync(versionPydist, { recursive: true });
   }
@@ -184,12 +184,15 @@ function buildFromSources(version, osType, archType, installDir) {
 
   untarPythonArchive(tarGzPath, packageRoot, version);
 
-  // tar.gz archive contains <version>/... directory with all necessary inside. Move it to our package root
+  // The tarball from portable-python contains a single 'python' directory.
+  // We rename it to our target installation directory.
+  const extractedDir = path.join(packageRoot, 'python');
+
   if (!fs.existsSync(installDir)) {
     fs.mkdirSync(installDir, { recursive: true }); // create install dir and all its parents
   }
   fs.rmSync(installDir, { recursive: true }); // remove install dir before renaming
-  fs.renameSync(path.join(packageRoot, version), installDir);
+  fs.renameSync(extractedDir, installDir);
 
   console.log(
     `\nPython ${version} portable distribution for ${osType}-${archType} was saved to ${installDir}\n`
@@ -609,12 +612,12 @@ function copyDirSync(src, dest) {
       await getPortableWindows(pythonVersion, archType, installDir);
     } else if (osType === os_macosx) {
       console.log(`[DEBUG] Building macOS distribution...`);
-      buildFromSources(pythonVersion, osType, archType, installDir);
+      buildFromSources(fullVersion, pythonVersion, osType, archType, installDir);
       console.log(`[DEBUG] Consolidating macOS libraries...`);
       await consolidateLibsOSX(installDir);
     } else {
       console.log(`[DEBUG] Building Linux distribution...`);
-      buildFromSources(pythonVersion, osType, archType, installDir);
+      buildFromSources(fullVersion, pythonVersion, osType, archType, installDir);
     }
 
     const pyBin = path.join(installDir, 'bin', 'python');

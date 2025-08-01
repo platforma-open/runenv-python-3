@@ -22,15 +22,16 @@ function mergeConfig(version) {
   
   // Merge configurations
   const mergedConfig = {
-    // Top-level keys from versionConfig will overwrite sharedConfig
-    ...sharedConfig,
+    // Start with a deep copy of the shared config to avoid mutation
+    ...JSON.parse(JSON.stringify(sharedConfig)),
+    // Overwrite top-level keys from version config
     ...versionConfig,
   };
 
-  // Deep merge 'registries'
+  // Manually deep-merge nested objects and arrays
   mergedConfig.registries = {
-    ...sharedConfig.registries,
-    ...versionConfig.registries,
+    ...(sharedConfig.registries || {}),
+    ...(versionConfig.registries || {}),
     additional: [
       ...new Set([
         ...(sharedConfig.registries?.additional || []),
@@ -39,72 +40,52 @@ function mergeConfig(version) {
     ],
   };
 
-  // Deep merge 'packages'
   mergedConfig.packages = {
-    // Keep all keys from both
-    ...sharedConfig.packages,
-    ...versionConfig.packages,
-
-    // But specifically handle arrays and nested objects
+    ...(sharedConfig.packages || {}),
+    ...(versionConfig.packages || {}),
     dependencies:
       versionConfig.packages?.dependencies?.length > 0
         ? versionConfig.packages.dependencies
-        : sharedConfig.packages.dependencies,
+        : sharedConfig.packages?.dependencies,
     skip: {
-      ...sharedConfig.packages?.skip,
-      ...versionConfig.packages?.skip,
+      ...(sharedConfig.packages?.skip || {}),
+      ...(versionConfig.packages?.skip || {}),
     },
     forceSource: {
-      ...sharedConfig.packages?.forceSource,
-      ...versionConfig.packages?.forceSource,
+      ...(sharedConfig.packages?.forceSource || {}),
+      ...(versionConfig.packages?.forceSource || {}),
     },
     copyFiles: [
       ...(sharedConfig.packages?.copyFiles || []),
       ...(versionConfig.packages?.copyFiles || []),
     ],
+    platformSpecific: { // Ensure platformSpecific is merged, not overwritten
+      ...(sharedConfig.packages?.platformSpecific || {}),
+      ...(versionConfig.packages?.platformSpecific || {}),
+    }
   };
   
-  // Special handling for platformSpecific to deep merge arrays
-  if (sharedConfig.packages?.platformSpecific || versionConfig.packages?.platformSpecific) {
-    const allPlatformKeys = [
-      ...Object.keys(sharedConfig.packages?.platformSpecific || {}),
-      ...Object.keys(versionConfig.packages?.platformSpecific || {})
-    ];
-    const uniquePlatformKeys = [...new Set(allPlatformKeys)];
-
-    mergedConfig.packages.platformSpecific = {};
-    for (const key of uniquePlatformKeys) {
+  // After the initial merge, we need to go deeper for platformSpecific's inner arrays
+  const allPlatformKeys = Object.keys(mergedConfig.packages.platformSpecific);
+  for (const key of allPlatformKeys) {
       const shared = sharedConfig.packages?.platformSpecific?.[key] || {};
       const version = versionConfig.packages?.platformSpecific?.[key] || {};
-      const mergedPlatform = {
+      mergedConfig.packages.platformSpecific[key] = {
         ...shared,
         ...version,
-        dependencies: [
-          ...new Set([
-            ...(shared.dependencies || []),
-            ...(version.dependencies || [])
-          ])
-        ],
         copyFiles: [
           ...new Set([
             ...(shared.copyFiles || []),
             ...(version.copyFiles || [])
           ])
+        ],
+        dependencies: [
+          ...new Set([
+            ...(shared.dependencies || []),
+            ...(version.dependencies || [])
+          ])
         ]
       };
-
-      // Clean up empty arrays
-      if (mergedPlatform.dependencies.length === 0) {
-        delete mergedPlatform.dependencies;
-      }
-      if (mergedPlatform.copyFiles.length === 0) {
-        delete mergedPlatform.copyFiles;
-      }
-      
-      if (Object.keys(mergedPlatform).length > 0) {
-        mergedConfig.packages.platformSpecific[key] = mergedPlatform;
-      }
-    }
   }
   
   // Apply package overrides if specified

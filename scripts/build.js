@@ -158,6 +158,7 @@ function detectTarGzArchive(searchDir) {
 
 function untarPythonArchive(archivePath, targetDir) {
   console.log(`using python archive '${archivePath}'`);
+  console.log(`  extracting to '${targetDir}'`);
 
   tar.x({
     sync: true,
@@ -173,23 +174,34 @@ function buildFromSources(version, osType, archType, installDir) {
   const archiveDir = 'dist'; // portable-python always creates python archive in 'dist' dir
   const tarGzName = detectTarGzArchive(archiveDir);
 
-  // The build artifacts are in a tar.gz archive. We need to move the archive
-  // into our own pydist directory before extracting.
   const versionPydist = path.dirname(installDir);
   const tarGzPath = path.join(versionPydist, tarGzName);
   fs.renameSync(path.join(archiveDir, tarGzName), tarGzPath);
 
-  untarPythonArchive(tarGzPath, packageRoot, version);
-
-  // The tarball from portable-python contains a single 'python' directory.
-  // We rename it to our target installation directory.
-  const extractedDir = path.join(packageRoot, 'python');
-
-  if (!fs.existsSync(installDir)) {
-    fs.mkdirSync(installDir, { recursive: true }); // create install dir and all its parents
+  // Use a dedicated temporary directory for extraction to avoid relative path issues.
+  const tempExtractDir = path.join(packageRoot, 'temp-extract');
+  if (fs.existsSync(tempExtractDir)) {
+    fs.rmSync(tempExtractDir, { recursive: true });
   }
-  fs.rmSync(installDir, { recursive: true }); // remove install dir before renaming
-  fs.renameSync(extractedDir, installDir);
+  fs.mkdirSync(tempExtractDir, { recursive: true });
+
+  untarPythonArchive(tarGzPath, tempExtractDir);
+
+  // The tarball contains a 'python' directory. Move it to the final install location.
+  const extractedPythonDir = path.join(tempExtractDir, 'python');
+  if (!fs.existsSync(extractedPythonDir)) {
+    throw new Error(`Extraction failed: 'python' directory not found in '${tempExtractDir}'`);
+  }
+
+  // Ensure the final destination exists and is empty
+  fs.mkdirSync(installDir, { recursive: true });
+  fs.rmSync(installDir, { recursive: true });
+  
+  // Move the extracted python directory to its final destination
+  fs.renameSync(extractedPythonDir, installDir);
+
+  // Clean up the temporary directory
+  fs.rmSync(tempExtractDir, { recursive: true });
 
   console.log(
     `\nPython ${version} portable distribution for ${osType}-${archType} was saved to ${installDir}\n`

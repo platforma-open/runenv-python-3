@@ -166,19 +166,16 @@ function untarPythonArchive(archivePath, targetDir) {
   });
 }
 
-function buildFromSources(fullVersion, version, osType, archType, installDir) {
+function buildFromSources(version, osType, archType, installDir) {
   runCommand('pipx', ['install', 'portable-python']);
   runCommand('portable-python', ['build', version]);
 
   const archiveDir = 'dist'; // portable-python always creates python archive in 'dist' dir
   const tarGzName = detectTarGzArchive(archiveDir);
 
-  // The build should be placed in the pydist directory of the full version (e.g., python-3.12.10-atls)
-  const versionPydist = path.join(packageRoot, `python-${fullVersion}`, 'pydist');
-  if (!fs.existsSync(versionPydist)) {
-    fs.mkdirSync(versionPydist, { recursive: true });
-  }
-
+  // The build artifacts are in a tar.gz archive. We need to move the archive
+  // into our own pydist directory before extracting.
+  const versionPydist = path.dirname(installDir);
   const tarGzPath = path.join(versionPydist, tarGzName);
   fs.renameSync(path.join(archiveDir, tarGzName), tarGzPath);
 
@@ -612,12 +609,12 @@ function copyDirSync(src, dest) {
       await getPortableWindows(pythonVersion, archType, installDir);
     } else if (osType === os_macosx) {
       console.log(`[DEBUG] Building macOS distribution...`);
-      buildFromSources(fullVersion, pythonVersion, osType, archType, installDir);
+      buildFromSources(pythonVersion, osType, archType, installDir);
       console.log(`[DEBUG] Consolidating macOS libraries...`);
       await consolidateLibsOSX(installDir);
     } else {
       console.log(`[DEBUG] Building Linux distribution...`);
-      buildFromSources(fullVersion, pythonVersion, osType, archType, installDir);
+      buildFromSources(pythonVersion, osType, archType, installDir);
     }
 
     const pyBin = path.join(installDir, 'bin', 'python');

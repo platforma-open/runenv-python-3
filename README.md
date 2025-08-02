@@ -5,6 +5,7 @@ This package provides multiple Python runtime environments for Platforma Backend
 ## Supported Python Versions
 
 - **Python 3.12.10** - Latest stable version with newest package compatibility
+- **Python 3.12.10-atls** - A variant of 3.12.10 with custom ATLS packages.
 - **Python 3.10.11** - Legacy version for older package compatibility
 
 ## Architecture
@@ -171,14 +172,16 @@ Platform keys follow the format: `{os}-{arch}`
 pnpm build
 ```
 
-### Building Specific Version
+### Building Specific Version or Variant
 ```bash
 # Using Turbo filter
 pnpm build --filter=@platforma-open/milaboratories.runenv-python-3.12.10
+pnpm build --filter=@platforma-open/milaboratories.runenv-python-3.12.10-atls
 pnpm build --filter=@platforma-open/milaboratories.runenv-python-3.10.11
 
 # Direct script usage
 node scripts/build.js 3.12.10
+node scripts/build.js 3.12.10-atls
 node scripts/build.js 3.10.11
 ```
 
@@ -199,106 +202,120 @@ pnpm cleanup
 
 The script will automatically merge `shared-config.json` and `python-<version>/config.json`.
 
-## Adding a New Python Version
+### Injecting Custom Files (`copyFiles`)
 
-1. **Create version directory**:
-   ```bash
-   mkdir python-3.13.0
-   ```
+For advanced use cases, such as creating version variants with pre-compiled binaries or custom modules, the build system supports a `copyFiles` directive in the `config.json`.
 
-2. **Create version-specific config** (`python-3.13.0/config.json`):
-   ```json
-   {
-     "packages": {
-       "overrides": {
-         "numpy": "2.3.0"
-       }
-     }
-   }
-   ```
+This allows you to copy files and directories from your package source into the final Python environment during the build.
 
-3. **Create package.json** (`python-3.13.0/package.json`):
-   ```json
-   {
-     "name": "@platforma-open/milaboratories.runenv-python-3.13.0",
-     "version": "1.0.0",
-     "description": "Python 3.13.0 run environment for Platforma Backend",
-     "scripts": {
-       "cleanup": "rm -rf ./pkg-*.tgz && rm -rf ./pydist && rm -rf ./dist/ && rm -rf ./build/",
-       "build": "node ../scripts/build.js 3.13.0",
-       "postbuild-publish": "pl-pkg publish --force"
-     },
-     "files": ["dist/"],
-     "block-software": {
-       "entrypoints": {
-         "main": {
-           "environment": {
-             "artifact": {
-               "type": "environment",
-               "runtime": "python",
-               "registry": "platforma-open",
-               "roots": {
-                 "linux-x64": "./pydist/linux-x64",
-                 "linux-aarch64": "./pydist/linux-aarch64",
-                 "macosx-x64": "./pydist/macosx-x64",
-                 "macosx-aarch64": "./pydist/macosx-aarch64",
-                 "windows-x64": "./pydist/windows-x64"
-               },
-               "binDir": "bin"
-             }
-           }
-         }
-       }
-     },
-     "license": "UNLICENSED",
-     "devDependencies": {
-       "@platforma-sdk/package-builder": "catalog:",
-       "tar": "catalog:",
-       "unzipper": "catalog:"
-     }
-   }
-   ```
+#### Configuration
 
-4. **Update workspace** (`pnpm-workspace.yaml`):
-   ```yaml
-   packages:
-     - python-3.13.0
-   ```
+The `copyFiles` directive is an array of objects, where each object specifies a `from` and `to` path.
 
-5. **Update catalogue package.json** to include the new version:
-   ```json
-   {
-     "dependencies": {
-       "@platforma-open/milaboratories.runenv-python-3.12.10": "workspace:*",
-       "@platforma-open/milaboratories.runenv-python-3.10.11": "workspace:*",
-       "@platforma-open/milaboratories.runenv-python-3.13.0": "workspace:*"
-     }
-   }
-   ```
+- `from`: The source path, relative to the package directory (e.g., `python-3.12.10-atls/`).
+- `to`: The destination path, relative to the root of the installed Python environment (e.g., `pydist/linux-x64/`).
 
-6. **Update catalogue block-software entrypoints**:
-   ```json
-   {
-     "block-software": {
-       "entrypoints": {
-         "3.12.10": {
-           "reference": "@platforma-open/milaboratories.runenv-python-3.12.10/dist/tengo/software/main.sw.json"
-         },
-         "3.10.11": {
-           "reference": "@platforma-open/milaboratories.runenv-python-3.10.11/dist/tengo/software/main.sw.json"
-         },
-         "3.13.0": {
-           "reference": "@platforma-open/milaboratories.runenv-python-3.13.0/dist/tengo/software/main.sw.json"
-         }
-       }
-     }
-   }
-   ```
+#### Dynamic `site-packages` Path
 
-7. **Test the build**:
-   ```bash
-   pnpm build --filter=@platforma-open/milaboratories.runenv-python-3.13.0
-   ```
+The system provides a special placeholder, `{site-packages}`, which automatically resolves to the correct `site-packages` directory for the current Python version and OS. This is the recommended way to install custom Python modules.
+
+#### Example (`python-3.12.10-atls/config.json`)
+
+This configuration copies custom binaries to the `bin/` directory and Python modules to the `site-packages` directory for each platform.
+
+```json
+{
+  "packages": {
+    "dependencies": [
+      "torch==2.7.0",
+      "ImmuneBuilder==1.2"
+    ],
+    "platformSpecific": {
+      "linux-x64": {
+        "copyFiles": [
+          { "from": "linux-x64/bin/", "to": "bin/" },
+          { "from": "linux-x64/site-packages/", "to": "{site-packages}/" }
+        ]
+      },
+      "macosx-aarch64": {
+        "copyFiles": [
+          { "from": "macosx-aarch64/bin/", "to": "bin/" },
+          { "from": "macosx-aarch64/site-packages/", "to": "{site-packages}/" }
+        ]
+      }
+    }
+  }
+}
+```
+
+The source files for this example would be structured as follows:
+
+```
+python-3.12.10-atls/
+├── linux-x64/
+│   ├── bin/
+│   │   └── custom_tool
+│   └── site-packages/
+│       └── custom_module/
+│           └── __init__.py
+├── macosx-aarch64/
+│   ├── bin/
+│   └── site-packages/
+└── config.json
+```
+
+
+## Adding a New Python Version or Variant
+
+To add a new standard Python version or a custom variant, follow these steps.
+
+1.  **Create the Package Directory**:
+    The directory name defines the version string. Use a suffix for variants.
+    ```bash
+    # For a standard version
+    mkdir python-3.13.0
+
+    # For a custom variant
+    mkdir python-3.13.0-custom
+    ```
+
+2.  **Create Version-Specific `config.json`**:
+    Inside the new directory, create a `config.json`.
+    - For a **standard version**, you can start with an empty config or specify overrides.
+    - For a **variant**, this is where you define its unique dependencies or `copyFiles` directives.
+
+3.  **Create `package.json`**:
+    Copy an existing `package.json` and update the following:
+    - `name`: Should include the full version string (e.g., `@platforma-open/milaboratories.runenv-python-3.13.0-custom`).
+    - `description`: Update with the correct version.
+    - `scripts.build`: Ensure the script calls `build.js` with the correct **full version string**.
+
+    **Crucial point for variants**:
+    The `build` script must pass the full version string so the build system can locate the correct configuration.
+    ```json
+    "scripts": {
+      "build": "node ../scripts/build.js 3.13.0-custom"
+    }
+    ```
+    The build script is smart: it will use `3.13.0-custom` to find the config but will use `3.13.0` to download the base portable Python.
+
+4.  **Update Workspace (`pnpm-workspace.yaml`)**:
+    Add the new package directory to `pnpm-workspace.yaml`.
+    ```yaml
+    packages:
+      - 'python-3.12.10'
+      - 'python-3.12.10-atls'
+      - 'python-3.10.11'
+      - 'python-3.13.0-custom' # Add new version here
+    ```
+
+5.  **Update Catalogue**:
+    Add the new package as a dependency and an entrypoint in the `catalogue/package.json`.
+
+6.  **Test the Build**:
+    ```bash
+    pnpm build --filter=@platforma-open/milaboratories.runenv-python-3.13.0-custom
+    ```
 
 ## Package Compatibility
 

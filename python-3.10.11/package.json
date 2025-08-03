@@ -6,7 +6,7 @@
     "cleanup": "rm -rf ./pkg-*.tgz && rm -rf ./pydist && rm -rf ./dist/ && rm -rf ./build/",
     "build": "node ../scripts/build.js 3.10.11",
     "build-descriptors": "pl-pkg build descriptors",
-    "postbuild-publish": "pl-pkg publish --force"
+    "postbuild-publish": "pl-pkg build packages && pl-pkg publish --force"
   },
   "files": [
     "dist/"

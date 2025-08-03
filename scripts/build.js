@@ -651,8 +651,8 @@ function copyDirSync(src, dest) {
     console.log(`[DEBUG] Copying version-specific files...`);
     copyVersionSpecificFiles(installDir, osType, archType);
 
-    console.log(`[DEBUG] Running pl-pkg build packages...`);
-    runCommand('pl-pkg', ['build', 'packages']);
+    //console.log(`[DEBUG] Running pl-pkg build packages...`);
+    //runCommand('pl-pkg', ['build', 'packages']);
     
     // Descriptors must be built last, after all artifacts are in place.
     console.log(`[DEBUG] Building software descriptors...`);

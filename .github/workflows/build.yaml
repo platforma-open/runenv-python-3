@@ -63,6 +63,9 @@ jobs:
         python*/pydist/**/bin/pip
         python*/pydist/**/bin/venv
         python*/pydist/**/bin/pip3
+        python*/pydist/**/bin/*hmm*
+        python*/pydist/**/bin/alimask
+        python*/pydist/**/bin/pdbfixer
 
       # pydist/3.12.6/macosx-x64/<python package root>
       # Do not try to notarizr 'packages' directory with whl files, as whl is an archive and we

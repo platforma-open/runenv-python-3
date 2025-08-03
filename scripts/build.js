@@ -1,19 +1,5 @@
 #!/usr/bin/env node
 
-/*
- * Usage check
- */
-const args = process.argv.slice(2);
-
-if (args.length > 1) {
-  console.error(`Usage: ${process.argv[0]} <python-version>`);
-  console.error('  python-version: Python version to build (e.g., 3.12.10)');
-  console.error('  Example: node build.js 3.12.10');
-  process.exit(1);
-}
-
-
-
 const cp = require('child_process');
 const { promisify } = require('util');
 const fs = require('fs');
@@ -28,12 +14,36 @@ const { mergeConfig, validateConfig } = require('./config-merger');
 const exec = promisify(cp.exec);
 
 /*
+ * Argument Parsing and Validation
+ */
+const args = process.argv.slice(2);
+console.log(`[DIAGNOSTIC] Raw arguments received: ${args.join(', ')}`);
+
+if (args.length !== 1) {
+    console.error(`Usage: node ${path.basename(process.argv[1])} <python-version>`);
+    console.error('  Requires exactly one argument.');
+    console.error('  Example: node build.js 3.12.10-atls');
+    process.exit(1);
+}
+
+const fullVersion = args[0];
+console.log(`[DIAGNOSTIC] 'fullVersion' variable set to: ${fullVersion}`);
+
+const pythonVersion = fullVersion.split('-')[0];
+
+if (!pythonVersion) {
+    console.error('Could not determine base python version from the argument.');
+    process.exit(1);
+}
+
+/*
  * Init script state
  */
-const packageRoot = path.relative(process.cwd(), path.resolve(__dirname, '..'));
-
-// Define version-specific packageDist directory (will be set after pythonVersion is available)
-let packageDist;
+// By using path.resolve, we get a stable, absolute path to the project root,
+// which is always one level above the 'scripts' directory. This avoids
+// fragile relative path calculations based on the current working directory,
+// which can change depending on how the script is invoked.
+const packageRoot = path.resolve(__dirname, '..');
 
 // supported OSes
 const os_macosx = 'macosx';
@@ -43,24 +53,6 @@ const os_windows = 'windows';
 // supported architectures
 const arch_x64 = 'x64';
 const arch_aarch64 = 'aarch64';
-
-// Get Python version from command line arguments
-const fullVersion = args[0];
-const pythonVersion = fullVersion.split('-')[0];
-
-if (!fullVersion) {
-  console.error('Usage: node build.js <python-version>');
-  console.error('Example: node build.js 3.12.10 or node build.js 3.12.10-atls');
-  process.exit(1);
-}
-
-// Set version-specific packageDist directory
-packageDist = path.join(packageRoot, `python-${fullVersion}`, 'pydist');
-
-// Ensure packageDist directory exists
-if (!fs.existsSync(packageDist)) {
-  fs.mkdirSync(packageDist, { recursive: true });
-}
 
 // Load and merge configuration using the FULL version string
 let config;
@@ -76,9 +68,6 @@ console.log('[DEBUG] Merged configuration:', JSON.stringify(config, null, 2));
 
 console.log(`Building Python ${fullVersion} (base: ${pythonVersion}) with configuration:`);
 console.log(`- Dependencies: ${config.packages.dependencies.length} packages`);
-
-// Ensure software descriptors are up-to-date before building
-runCommand('pl-pkg', ['build', 'descriptors']);
 
 /*
  * Function definitions
@@ -187,15 +176,28 @@ function buildFromSources(version, osType, archType, installDir) {
 
   untarPythonArchive(tarGzPath, tempExtractDir);
 
-  // The tarball contains a 'python' directory. Move it to the final install location.
-  const extractedPythonDir = path.join(tempExtractDir, 'python');
-  if (!fs.existsSync(extractedPythonDir)) {
-    throw new Error(`Extraction failed: 'python' directory not found in '${tempExtractDir}'`);
+  // Dynamically find the name of the extracted directory.
+  // We expect portable-python to create a single directory inside the tarball.
+  const files = fs.readdirSync(tempExtractDir, { withFileTypes: true });
+  const directories = files.filter(f => f.isDirectory());
+
+  if (directories.length !== 1) {
+    throw new Error(
+      `Extraction failed: Expected 1 directory in the archive, but found ${directories.length}. ` +
+      `Contents: ${files.map(f => f.name).join(', ')}`
+    );
   }
 
+  const extractedDirName = directories[0].name;
+  const extractedPythonDir = path.join(tempExtractDir, extractedDirName);
+  console.log(`[DEBUG] Found extracted directory: '${extractedDirName}'`);
+
+  
   // Ensure the final destination exists and is empty
+  if (fs.existsSync(installDir)) {
+    fs.rmSync(installDir, { recursive: true });
+  }
   fs.mkdirSync(installDir, { recursive: true });
-  fs.rmSync(installDir, { recursive: true });
   
   // Move the extracted python directory to its final destination
   fs.renameSync(extractedPythonDir, installDir);
@@ -246,6 +248,9 @@ async function getPortableWindows(version, archType, installDir) {
   if (archType != arch_x64) {
     throw new Error(`architecture '${archType}' is not supported for windows`);
   }
+
+  // Derive the packageDist from the final installDir to ensure it's correct.
+  const packageDist = path.dirname(installDir);
 
   const archiveName = `python-${version}-embed-amd64.zip`;
   const pythonZipFile = path.join(packageDist, archiveName);
@@ -603,17 +608,16 @@ function copyDirSync(src, dest) {
     console.log(`[DEBUG] Detected OS: ${osType}, Arch: ${archType}`);
     
     // Create version-specific pydist directory
-    const versionPydist = path.join(packageRoot, `python-${pythonVersion}`, 'pydist');
-    console.log(`[DEBUG] Creating pydist directory: ${versionPydist}`);
-    if (!fs.existsSync(versionPydist)) {
-      fs.mkdirSync(versionPydist, { recursive: true });
-    }
-    
     const installDir = path.join(
-      versionPydist,
+      packageRoot,
+      `python-${fullVersion}`,
+      'pydist',
       `${osType}-${archType}`
     );
     console.log(`[DEBUG] Install directory: ${installDir}`);
+
+    console.log(`[DEBUG] Creating install directory and all its parents...`);
+    fs.mkdirSync(installDir, { recursive: true });
 
     console.log(`[DEBUG] Starting Python distribution build...`);
     if (osType === os_windows) {
@@ -649,6 +653,10 @@ function copyDirSync(src, dest) {
 
     console.log(`[DEBUG] Running pl-pkg build packages...`);
     runCommand('pl-pkg', ['build', 'packages']);
+    
+    // Descriptors must be built last, after all artifacts are in place.
+    console.log(`[DEBUG] Building software descriptors...`);
+    runCommand('pl-pkg', ['build', 'descriptors']);
     
     console.log(`[DEBUG] Build completed successfully`);
   } catch (error) {

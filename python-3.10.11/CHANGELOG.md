@@ -1,5 +1,12 @@
 # @platforma-open/milaboratories.runenv-python-3.10.11
 
+## 1.0.3
+
+### Patch Changes
+
+- 8420d37: chore: add new python
+- 5d0920d: chore: build python atls
+
 ## 1.0.2
 
 ### Patch Changes

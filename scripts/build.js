@@ -1,19 +1,5 @@
 #!/usr/bin/env node
 
-/*
- * Usage check
- */
-const args = process.argv.slice(2);
-
-if (args.length > 1) {
-  console.error(`Usage: ${process.argv[0]} <python-version>`);
-  console.error('  python-version: Python version to build (e.g., 3.12.10)');
-  console.error('  Example: node build.js 3.12.10');
-  process.exit(1);
-}
-
-
-
 const cp = require('child_process');
 const { promisify } = require('util');
 const fs = require('fs');
@@ -28,12 +14,36 @@ const { mergeConfig, validateConfig } = require('./config-merger');
 const exec = promisify(cp.exec);
 
 /*
+ * Argument Parsing and Validation
+ */
+const args = process.argv.slice(2);
+console.log(`[DIAGNOSTIC] Raw arguments received: ${args.join(', ')}`);
+
+if (args.length !== 1) {
+    console.error(`Usage: node ${path.basename(process.argv[1])} <python-version>`);
+    console.error('  Requires exactly one argument.');
+    console.error('  Example: node build.js 3.12.10-atls');
+    process.exit(1);
+}
+
+const fullVersion = args[0];
+console.log(`[DIAGNOSTIC] 'fullVersion' variable set to: ${fullVersion}`);
+
+const pythonVersion = fullVersion.split('-')[0];
+
+if (!pythonVersion) {
+    console.error('Could not determine base python version from the argument.');
+    process.exit(1);
+}
+
+/*
  * Init script state
  */
-const packageRoot = path.relative(process.cwd(), path.resolve(__dirname, '..'));
-
-// Define version-specific packageDist directory (will be set after pythonVersion is available)
-let packageDist;
+// By using path.resolve, we get a stable, absolute path to the project root,
+// which is always one level above the 'scripts' directory. This avoids
+// fragile relative path calculations based on the current working directory,
+// which can change depending on how the script is invoked.
+const packageRoot = path.resolve(__dirname, '..');
 
 // supported OSes
 const os_macosx = 'macosx';
@@ -44,38 +54,20 @@ const os_windows = 'windows';
 const arch_x64 = 'x64';
 const arch_aarch64 = 'aarch64';
 
-// Get Python version from command line arguments
-const pythonVersion = args[0];
-
-if (!pythonVersion) {
-  console.error('Usage: node build.js <python-version>');
-  console.error('Example: node build.js 3.12.10');
-  process.exit(1);
-}
-
-// Set version-specific packageDist directory
-packageDist = path.join(packageRoot, `python-${pythonVersion}`, 'pydist');
-
-// Ensure packageDist directory exists
-if (!fs.existsSync(packageDist)) {
-  fs.mkdirSync(packageDist, { recursive: true });
-}
-
-// Load and merge configuration
+// Load and merge configuration using the FULL version string
 let config;
 try {
-  config = mergeConfig(pythonVersion);
-  validateConfig(pythonVersion, config);
+  config = mergeConfig(fullVersion);
+  validateConfig(fullVersion, config);
 } catch (error) {
   console.error('Configuration error:', error.message);
   process.exit(1);
 }
 
-console.log(`Building Python ${pythonVersion} with configuration:`);
-console.log(`- Dependencies: ${config.packages.dependencies.length} packages`);
+console.log('[DEBUG] Merged configuration:', JSON.stringify(config, null, 2));
 
-// Ensure software descriptors are up-to-date before building
-runCommand('pl-pkg', ['build', 'descriptors']);
+console.log(`Building Python ${fullVersion} (base: ${pythonVersion}) with configuration:`);
+console.log(`- Dependencies: ${config.packages.dependencies.length} packages`);
 
 /*
  * Function definitions
@@ -155,6 +147,7 @@ function detectTarGzArchive(searchDir) {
 
 function untarPythonArchive(archivePath, targetDir) {
   console.log(`using python archive '${archivePath}'`);
+  console.log(`  extracting to '${targetDir}'`);
 
   tar.x({
     sync: true,
@@ -170,23 +163,47 @@ function buildFromSources(version, osType, archType, installDir) {
   const archiveDir = 'dist'; // portable-python always creates python archive in 'dist' dir
   const tarGzName = detectTarGzArchive(archiveDir);
 
-  // Create version-specific pydist directory
-  const versionPydist = path.join(packageRoot, `python-${version}`, 'pydist');
-  if (!fs.existsSync(versionPydist)) {
-    fs.mkdirSync(versionPydist, { recursive: true });
-  }
-
+  const versionPydist = path.dirname(installDir);
   const tarGzPath = path.join(versionPydist, tarGzName);
   fs.renameSync(path.join(archiveDir, tarGzName), tarGzPath);
 
-  untarPythonArchive(tarGzPath, packageRoot, version);
-
-  // tar.gz archive contains <version>/... directory with all necessary inside. Move it to our package root
-  if (!fs.existsSync(installDir)) {
-    fs.mkdirSync(installDir, { recursive: true }); // create install dir and all its parents
+  // Use a dedicated temporary directory for extraction to avoid relative path issues.
+  const tempExtractDir = path.join(packageRoot, 'temp-extract');
+  if (fs.existsSync(tempExtractDir)) {
+    fs.rmSync(tempExtractDir, { recursive: true });
   }
-  fs.rmSync(installDir, { recursive: true }); // remove install dir before renaming
-  fs.renameSync(path.join(packageRoot, version), installDir);
+  fs.mkdirSync(tempExtractDir, { recursive: true });
+
+  untarPythonArchive(tarGzPath, tempExtractDir);
+
+  // Dynamically find the name of the extracted directory.
+  // We expect portable-python to create a single directory inside the tarball.
+  const files = fs.readdirSync(tempExtractDir, { withFileTypes: true });
+  const directories = files.filter(f => f.isDirectory());
+
+  if (directories.length !== 1) {
+    throw new Error(
+      `Extraction failed: Expected 1 directory in the archive, but found ${directories.length}. ` +
+      `Contents: ${files.map(f => f.name).join(', ')}`
+    );
+  }
+
+  const extractedDirName = directories[0].name;
+  const extractedPythonDir = path.join(tempExtractDir, extractedDirName);
+  console.log(`[DEBUG] Found extracted directory: '${extractedDirName}'`);
+
+  
+  // Ensure the final destination exists and is empty
+  if (fs.existsSync(installDir)) {
+    fs.rmSync(installDir, { recursive: true });
+  }
+  fs.mkdirSync(installDir, { recursive: true });
+  
+  // Move the extracted python directory to its final destination
+  fs.renameSync(extractedPythonDir, installDir);
+
+  // Clean up the temporary directory
+  fs.rmSync(tempExtractDir, { recursive: true });
 
   console.log(
     `\nPython ${version} portable distribution for ${osType}-${archType} was saved to ${installDir}\n`
@@ -231,6 +248,9 @@ async function getPortableWindows(version, archType, installDir) {
   if (archType != arch_x64) {
     throw new Error(`architecture '${archType}' is not supported for windows`);
   }
+
+  // Derive the packageDist from the final installDir to ensure it's correct.
+  const packageDist = path.dirname(installDir);
 
   const archiveName = `python-${version}-embed-amd64.zip`;
   const pythonZipFile = path.join(packageDist, archiveName);
@@ -431,8 +451,13 @@ function buildPipArgs(packageSpec, destinationDir) {
 
 async function downloadPackages(pyBin, destinationDir, osType, archType) {
   const depsList = config.packages.dependencies || [];
+  
+  // Also include platform-specific dependencies
+  const platformKey = `${osType}-${archType}`;
+  const platformDeps = config.packages.platformSpecific?.[platformKey]?.dependencies || [];
+  const allDeps = [...new Set([...depsList, ...platformDeps])];
 
-  for (const depSpec of depsList) {
+  for (const depSpec of allDeps) {
     const depSpecClean = depSpec.trim();
     if (!depSpecClean) {
       // Skip empty lines
@@ -488,30 +513,48 @@ async function downloadPackages(pyBin, destinationDir, osType, archType) {
   }
 }
 
-function copyVersionSpecificFiles(installDir, osType) {
-    if (!config.packages.copyFiles || config.packages.copyFiles.length === 0) {
-        console.log(`\nNo version-specific files to copy.`);
+function copyVersionSpecificFiles(installDir, osType, archType) {
+    const genericCopyFiles = config.packages.copyFiles || [];
+    
+    const platformKey = `${osType}-${archType}`;
+    const platformSpecificConfig = config.packages.platformSpecific?.[platformKey];
+    const platformCopyFiles = platformSpecificConfig?.copyFiles || [];
+
+    const allCopyOperations = [...genericCopyFiles, ...platformCopyFiles];
+
+    if (allCopyOperations.length === 0) {
+        console.log(`\n[DEBUG] No version-specific files to copy for this platform.`);
         return;
     }
 
-    console.log(`\nCopying version-specific files...`);
+    console.log(`\n[DEBUG] Copying version-specific files...`);
 
-    for (const op of config.packages.copyFiles) {
-        const sourcePath = path.join(packageRoot, `python-${pythonVersion}`, op.from);
-        
+    for (const op of allCopyOperations) {
+        console.log(`[DEBUG] Processing copy operation:`, JSON.stringify(op));
+        const sourcePath = path.join(packageRoot, `python-${fullVersion}`, op.from);
+        console.log(`[DEBUG]   Resolved source path: ${sourcePath}`);
+
         let destPath = op.to;
         // Dynamically replace site-packages path
         if (destPath.includes('{site-packages}')) {
+            console.log(`[DEBUG]   Found '{site-packages}' in destination.`);
             const [major, minor] = pythonVersion.split('.');
-            const sitePackagesDir = (osType === os_windows) 
-                ? 'Lib/site-packages' 
+            const sitePackagesDir = (osType === os_windows)
+                ? 'Lib/site-packages'
                 : `lib/python${major}.${minor}/site-packages`;
             destPath = destPath.replace('{site-packages}', sitePackagesDir);
+            console.log(`[DEBUG]   Replaced destPath: ${destPath}`);
         }
 
         const finalDestPath = path.join(installDir, destPath);
+        console.log(`[DEBUG]   Resolved final destination path: ${finalDestPath}`);
 
         console.log(`  Copying from '${sourcePath}' to '${finalDestPath}'...`);
+
+        if (!fs.existsSync(sourcePath)) {
+            console.error(`  ✗ ERROR: Source path does not exist: ${sourcePath}`);
+            continue; // Skip to the next operation
+        }
 
         try {
             const sourceStats = fs.statSync(sourcePath);
@@ -565,17 +608,16 @@ function copyDirSync(src, dest) {
     console.log(`[DEBUG] Detected OS: ${osType}, Arch: ${archType}`);
     
     // Create version-specific pydist directory
-    const versionPydist = path.join(packageRoot, `python-${pythonVersion}`, 'pydist');
-    console.log(`[DEBUG] Creating pydist directory: ${versionPydist}`);
-    if (!fs.existsSync(versionPydist)) {
-      fs.mkdirSync(versionPydist, { recursive: true });
-    }
-    
     const installDir = path.join(
-      versionPydist,
+      packageRoot,
+      `python-${fullVersion}`,
+      'pydist',
       `${osType}-${archType}`
     );
     console.log(`[DEBUG] Install directory: ${installDir}`);
+
+    console.log(`[DEBUG] Creating install directory and all its parents...`);
+    fs.mkdirSync(installDir, { recursive: true });
 
     console.log(`[DEBUG] Starting Python distribution build...`);
     if (osType === os_windows) {
@@ -605,11 +647,16 @@ function copyDirSync(src, dest) {
     console.log(`[DEBUG] Starting package downloads...`);
     await downloadPackages(pyBin, packagesDir, osType, archType);
     
+    console.log(`[DEBUG] Checking config for copyFiles before execution:`, JSON.stringify(config.packages.copyFiles, null, 2));
     console.log(`[DEBUG] Copying version-specific files...`);
-    copyVersionSpecificFiles(installDir, osType);
+    copyVersionSpecificFiles(installDir, osType, archType);
 
-    console.log(`[DEBUG] Running pl-pkg build packages...`);
-    runCommand('pl-pkg', ['build', 'packages']);
+    //console.log(`[DEBUG] Running pl-pkg build packages...`);
+    //runCommand('pl-pkg', ['build', 'packages']);
+    
+    // Descriptors must be built last, after all artifacts are in place.
+    console.log(`[DEBUG] Building software descriptors...`);
+    runCommand('pl-pkg', ['build', 'descriptors']);
     
     console.log(`[DEBUG] Build completed successfully`);
   } catch (error) {

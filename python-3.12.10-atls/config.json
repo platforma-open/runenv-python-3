@@ -53,6 +53,7 @@
       "macosx-aarch64": {
         "copyFiles": [
           { "from": "macosx-aarch64/bin/", "to": "bin/" },
+          { "from": "macosx-aarch64/lib/", "to": "lib/" },
           { "from": "macosx-aarch64/site-packages/", "to": "{site-packages}/" }
         ]
       }

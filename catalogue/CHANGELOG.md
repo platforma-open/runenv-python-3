@@ -1,5 +1,15 @@
 # @platforma-open/milaboratories.runenv-python-3
 
+## 1.2.5
+
+### Patch Changes
+
+- ff40ce8: Polars update
+- Updated dependencies [ff40ce8]
+  - @platforma-open/milaboratories.runenv-python-3.10.11@1.0.4
+  - @platforma-open/milaboratories.runenv-python-3.12.10@1.0.4
+  - @platforma-open/milaboratories.runenv-python-3.12.10-atls@1.0.2
+
 ## 1.2.4
 
 ### Patch Changes

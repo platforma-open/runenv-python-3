@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10-atls
 
+## 1.1.0
+
+### Minor Changes
+
+- beeba22: Add scanpy and anndata to shared deps
+
 ## 1.0.2
 
 ### Patch Changes

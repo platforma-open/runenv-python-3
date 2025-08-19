@@ -1,5 +1,18 @@
 # @platforma-open/milaboratories.runenv-python-3
 
+## 1.3.0
+
+### Minor Changes
+
+- beeba22: Add scanpy and anndata to shared deps
+
+### Patch Changes
+
+- Updated dependencies [beeba22]
+  - @platforma-open/milaboratories.runenv-python-3.10.11@1.1.0
+  - @platforma-open/milaboratories.runenv-python-3.12.10@1.1.0
+  - @platforma-open/milaboratories.runenv-python-3.12.10-atls@1.1.0
+
 ## 1.2.5
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10
 
+## 1.1.1
+
+### Patch Changes
+
+- 95a8a0b: remove umap-learn
+- 07b07f5: Add new libraries
+
 ## 1.1.0
 
 ### Minor Changes

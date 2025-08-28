@@ -22,7 +22,10 @@
       "scanpy==1.10.1",
       "anndata==0.10.5",
       "celltypist==1.6.3",
-      "leidenalg==0.10.2"
+      "leidenalg==0.10.2",
+      "sccoda==0.1.9",
+      "tensorflow==2.19.0",
+      "tf-keras==2.19.0"
     ],
     "skip": {
       "cudf-cu12": {

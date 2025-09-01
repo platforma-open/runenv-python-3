@@ -1,5 +1,12 @@
 # @platforma-open/milaboratories.runenv-python-3.10.11
 
+## 1.1.2
+
+### Patch Changes
+
+- 1e025c8: revert git rule
+- 6991e4a: Add harmony
+
 ## 1.1.1
 
 ### Patch Changes

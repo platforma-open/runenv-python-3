@@ -1,5 +1,16 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10
 
+## 1.2.0
+
+### Minor Changes
+
+- 09a272e: chore: add compositional-analysis libraries
+
+### Patch Changes
+
+- 1e025c8: revert git rule
+- 6991e4a: Add harmony
+
 ## 1.1.1
 
 ### Patch Changes

@@ -1,5 +1,22 @@
 # @platforma-open/milaboratories.runenv-python-3
 
+## 1.4.0
+
+### Minor Changes
+
+- 09a272e: chore: add compositional-analysis libraries
+
+### Patch Changes
+
+- 1e025c8: revert git rule
+- 6991e4a: Add harmony
+- Updated dependencies [1e025c8]
+- Updated dependencies [6991e4a]
+- Updated dependencies [09a272e]
+  - @platforma-open/milaboratories.runenv-python-3.10.11@1.1.2
+  - @platforma-open/milaboratories.runenv-python-3.12.10@1.2.0
+  - @platforma-open/milaboratories.runenv-python-3.12.10-atls@1.1.2
+
 ## 1.3.1
 
 ### Patch Changes

@@ -50,6 +50,9 @@
         "macosx-x64": "Skipped where tensorflow is skipped",
         "macosx-aarch64": "Skipped where tensorflow is skipped",
         "linux-aarch64": "Skipped where tensorflow is skipped"
+      },
+      "sccoda": {
+        "linux-aarch64": "Requires TensorFlow and R; no official TF wheels on aarch64"
       }
     },
     "forceSource": {
@@ -60,6 +63,19 @@
       "pynacl": {
         "windows-x64": "pynacl often fails to build on Windows, prefer source"
       }
+    },
+    "resolution": {
+      "allowSourceAll": false,
+      "strictMissing": false,
+      "allowSourceList": [
+        "sccoda"
+      ],
+      "forceNoBinaryList": [
+      ],
+      "onlyBinaryList": [
+        "numpy",
+        "scipy"
+      ]
     }
   },
   "build": {

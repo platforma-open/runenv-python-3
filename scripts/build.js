@@ -430,6 +430,33 @@ function shouldForceSource(packageName, osType, archType) {
   return false;
 }
 
+// --- Resolution policy (config-driven) ---
+function normalizePackageName(name) {
+  return (name || '').toLowerCase().replace(/_/g, '-');
+}
+
+function mergeResolution(base, override) {
+  const lc = (arr) => (arr || []).map(x => (typeof x === 'string' ? x.toLowerCase().replace(/_/g, '-') : x));
+  const dedup = (arr) => [...new Set(lc(arr))];
+  const has = (obj, key) => obj && Object.prototype.hasOwnProperty.call(obj, key);
+  const b = base || {};
+  const o = override || {};
+  return {
+    allowSourceAll: has(o, 'allowSourceAll') ? o.allowSourceAll : !!b.allowSourceAll,
+    strictMissing: has(o, 'strictMissing') ? o.strictMissing : !!b.strictMissing,
+    allowSourceList: dedup([...(b.allowSourceList || []), ...(o.allowSourceList || [])]),
+    forceNoBinaryList: dedup([...(b.forceNoBinaryList || []), ...(o.forceNoBinaryList || [])]),
+    onlyBinaryList: dedup([...(b.onlyBinaryList || []), ...(o.onlyBinaryList || [])])
+  };
+}
+
+function getResolutionPolicy(osType, archType) {
+  const base = config.packages?.resolution || {};
+  const platformKey = `${osType}-${archType}`;
+  const plat = config.packages?.platformSpecific?.[platformKey]?.resolution || {};
+  return mergeResolution(base, plat);
+}
+
 function buildPipArgs(packageSpec, destinationDir) {
   const args = [
     '-m',
@@ -457,6 +484,9 @@ async function downloadPackages(pyBin, destinationDir, osType, archType) {
   const platformDeps = config.packages.platformSpecific?.[platformKey]?.dependencies || [];
   const allDeps = [...new Set([...depsList, ...platformDeps])];
 
+  const resolution = getResolutionPolicy(osType, archType);
+  console.log(`[DEBUG] Resolution policy: ${JSON.stringify(resolution)}`);
+
   for (const depSpec of allDeps) {
     const depSpecClean = depSpec.trim();
     if (!depSpecClean) {
@@ -465,6 +495,7 @@ async function downloadPackages(pyBin, destinationDir, osType, archType) {
     }
 
     const packageName = getPackageName(depSpecClean);
+    const packageNameNorm = normalizePackageName(packageName);
     console.log(`\nProcessing package: ${depSpecClean}`);
     
     // Check if package should be skipped for this platform
@@ -473,14 +504,19 @@ async function downloadPackages(pyBin, destinationDir, osType, archType) {
     }
     
     // Check if package should be forced to build from source
-    const forceSource = shouldForceSource(packageName, osType, archType);
+    let forceSource = shouldForceSource(packageName, osType, archType);
+    if (resolution.forceNoBinaryList?.includes(packageNameNorm)) {
+      console.log(`  ℹ️  Forcing source build for ${packageName} due to resolution.forceNoBinaryList`);
+      forceSource = true;
+    }
     
     if (forceSource) {
       // Skip binary wheel attempt and go straight to source
       console.log(`  Building from source (forced)...`);
       try {
         const pipArgs = buildPipArgs(depSpecClean, destinationDir);
-        pipArgs.push('--no-binary', ':all:');
+        // Only force source for this package to preserve wheels for its dependencies
+        pipArgs.push('--no-binary', packageName);
         runCommand(pyBin, pipArgs);
         console.log(`  ✓ Successfully downloaded source for ${depSpecClean}`);
       } catch (sourceError) {
@@ -496,17 +532,40 @@ async function downloadPackages(pyBin, destinationDir, osType, archType) {
         runCommand(pyBin, pipArgs);
         console.log(`  ✓ Successfully downloaded binary wheel for ${depSpecClean}`);
       } catch (error) {
-        console.log(`  ✗ Binary wheel not available for ${depSpecClean}, building from source...`);
-        
-        // If binary wheel download fails, build from source
+        // Decide fallback according to resolution policy
+        if (resolution.onlyBinaryList?.includes(packageNameNorm)) {
+          const msg = `Wheel not available and onlyBinaryList forbids source for ${packageName}`;
+          if (resolution.strictMissing) {
+            throw new Error(msg);
+          } else {
+            console.warn(`  ⚠️  ${msg}. Skipping.`);
+            continue;
+          }
+        }
+
+        const allowSource = resolution.allowSourceAll || (resolution.allowSourceList?.includes(packageNameNorm));
+        if (!allowSource) {
+          const msg = `Wheel not available and source fallback disabled for ${packageName}`;
+          if (resolution.strictMissing) {
+            throw new Error(msg);
+          } else {
+            console.warn(`  ⚠️  ${msg}. Skipping.`);
+            continue;
+          }
+        }
+
+        console.log(`  ✗ Binary wheel not available for ${depSpecClean}, building from source (policy-allowed)...`);
         try {
           const pipArgs = buildPipArgs(depSpecClean, destinationDir);
-          pipArgs.push('--no-binary', ':all:');
+          // Only force source for this package, not its dependencies
+          pipArgs.push('--no-binary', packageName);
           runCommand(pyBin, pipArgs);
           console.log(`  ✓ Successfully downloaded source for ${depSpecClean}`);
         } catch (sourceError) {
           console.error(`  ✗ Failed to download source for ${depSpecClean}: ${sourceError.message}`);
-          throw sourceError;
+          if (resolution.strictMissing) throw sourceError;
+          console.warn(`  ⚠️  Skipping ${packageName} due to source build failure.`);
+          continue;
         }
       }
     }

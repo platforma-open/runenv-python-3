@@ -63,6 +63,20 @@ function mergeConfig(version) {
                 ...(sharedConfig.packages?.overrides || {}),
                 ...(versionConfig.packages?.overrides || {}),
             },
+            // 'resolution': policy for wheels/source; arrays are de-duped, booleans overridden by version-specific
+            resolution: (function () {
+                const s = sharedConfig.packages?.resolution || {};
+                const v = versionConfig.packages?.resolution || {};
+                const lc = (arr) => (arr || []).map(x => (typeof x === 'string' ? x.toLowerCase().replace(/_/g, '-') : x));
+                const dedup = (arr) => [...new Set(lc(arr))];
+                return {
+                    allowSourceAll: (typeof v.allowSourceAll === 'boolean') ? v.allowSourceAll : (s.allowSourceAll || false),
+                    strictMissing: (typeof v.strictMissing === 'boolean') ? v.strictMissing : (s.strictMissing || false),
+                    allowSourceList: dedup([...(s.allowSourceList || []), ...(v.allowSourceList || [])]),
+                    forceNoBinaryList: dedup([...(s.forceNoBinaryList || []), ...(v.forceNoBinaryList || [])]),
+                    onlyBinaryList: dedup([...(s.onlyBinaryList || []), ...(v.onlyBinaryList || [])]),
+                };
+            })(),
             
             // 'platformSpecific': This will be populated next through a deep merge
             platformSpecific: {} 
@@ -90,10 +104,30 @@ function mergeConfig(version) {
                         ...(version.copyFiles ? version.copyFiles.map(JSON.stringify) : [])
                     ])
                 ].map(JSON.parse),
+                resolution: (function () {
+                    const s = shared.resolution || {};
+                    const v = version.resolution || {};
+                    const lc = (arr) => (arr || []).map(x => (typeof x === 'string' ? x.toLowerCase().replace(/_/g, '-') : x));
+                    const dedup = (arr) => [...new Set(lc(arr))];
+                    const has = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
+                    const r = {};
+                    if (Object.keys(s).length > 0 || Object.keys(v).length > 0) {
+                        r.allowSourceAll = has(v, 'allowSourceAll') ? v.allowSourceAll : (s.allowSourceAll || false);
+                        r.strictMissing = has(v, 'strictMissing') ? v.strictMissing : (s.strictMissing || false);
+                        r.allowSourceList = dedup([...(s.allowSourceList || []), ...(v.allowSourceList || [])]);
+                        r.forceNoBinaryList = dedup([...(s.forceNoBinaryList || []), ...(v.forceNoBinaryList || [])]);
+                        r.onlyBinaryList = dedup([...(s.onlyBinaryList || []), ...(v.onlyBinaryList || [])]);
+                    }
+                    return r;
+                })(),
             };
             
             // Only add the platform to the merged config if it has content
-            if (platformConfig.dependencies.length > 0 || platformConfig.copyFiles.length > 0) {
+            if (
+                platformConfig.dependencies.length > 0 ||
+                platformConfig.copyFiles.length > 0 ||
+                (platformConfig.resolution && Object.keys(platformConfig.resolution).length > 0)
+            ) {
                  mergedConfig.packages.platformSpecific[key] = platformConfig;
             }
         }

@@ -23,18 +23,36 @@
       "anndata==0.10.5",
       "celltypist==1.6.3",
       "leidenalg==0.10.2",
+      "sccoda==0.1.9",
+      "tensorflow==2.19.0",
+      "tf-keras==2.19.0",
       "harmonypy==0.0.9"
     ],
     "skip": {
       "cudf-cu12": {
         "macosx-x64": "CUDA packages not supported on macOS",
         "macosx-aarch64": "CUDA packages not supported on macOS",
-        "windows-x64": "CUDA packages not supported on Windows"
+        "windows-x64": "CUDA packages not supported on Windows",
+        "linux-aarch64": "CUDA packages not supported on Linux ARM64"
       },
       "cupy-cuda12x": {
         "macosx-x64": "CUDA packages not supported on macOS",
         "macosx-aarch64": "CUDA packages not supported on macOS",
-        "windows-x64": "CUDA packages not supported on Windows"
+        "windows-x64": "CUDA packages not supported on Windows",
+        "linux-aarch64": "CUDA packages not supported on Linux ARM64"
+      },
+      "tensorflow": {
+        "macosx-x64": "Use tensorflow-macos on Apple platforms; no official wheel here",
+        "macosx-aarch64": "Use tensorflow-macos on Apple platforms; no official wheel here",
+        "linux-aarch64": "No official TensorFlow wheel for Linux ARM64 on PyPI"
+      },
+      "tf-keras": {
+        "macosx-x64": "Skipped where tensorflow is skipped",
+        "macosx-aarch64": "Skipped where tensorflow is skipped",
+        "linux-aarch64": "Skipped where tensorflow is skipped"
+      },
+      "sccoda": {
+        "linux-aarch64": "Requires TensorFlow and R; no official TF wheels on aarch64"
       }
     },
     "forceSource": {
@@ -45,6 +63,19 @@
       "pynacl": {
         "windows-x64": "pynacl often fails to build on Windows, prefer source"
       }
+    },
+    "resolution": {
+      "allowSourceAll": false,
+      "strictMissing": false,
+      "allowSourceList": [
+        "sccoda"
+      ],
+      "forceNoBinaryList": [
+      ],
+      "onlyBinaryList": [
+        "numpy",
+        "scipy"
+      ]
     }
   },
   "build": {

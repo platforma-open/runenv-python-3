@@ -303,9 +303,8 @@ import site
 
   // On windows pip has a flaw that causes exceptions during pip init step (confugutations reading).
   //   CSIDL_COMMON_APPDATA registry read issue (Error: FileNotFoundError: [WinError 2])
-  // https://github.com/pypa/pip/pull/13567
-  // We should not allow it break apart when registry key is not found.
-  // 'not found' for configuration means 'nothing to read', not 'everything is broken'.
+  // If this command fails, see if https://github.com/pypa/pip/pull/13567 is resolved.
+  // If so - patch is not needed any more.
   const appdirsPath = path.join(pyBinRoot, 'Lib', 'site-packages', 'pip', '_internal', 'utils', 'appdirs.py');
   const patchPath = path.join(packageRoot, 'patches', 'pip-win-reg.patch');
   runCommand("patch", [appdirsPath, patchPath])

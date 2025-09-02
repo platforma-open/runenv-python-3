@@ -4,8 +4,8 @@
     "build": {
       "dependsOn": ["^build"],
       "env": ["RUNNER_OS", "RUNNER_ARCH"],
-      "inputs": ["$TURBO_DEFAULT$"],
-      "outputs": ["./dist/**", "./pkg-*.tgz" ],
+      "inputs": ["$TURBO_DEFAULT$", "!./pkg-*.tgz" ],
+      "outputs": ["./dist/**" ],
 
       "passThroughEnv": [
         "PL_REGISTRY_PLATFORMA_OPEN_UPLOAD_URL",

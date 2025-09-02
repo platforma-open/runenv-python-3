@@ -48,9 +48,6 @@ jobs:
           }
         }
 
-      env: |
-        { "BODY_LIMIT": "1048576000" }
-
       main-metapackage-name: '@platforma-open/milaboratories.runenv-python-3'
       pre-calculated-task-list: |
         [

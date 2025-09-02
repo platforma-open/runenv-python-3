@@ -4,7 +4,7 @@
   "description": "Python 3.12.10 run environment for Platforma Backend",
   "scripts": {
     "cleanup": "rm -rf ./pkg-*.tgz && rm -rf ./pydist && rm -rf ./dist/ && rm -rf ./build/",
-    "build": "node ../scripts/build.js 3.10.11",
+    "build": "node ../scripts/build.js 3.12.10",
     "prepublishOnly": "pl-pkg prepublish"
   },
   "files": [

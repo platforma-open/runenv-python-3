@@ -4,7 +4,8 @@
   "description": "Python 3 run environments for Platforma Backend",
   "scripts": {
     "cleanup": "rm -rf ./pkg-*.tgz && rm -rf ./dist/",
-    "build": "pl-pkg build"
+    "build": "pl-pkg build",
+    "prepublishOnly": "pl-pkg prepublish"
   },
   "block-software": {
     "entrypoints": {

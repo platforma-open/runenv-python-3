@@ -4,9 +4,8 @@
   "description": "Python 3.12.10 run environment for Platforma Backend with ATLS",
   "scripts": {
     "cleanup": "rm -rf ./pkg-*.tgz && rm -rf ./pydist && rm -rf ./dist/ && rm -rf ./build/",
-    "build": "node ../scripts/build.js 3.12.10-atls",
-    "build-descriptors": "pl-pkg build descriptors",
-    "postbuild-publish": "pl-pkg build packages && pl-pkg publish --force"
+    "build": "node ../scripts/build.js 3.10.11",
+    "prepublishOnly": "pl-pkg prepublish"
   },
   "files": [
     "dist/"

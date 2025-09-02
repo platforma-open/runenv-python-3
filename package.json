@@ -6,7 +6,8 @@
     "build-descriptors": "turbo run build-descriptors",
     "postbuild-publish": "turbo run postbuild-publish",
     "changeset": "changeset",
-    "version-packages": "changeset version"
+    "version-packages": "changeset version",
+    "update-sdk": "pl-blocks-deps-updater"
   },
   "license": "UNLICENSED",
   "packageManager": "pnpm@10.13.1",
@@ -17,6 +18,7 @@
     "turbo": "catalog:",
     "@changesets/cli": "catalog:",
     "tar": "catalog:",
-    "unzipper": "catalog:"
+    "unzipper": "catalog:",
+    "@platforma-sdk/blocks-deps-updater": "catalog:"
   }
 }

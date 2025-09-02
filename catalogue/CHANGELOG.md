@@ -1,5 +1,15 @@
 # @platforma-open/milaboratories.runenv-python-3
 
+## 1.4.1
+
+### Patch Changes
+
+- 9a6258a: Bugfix for windows: pip install does not fail on registry access now
+- Updated dependencies [9a6258a]
+  - @platforma-open/milaboratories.runenv-python-3.10.11@1.1.3
+  - @platforma-open/milaboratories.runenv-python-3.12.10@1.2.1
+  - @platforma-open/milaboratories.runenv-python-3.12.10-atls@1.1.3
+
 ## 1.4.0
 
 ### Minor Changes

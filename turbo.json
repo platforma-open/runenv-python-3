@@ -3,9 +3,9 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "env": ["RUNNER_OS", "RUNNER_ARCH"],
-      "inputs": ["$TURBO_DEFAULT$", "!./pkg-*.tgz" ],
-      "outputs": ["./dist/**" ],
+      "env": [ "RUNNER_OS", "RUNNER_ARCH" ],
+      "inputs": [ "$TURBO_DEFAULT$", "!./pkg-*.tgz", "!./pydist/**" ],
+      "outputs": [ "./dist/**" ],
 
       "passThroughEnv": [
         "PL_REGISTRY_PLATFORMA_OPEN_UPLOAD_URL",

@@ -762,6 +762,8 @@ function copyDirSync(src, dest) {
     runCommand('pl-pkg', ['build']);
 
     console.log(`[DEBUG] Build completed successfully`);
+    console.log(`[DEBUG] Package root listing after build:`);
+    console.log(fs.readdirSync(packageRoot));
   } catch (error) {
     console.error(`[ERROR] Build failed: ${error.message}`);
     console.error(`[ERROR] Stack trace: ${error.stack}`);

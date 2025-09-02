@@ -344,7 +344,7 @@ function patchPipWheel(pythonExe, pipWheelPath) {
   for (const pkgDir of fs.readdirSync(pipPatchDir)) {
     const whlRootDir = path.join(pipPatchDir, pkgDir);
     fixPipRegistryIssue(path.join(whlRootDir, 'pip'));
-    runCommand(pythonExe, ["-m", "wheel", "pack", whlRootDir, '--wheel-dir', path.dirname(pipWheelPath)]);
+    runCommand(pythonExe, ["-m", "wheel", "pack", whlRootDir, '--dest-dir', path.dirname(pipWheelPath)]);
   }
 
   fs.rmdirSync(pipPatchDir, { recursive: true });

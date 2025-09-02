@@ -761,9 +761,14 @@ function copyDirSync(src, dest) {
     console.log(`[DEBUG] Building pl package...`);
     runCommand('pl-pkg', ['build']);
 
+    if (process.env['CI'] === 'true') {
+      console.log(`[DEBUG] Publishing packages...`);
+      runCommand('pl-pkg', ['publish', 'packages']);
+    }
+
     console.log(`[DEBUG] Build completed successfully`);
     console.log(`[DEBUG] Package root listing after build:`);
-    console.log(fs.readdirSync(packageRoot));
+    console.log(fs.readdirSync('.'));
   } catch (error) {
     console.error(`[ERROR] Build failed: ${error.message}`);
     console.error(`[ERROR] Stack trace: ${error.stack}`);

@@ -5,8 +5,7 @@
   "scripts": {
     "cleanup": "rm -rf ./pkg-*.tgz && rm -rf ./pydist && rm -rf ./dist/ && rm -rf ./build/",
     "build": "node ../scripts/build.js 3.10.11",
-    "after-prebuild": "pl-pkg publish packages",
-    "prepublishOnly": "pl-pkg prepublish"
+    "before-publish": "pl-pkg prepublish"
   },
   "files": [
     "dist/"

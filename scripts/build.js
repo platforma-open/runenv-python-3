@@ -284,18 +284,20 @@ import site
 
   const pythonExe = path.join(pyBinRoot, 'python.exe');
 
+  // Install pip with bootstrap pip.pyz script
   runCommand(pythonExe, [pipFile, 'install', 'pip']);
-  runCommand(pythonExe, ['-m', 'pip', 'install', 'virtualenv', 'wheel']);
 
   // On windows pip has a flaw that causes exceptions during pip init step (confugutations reading).
   //   CSIDL_COMMON_APPDATA registry read issue (Error: FileNotFoundError: [WinError 2])
   // If this command fails, see if https://github.com/pypa/pip/pull/13567 is resolved.
   // If so - patch is not needed any more.
-  fixPipRegistryIssue(pythonExe, path.join(pyBinRoot, 'Lib', 'site-packages', 'pip'));
+  fixPipRegistryIssue(path.join(pyBinRoot, 'Lib', 'site-packages', 'pip'));
 
-  // We also have to path pip embedded into venv package:
+  // Install rest of the packages required in all environments
+  runCommand(pythonExe, ['-m', 'pip', 'install', 'virtualenv', 'wheel']);
+
+  // We have to patch pip embedded into venv package:
   const venvEmbeddedWheelsDir = path.join(pyBinRoot, 'Lib', 'site-packages', 'virtualenv', 'seed', 'wheels', 'embed');
-
   for (const wheel of fs.readdirSync(venvEmbeddedWheelsDir)) {
     if (wheel.startsWith('pip-') && wheel.endsWith('.whl')) {
       patchPipWheel(
@@ -305,7 +307,7 @@ import site
     }
   }
 
-  // drop pip binaries, as they are 'bound' to absolute paths on host and will not work after pl package installation anyway
+  // drop pip, wheel and other binaries, as they are bound to absolute paths on host and will not work after pl package installation anyway
   fs.rmSync(path.join(pyBinRoot, 'Scripts'), { recursive: true });
 
   // Also make python binary to be available via python3 name, like we have

@@ -2,14 +2,11 @@
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
     "build": {
+      "dependsOn": ["^build"],
       "env": ["RUNNER_OS", "RUNNER_ARCH"],
       "inputs": ["$TURBO_DEFAULT$"],
-      "outputs": ["./dist/**", "./pkg-*.tgz" ]
-    },
-    "postbuild-publish": {
-      "env": ["RUNNER_OS", "RUNNER_ARCH"],
-      "inputs": ["./pkg-*.tgz"],
-      "dependsOn": ["build"],
+      "outputs": ["./dist/**", "./pkg-*.tgz" ],
+
       "passThroughEnv": [
         "PL_REGISTRY_PLATFORMA_OPEN_UPLOAD_URL",
         "AWS_DEFAULT_REGION",
@@ -17,9 +14,6 @@
         "AWS_SECRET_ACCESS_KEY",
         "AWS_SESSION_TOKEN"
       ]
-    },
-    "build-descriptors": {
-      "outputs": ["./dist/**"]
     }
   }
 }

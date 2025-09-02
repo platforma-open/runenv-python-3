@@ -4,7 +4,7 @@
     "build": {
       "dependsOn": ["^build"],
       "env": [ "RUNNER_OS", "RUNNER_ARCH" ],
-      "inputs": [ "$TURBO_DEFAULT$", "!./pkg-*.tgz", "!./pydist/**" ],
+      "inputs": [ "$TURBO_DEFAULT$", "!./pkg-*.tgz", "!./pydist/**", "../shared-config.json", "../scripts/**" ],
       "outputs": [ "./dist/**" ],
 
       "passThroughEnv": [

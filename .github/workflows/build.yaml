@@ -78,7 +78,7 @@ jobs:
         python*/pydist/**/bin/pdbfixer
 
       # pydist/3.12.6/macosx-x64/<python package root>
-      # Do not try to notarizr 'packages' directory with whl files, as whl is an archive and we
+      # Do not try to notarize 'packages' directory with whl files, as whl is an archive and we
       # have to sign all .so files inside first to not tirgger notarisation errors
       notarize-paths: |
         python*/pydist/*/bin

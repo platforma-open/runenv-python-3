@@ -282,8 +282,23 @@ import site
 `
   );
 
-  runCommand(path.join(pyBinRoot, 'python.exe'), [pipFile, 'install', 'pip']);
-  runCommand(path.join(pyBinRoot, 'python.exe'), [pipFile, 'install', 'virtualenv']);
+  runCommand(path.join(pyBinRoot, 'python.exe'), [pipFile, 'install', 'pip', 'virtualenv', 'wheel']);
+
+  // On windows pip has a flaw that causes exceptions during pip init step (confugutations reading).
+  //   CSIDL_COMMON_APPDATA registry read issue (Error: FileNotFoundError: [WinError 2])
+  // If this command fails, see if https://github.com/pypa/pip/pull/13567 is resolved.
+  // If so - patch is not needed any more.
+  fixPipRegistryIssue(path.join(pyBinRoot, 'Lib', 'site-packages', 'pip'));
+
+  // We also have to path pip embedded into venv package:
+  const venvEmbeddedWheelsDir = path.join(pyBinRoot, 'Lib', 'site-packages', 'virtualenv', 'seed', 'wheels', 'embed');
+
+  for (const wheel of fs.readdirSync(venvEmbeddedWheelsDir)) {
+    if (wheel.startsWith('pip-') && wheel.endsWith('.whl')) {
+      patchPipWheel(path.join(venvEmbeddedWheelsDir, wheel));
+    }
+  }
+
   // drop pip binaries, as they are 'bound' to absolute paths on host and will not work after pl package installation anyway
   fs.rmSync(path.join(pyBinRoot, 'Scripts'), { recursive: true });
 
@@ -294,20 +309,37 @@ import site
     path.join(pyBinRoot, 'python3.exe'),
   );
 
-  // We have to support the same tool set for all operation systems.
-  // Will rename virtualenv to venv. 
+  // We have to support the same toolset for all operation systems.
+  // Make virtualenv to be available both as 'virtualenv' and 'venv' modules.
   copyDirSync(
-      path.join(pyBinRoot, 'Lib', 'site-packages', 'virtualenv'),
-      path.join(pyBinRoot, 'Lib', 'site-packages', 'venv')
-  );
+    path.join(pyBinRoot, 'Lib', 'site-packages', 'virtualenv'),
+    path.join(pyBinRoot, 'Lib', 'site-packages', 'venv')
+);
+}
 
-  // On windows pip has a flaw that causes exceptions during pip init step (confugutations reading).
-  //   CSIDL_COMMON_APPDATA registry read issue (Error: FileNotFoundError: [WinError 2])
-  // If this command fails, see if https://github.com/pypa/pip/pull/13567 is resolved.
-  // If so - patch is not needed any more.
-  const appdirsPath = path.join(pyBinRoot, 'Lib', 'site-packages', 'pip', '_internal', 'utils', 'appdirs.py');
+function fixPipRegistryIssue(pipRoot) {
+  const appdirsPath = path.join(pipRoot, '_internal', 'utils', 'appdirs.py');
   const patchPath = path.join(packageRoot, 'patches', 'pip-win-reg.patch');
   runCommand("patch", [appdirsPath, patchPath])
+}
+
+// Unpack wheel, patch appdirs.py and pack wheel back
+function patchPipWheel(pipWheelPath) {
+  const pipPatchDir = path.join('.', 'pip-patch')
+  if (fs.existsSync(pipPatchDir)) {
+    fs.rmdirSync(pipPatchDir, { recursive: true });
+  }
+
+  runCommand("python", ["-m", "wheel", "unpack", pipWheelPath, '--dest', pipPatchDir]);
+  // wheel unpack extracts .whl file contents into <dest>/<pkg>-<version> directory (pip-patch/pip-25.1)
+  // We need to dynamically get name of this target dir to patch and re-assemble wheel
+  for (const pkgDir of fs.readdirSync(pipPatchDir)) {
+    const whlRootDir = path.join(pipPatchDir, pkgDir);
+    fixPipRegistryIssue(path.join(whlRootDir, 'pip'));
+    runCommand("python", ["-m", "wheel", "pack", whlRootDir, '--wheel-dir', path.dirname(pipWheelPath)]);
+  }
+
+  fs.rmdirSync(pipPatchDir, { recursive: true });
 }
 
 async function isBinaryOSX(filePath) {

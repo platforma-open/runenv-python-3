@@ -282,7 +282,8 @@ import site
 `
   );
 
-  runCommand(path.join(pyBinRoot, 'python.exe'), [pipFile, 'install', 'pip', 'virtualenv', 'wheel']);
+  runCommand(path.join(pyBinRoot, 'python.exe'), [pipFile, 'install', 'pip']);
+  runCommand(path.join(pyBinRoot, 'python.exe'), ['-m', 'pip', 'install', 'virtualenv', 'wheel']);
 
   // On windows pip has a flaw that causes exceptions during pip init step (confugutations reading).
   //   CSIDL_COMMON_APPDATA registry read issue (Error: FileNotFoundError: [WinError 2])

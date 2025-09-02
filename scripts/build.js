@@ -282,21 +282,26 @@ import site
 `
   );
 
-  runCommand(path.join(pyBinRoot, 'python.exe'), [pipFile, 'install', 'pip']);
-  runCommand(path.join(pyBinRoot, 'python.exe'), ['-m', 'pip', 'install', 'virtualenv', 'wheel']);
+  const pythonExe = path.join(pyBinRoot, 'python.exe');
+
+  runCommand(pythonExe, [pipFile, 'install', 'pip']);
+  runCommand(pythonExe, ['-m', 'pip', 'install', 'virtualenv', 'wheel']);
 
   // On windows pip has a flaw that causes exceptions during pip init step (confugutations reading).
   //   CSIDL_COMMON_APPDATA registry read issue (Error: FileNotFoundError: [WinError 2])
   // If this command fails, see if https://github.com/pypa/pip/pull/13567 is resolved.
   // If so - patch is not needed any more.
-  fixPipRegistryIssue(path.join(pyBinRoot, 'Lib', 'site-packages', 'pip'));
+  fixPipRegistryIssue(pythonExe, path.join(pyBinRoot, 'Lib', 'site-packages', 'pip'));
 
   // We also have to path pip embedded into venv package:
   const venvEmbeddedWheelsDir = path.join(pyBinRoot, 'Lib', 'site-packages', 'virtualenv', 'seed', 'wheels', 'embed');
 
   for (const wheel of fs.readdirSync(venvEmbeddedWheelsDir)) {
     if (wheel.startsWith('pip-') && wheel.endsWith('.whl')) {
-      patchPipWheel(path.join(venvEmbeddedWheelsDir, wheel));
+      patchPipWheel(
+        pythonExe,
+        path.join(venvEmbeddedWheelsDir, wheel),
+      );
     }
   }
 
@@ -325,19 +330,19 @@ function fixPipRegistryIssue(pipRoot) {
 }
 
 // Unpack wheel, patch appdirs.py and pack wheel back
-function patchPipWheel(pipWheelPath) {
+function patchPipWheel(pythonExe, pipWheelPath) {
   const pipPatchDir = path.join('.', 'pip-patch')
   if (fs.existsSync(pipPatchDir)) {
     fs.rmdirSync(pipPatchDir, { recursive: true });
   }
 
-  runCommand("python", ["-m", "wheel", "unpack", pipWheelPath, '--dest', pipPatchDir]);
+  runCommand(pythonExe, ["-m", "wheel", "unpack", pipWheelPath, '--dest', pipPatchDir]);
   // wheel unpack extracts .whl file contents into <dest>/<pkg>-<version> directory (pip-patch/pip-25.1)
   // We need to dynamically get name of this target dir to patch and re-assemble wheel
   for (const pkgDir of fs.readdirSync(pipPatchDir)) {
     const whlRootDir = path.join(pipPatchDir, pkgDir);
     fixPipRegistryIssue(path.join(whlRootDir, 'pip'));
-    runCommand("python", ["-m", "wheel", "pack", whlRootDir, '--wheel-dir', path.dirname(pipWheelPath)]);
+    runCommand(pythonExe, ["-m", "wheel", "pack", whlRootDir, '--wheel-dir', path.dirname(pipWheelPath)]);
   }
 
   fs.rmdirSync(pipPatchDir, { recursive: true });

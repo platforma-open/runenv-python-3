@@ -56,11 +56,13 @@ jobs:
             {"os":"ubuntu-large-arm64", "arch":"arm64", "python_version":"3.12.10"},
             {"os":"macos-13", "arch":"amd64", "python_version":"3.12.10"},
             {"os":"macos-14", "arch":"arm64", "python_version":"3.12.10"},
+
             {"os":"windows-latest", "arch":"amd64", "python_version":"3.10.11"},
             {"os":"ubuntu-large-amd64", "arch":"amd64", "python_version":"3.10.11"},
             {"os":"ubuntu-large-arm64", "arch":"arm64", "python_version":"3.10.11"},
             {"os":"macos-13", "arch":"amd64", "python_version":"3.10.11"},
             {"os":"macos-14", "arch":"arm64", "python_version":"3.10.11"},
+
             {"os":"ubuntu-large-amd64", "arch":"amd64", "python_version":"3.12.10-atls"},
             {"os":"macos-14", "arch":"arm64", "python_version":"3.12.10-atls"}
         ]

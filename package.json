@@ -3,8 +3,6 @@
   "scripts": {
     "cleanup": "pnpm -r cleanup",
     "build": "turbo run build",
-    "build-descriptors": "turbo run build-descriptors",
-    "postbuild-publish": "turbo run postbuild-publish",
     "changeset": "changeset",
     "version-packages": "changeset version",
     "update-sdk": "pl-blocks-deps-updater"

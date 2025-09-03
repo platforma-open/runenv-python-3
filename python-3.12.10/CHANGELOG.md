@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10
 
+## 1.2.2
+
+### Patch Changes
+
+- 81d0c79: Patch also pip wheel embeded into virtualenv
+
 ## 1.2.1
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # @platforma-open/milaboratories.runenv-python-3
 
+## 1.4.4
+
+### Patch Changes
+
+- f758c60: Add scikit-misc
+- Updated dependencies [f758c60]
+  - @platforma-open/milaboratories.runenv-python-3.10.11@1.1.6
+  - @platforma-open/milaboratories.runenv-python-3.12.10@1.2.4
+  - @platforma-open/milaboratories.runenv-python-3.12.10-atls@1.1.6
+
 ## 1.4.3
 
 ### Patch Changes

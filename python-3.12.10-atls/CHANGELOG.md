@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10-atls
 
+## 1.1.6
+
+### Patch Changes
+
+- f758c60: Add scikit-misc
+
 ## 1.1.5
 
 ### Patch Changes

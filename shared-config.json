@@ -27,7 +27,8 @@
       "tensorflow==2.19.0",
       "tf-keras==2.19.0",
       "harmonypy==0.0.9",
-      "pyarrow==19.0.1"
+      "pyarrow==19.0.1",
+      "scikit-misc==0.5.1"
     ],
     "skip": {
       "cudf-cu12": {

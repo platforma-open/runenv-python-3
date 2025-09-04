@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.10.11
 
+## 1.1.5
+
+### Patch Changes
+
+- 4431644: Add pyarrow
+
 ## 1.1.4
 
 ### Patch Changes

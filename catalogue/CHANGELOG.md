@@ -1,5 +1,15 @@
 # @platforma-open/milaboratories.runenv-python-3
 
+## 1.4.3
+
+### Patch Changes
+
+- 4431644: Add pyarrow
+- Updated dependencies [4431644]
+  - @platforma-open/milaboratories.runenv-python-3.10.11@1.1.5
+  - @platforma-open/milaboratories.runenv-python-3.12.10@1.2.3
+  - @platforma-open/milaboratories.runenv-python-3.12.10-atls@1.1.5
+
 ## 1.4.2
 
 ### Patch Changes

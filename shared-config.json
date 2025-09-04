@@ -26,7 +26,8 @@
       "sccoda==0.1.9",
       "tensorflow==2.19.0",
       "tf-keras==2.19.0",
-      "harmonypy==0.0.9"
+      "harmonypy==0.0.9",
+      "pyarrow==19.0.1"
     ],
     "skip": {
       "cudf-cu12": {
@@ -70,8 +71,7 @@
       "allowSourceList": [
         "sccoda"
       ],
-      "forceNoBinaryList": [
-      ],
+      "forceNoBinaryList": [],
       "onlyBinaryList": [
         "numpy",
         "scipy"

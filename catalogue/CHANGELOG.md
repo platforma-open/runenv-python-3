@@ -1,5 +1,15 @@
 # @platforma-open/milaboratories.runenv-python-3
 
+## 1.4.5
+
+### Patch Changes
+
+- edfa783: Polars and PyArrow update, added DuckDB dependancy
+- Updated dependencies [edfa783]
+  - @platforma-open/milaboratories.runenv-python-3.10.11@1.1.7
+  - @platforma-open/milaboratories.runenv-python-3.12.10@1.2.5
+  - @platforma-open/milaboratories.runenv-python-3.12.10-atls@1.1.7
+
 ## 1.4.4
 
 ### Patch Changes

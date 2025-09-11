@@ -1,5 +1,15 @@
 # @platforma-open/milaboratories.runenv-python-3
 
+## 1.4.6
+
+### Patch Changes
+
+- 1727835: New python env for sccoda
+- 9bd710a: chore: fix build
+- Updated dependencies [1727835]
+- Updated dependencies [9bd710a]
+  - @platforma-open/milaboratories.runenv-python-3.12.10-sccoda@1.2.6
+
 ## 1.4.5
 
 ### Patch Changes

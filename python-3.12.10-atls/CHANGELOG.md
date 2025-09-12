@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10-atls
 
+## 1.1.9
+
+### Patch Changes
+
+- 76e5590: Rebuild all run environments (technocal release)
+
 ## 1.1.8
 
 ### Patch Changes

@@ -13,8 +13,8 @@ catalogs:
       specifier: 2.0.0
       version: 2.0.0
     '@platforma-sdk/package-builder':
-      specifier: 3.2.4
-      version: 3.2.4
+      specifier: 3.5.2
+      version: 3.5.2
     tar:
       specifier: ^7.4.3
       version: 7.4.3
@@ -62,13 +62,13 @@ importers:
     devDependencies:
       '@platforma-sdk/package-builder':
         specifier: 'catalog:'
-        version: 3.2.4
+        version: 3.5.2
 
   python-3.10.11:
     devDependencies:
       '@platforma-sdk/package-builder':
         specifier: 'catalog:'
-        version: 3.2.4
+        version: 3.5.2
       tar:
         specifier: 'catalog:'
         version: 7.4.3
@@ -80,7 +80,7 @@ importers:
     devDependencies:
       '@platforma-sdk/package-builder':
         specifier: 'catalog:'
-        version: 3.2.4
+        version: 3.5.2
       tar:
         specifier: 'catalog:'
         version: 7.4.3
@@ -92,7 +92,7 @@ importers:
     devDependencies:
       '@platforma-sdk/package-builder':
         specifier: 'catalog:'
-        version: 3.2.4
+        version: 3.5.2
       tar:
         specifier: 'catalog:'
         version: 7.4.3
@@ -104,7 +104,7 @@ importers:
     devDependencies:
       '@platforma-sdk/package-builder':
         specifier: 'catalog:'
-        version: 3.2.4
+        version: 3.5.2
       tar:
         specifier: 'catalog:'
         version: 7.4.3
@@ -378,8 +378,8 @@ packages:
     resolution: {integrity: sha512-cef5ysA011ub5bofbWQJ3EM9rZ7A4ixGMKhFIsF2VNwYrCu5XRHsayA6vDeFOBjX4Jnq9D0QztW0JUxXD73bpw==}
     hasBin: true
 
-  '@platforma-sdk/package-builder@3.2.4':
-    resolution: {integrity: sha512-8b9rXLdwukYO3fR+hus2YXsDwyljvpb3Xw1jcsIiQcRJIWWowZqJuQhR9k5RWbMvMlbU8D9L6e3p89hfCrFndA==}
+  '@platforma-sdk/package-builder@3.5.2':
+    resolution: {integrity: sha512-3TIUiSgn1tVq7sGxCRRkn3Hwf9oDXBv6Lx0DY/fSz7QgCLxaAhbyHH8E36J50jZFCfrF+v+LA+YuVZnQSmNesA==}
     hasBin: true
 
   '@smithy/abort-controller@4.0.5':
@@ -2123,7 +2123,7 @@ snapshots:
     dependencies:
       yaml: 2.8.0
 
-  '@platforma-sdk/package-builder@3.2.4':
+  '@platforma-sdk/package-builder@3.5.2':
     dependencies:
       '@aws-sdk/client-s3': 3.859.0
       '@aws-sdk/lib-storage': 3.859.0(@aws-sdk/client-s3@3.859.0)

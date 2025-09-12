@@ -3,17 +3,18 @@ const path = require('path');
 
 /**
  * Merges shared configuration with version-specific overrides, handling deep merging of nested properties.
- * @param {string} version - Python version (e.g., "3.12.10")
+ * @param {string} repoRoot - The root directory of the repository.
+ * @param {string} packageRoot - The root directory of the package being built.
  * @returns {Object} The fully merged configuration object.
  */
-function mergeConfig(version) {
+function mergeConfig(repoRoot, packageRoot) {
     // 1. Load shared and version-specific configurations
-    const sharedConfigPath = path.join(__dirname, '..', 'shared-config.json');
+    const sharedConfigPath = path.join(repoRoot, 'shared-config.json');
     const sharedConfig = JSON.parse(fs.readFileSync(sharedConfigPath, 'utf8'));
 
-    const versionConfigPath = path.join(__dirname, '..', `python-${version}`, 'config.json');
+    const versionConfigPath = path.join(packageRoot, 'config.json');
     if (!fs.existsSync(versionConfigPath)) {
-        console.log(`[INFO] No version-specific config for '${version}'. Using shared config only.`);
+        console.log(`[INFO] No version-specific config found in '${versionConfigPath}'. Using shared config only.`);
         return sharedConfig; // Return shared config if no version-specific one exists
     }
     const versionConfig = JSON.parse(fs.readFileSync(versionConfigPath, 'utf8'));
@@ -153,9 +154,10 @@ function mergeConfig(version) {
 /**
  * Validates the final merged configuration.
  * @param {string} version - The Python version being built.
+ * @param {string} packageRoot - The root directory of the package being built.
  * @param {Object} config - The merged configuration object.
  */
-function validateConfig(version, config) {
+function validateConfig(config, packageDirName) {
   const errors = [];
   
   // A config is valid if it has global dependencies OR at least one platform has dependencies.
@@ -168,7 +170,7 @@ function validateConfig(version, config) {
   }
   
   if (errors.length > 0) {
-    throw new Error(`Configuration validation failed for ${version}:\n${errors.join('\n')}`);
+    throw new Error(`Configuration validation failed for '${packageDirName}':\n${errors.join('\n')}`);
   }
 }
 

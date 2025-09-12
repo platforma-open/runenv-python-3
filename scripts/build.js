@@ -8,7 +8,6 @@ const tar = require('tar');
 const os = require('os');
 const { get } = require('https');
 const unzipper = require('unzipper');
-const { exit } = require('process');
 const { mergeConfig, validateConfig } = require('./config-merger');
 
 const exec = promisify(cp.exec);
@@ -20,20 +19,17 @@ const args = process.argv.slice(2);
 console.log(`[DIAGNOSTIC] Raw arguments received: ${args.join(', ')}`);
 
 if (args.length !== 1) {
-    console.error(`Usage: node ${path.basename(process.argv[1])} <python-version>`);
-    console.error('  Requires exactly one argument.');
-    console.error('  Example: node build.js 3.12.10-atls');
-    process.exit(1);
+  console.error(`Usage: node ${path.basename(process.argv[1])} <python-version>`);
+  console.error('  Requires exactly one argument.');
+  console.error('  Example: node build.js 3.12.10');
+  process.exit(1);
 }
 
-const fullVersion = args[0];
-console.log(`[DIAGNOSTIC] 'fullVersion' variable set to: ${fullVersion}`);
-
-const pythonVersion = fullVersion.split('-')[0];
+const pythonVersion = args[0];
 
 if (!pythonVersion) {
-    console.error('Could not determine base python version from the argument.');
-    process.exit(1);
+  console.error('Could not determine base python version from the argument.');
+  process.exit(1);
 }
 
 /*
@@ -43,7 +39,9 @@ if (!pythonVersion) {
 // which is always one level above the 'scripts' directory. This avoids
 // fragile relative path calculations based on the current working directory,
 // which can change depending on how the script is invoked.
-const packageRoot = path.resolve(__dirname, '..');
+const repoRoot = path.resolve(__dirname, '..');
+const packageRoot = process.cwd();
+const packageDirName = path.relative(repoRoot, packageRoot);
 
 // supported OSes
 const os_macosx = 'macosx';
@@ -57,8 +55,8 @@ const arch_aarch64 = 'aarch64';
 // Load and merge configuration using the FULL version string
 let config;
 try {
-  config = mergeConfig(fullVersion);
-  validateConfig(fullVersion, config);
+  config = mergeConfig(repoRoot, packageRoot);
+  validateConfig(config, packageDirName);
 } catch (error) {
   console.error('Configuration error:', error.message);
   process.exit(1);
@@ -66,7 +64,7 @@ try {
 
 console.log('[DEBUG] Merged configuration:', JSON.stringify(config, null, 2));
 
-console.log(`Building Python ${fullVersion} (base: ${pythonVersion}) with configuration:`);
+console.log(`Building Python '${pythonVersion}' in '${packageDirName}' with configuration:`);
 console.log(`- Dependencies: ${config.packages.dependencies.length} packages`);
 
 /*
@@ -168,7 +166,7 @@ function buildFromSources(version, osType, archType, installDir) {
   fs.renameSync(path.join(archiveDir, tarGzName), tarGzPath);
 
   // Use a dedicated temporary directory for extraction to avoid relative path issues.
-  const tempExtractDir = path.join(packageRoot, 'temp-extract');
+  const tempExtractDir = path.join(repoRoot, 'temp-extract');
   if (fs.existsSync(tempExtractDir)) {
     fs.rmSync(tempExtractDir, { recursive: true });
   }
@@ -192,13 +190,13 @@ function buildFromSources(version, osType, archType, installDir) {
   const extractedPythonDir = path.join(tempExtractDir, extractedDirName);
   console.log(`[DEBUG] Found extracted directory: '${extractedDirName}'`);
 
-  
+
   // Ensure the final destination exists and is empty
   if (fs.existsSync(installDir)) {
     fs.rmSync(installDir, { recursive: true });
   }
   fs.mkdirSync(installDir, { recursive: true });
-  
+
   // Move the extracted python directory to its final destination
   fs.renameSync(extractedPythonDir, installDir);
 
@@ -322,12 +320,12 @@ import site
   copyDirSync(
     path.join(pyBinRoot, 'Lib', 'site-packages', 'virtualenv'),
     path.join(pyBinRoot, 'Lib', 'site-packages', 'venv')
-);
+  );
 }
 
 function fixPipRegistryIssue(pipRoot) {
   const appdirsPath = path.join(pipRoot, '_internal', 'utils', 'appdirs.py');
-  const patchPath = path.join(packageRoot, 'patches', 'pip-win-reg.patch');
+  const patchPath = path.join(repoRoot, 'patches', 'pip-win-reg.patch');
   runCommand("patch", [appdirsPath, patchPath])
 }
 
@@ -454,27 +452,27 @@ function getPackageName(packageSpec) {
 
 function shouldSkipPackage(packageName, osType, archType) {
   const platformKey = `${osType}-${archType}`;
-  
+
   // Check skip configuration
   const skipConfig = config.packages.skip[packageName];
   if (skipConfig && skipConfig[platformKey]) {
     console.log(`  ⚠️  Skipping ${packageName} for ${platformKey}: ${skipConfig[platformKey]}`);
     return true;
   }
-  
+
   return false;
 }
 
 function shouldForceSource(packageName, osType, archType) {
   const platformKey = `${osType}-${archType}`;
-  
+
   // Check forceSource configuration
   const forceSourceConfig = config.packages.forceSource[packageName];
   if (forceSourceConfig && forceSourceConfig[platformKey]) {
     console.log(`  ℹ️  Forcing source build for ${packageName} on ${platformKey}: ${forceSourceConfig[platformKey]}`);
     return true;
   }
-  
+
   return false;
 }
 
@@ -514,19 +512,19 @@ function buildPipArgs(packageSpec, destinationDir) {
     '--dest',
     destinationDir
   ];
-  
+
   // Add additional registries (pip will use PyPI.org as default)
   const additionalRegistries = config.registries.additional || [];
   for (const url of additionalRegistries) {
     args.push('--extra-index-url=' + url);
   }
-  
+
   return args;
 }
 
 async function downloadPackages(pyBin, destinationDir, osType, archType) {
   const depsList = config.packages.dependencies || [];
-  
+
   // Also include platform-specific dependencies
   const platformKey = `${osType}-${archType}`;
   const platformDeps = config.packages.platformSpecific?.[platformKey]?.dependencies || [];
@@ -545,19 +543,19 @@ async function downloadPackages(pyBin, destinationDir, osType, archType) {
     const packageName = getPackageName(depSpecClean);
     const packageNameNorm = normalizePackageName(packageName);
     console.log(`\nProcessing package: ${depSpecClean}`);
-    
+
     // Check if package should be skipped for this platform
     if (shouldSkipPackage(packageName, osType, archType)) {
       continue;
     }
-    
+
     // Check if package should be forced to build from source
     let forceSource = shouldForceSource(packageName, osType, archType);
     if (resolution.forceNoBinaryList?.includes(packageNameNorm)) {
       console.log(`  ℹ️  Forcing source build for ${packageName} due to resolution.forceNoBinaryList`);
       forceSource = true;
     }
-    
+
     if (forceSource) {
       // Skip binary wheel attempt and go straight to source
       console.log(`  Building from source (forced)...`);
@@ -621,63 +619,63 @@ async function downloadPackages(pyBin, destinationDir, osType, archType) {
 }
 
 function copyVersionSpecificFiles(installDir, osType, archType) {
-    const genericCopyFiles = config.packages.copyFiles || [];
-    
-    const platformKey = `${osType}-${archType}`;
-    const platformSpecificConfig = config.packages.platformSpecific?.[platformKey];
-    const platformCopyFiles = platformSpecificConfig?.copyFiles || [];
+  const genericCopyFiles = config.packages.copyFiles || [];
 
-    const allCopyOperations = [...genericCopyFiles, ...platformCopyFiles];
+  const platformKey = `${osType}-${archType}`;
+  const platformSpecificConfig = config.packages.platformSpecific?.[platformKey];
+  const platformCopyFiles = platformSpecificConfig?.copyFiles || [];
 
-    if (allCopyOperations.length === 0) {
-        console.log(`\n[DEBUG] No version-specific files to copy for this platform.`);
-        return;
+  const allCopyOperations = [...genericCopyFiles, ...platformCopyFiles];
+
+  if (allCopyOperations.length === 0) {
+    console.log(`\n[DEBUG] No version-specific files to copy for this platform.`);
+    return;
+  }
+
+  console.log(`\n[DEBUG] Copying version-specific files...`);
+
+  for (const op of allCopyOperations) {
+    console.log(`[DEBUG] Processing copy operation:`, JSON.stringify(op));
+    const sourcePath = path.join(packageRoot, op.from);
+    console.log(`[DEBUG]   Resolved source path: ${sourcePath}`);
+
+    let destPath = op.to;
+    // Dynamically replace site-packages path
+    if (destPath.includes('{site-packages}')) {
+      console.log(`[DEBUG]   Found '{site-packages}' in destination.`);
+      const [major, minor] = pythonVersion.split('.');
+      const sitePackagesDir = (osType === os_windows)
+        ? 'Lib/site-packages'
+        : `lib/python${major}.${minor}/site-packages`;
+      destPath = destPath.replace('{site-packages}', sitePackagesDir);
+      console.log(`[DEBUG]   Replaced destPath: ${destPath}`);
     }
 
-    console.log(`\n[DEBUG] Copying version-specific files...`);
+    const finalDestPath = path.join(installDir, destPath);
+    console.log(`[DEBUG]   Resolved final destination path: ${finalDestPath}`);
 
-    for (const op of allCopyOperations) {
-        console.log(`[DEBUG] Processing copy operation:`, JSON.stringify(op));
-        const sourcePath = path.join(packageRoot, `python-${fullVersion}`, op.from);
-        console.log(`[DEBUG]   Resolved source path: ${sourcePath}`);
+    console.log(`  Copying from '${sourcePath}' to '${finalDestPath}'...`);
 
-        let destPath = op.to;
-        // Dynamically replace site-packages path
-        if (destPath.includes('{site-packages}')) {
-            console.log(`[DEBUG]   Found '{site-packages}' in destination.`);
-            const [major, minor] = pythonVersion.split('.');
-            const sitePackagesDir = (osType === os_windows)
-                ? 'Lib/site-packages'
-                : `lib/python${major}.${minor}/site-packages`;
-            destPath = destPath.replace('{site-packages}', sitePackagesDir);
-            console.log(`[DEBUG]   Replaced destPath: ${destPath}`);
-        }
-
-        const finalDestPath = path.join(installDir, destPath);
-        console.log(`[DEBUG]   Resolved final destination path: ${finalDestPath}`);
-
-        console.log(`  Copying from '${sourcePath}' to '${finalDestPath}'...`);
-
-        if (!fs.existsSync(sourcePath)) {
-            console.error(`  ✗ ERROR: Source path does not exist: ${sourcePath}`);
-            continue; // Skip to the next operation
-        }
-
-        try {
-            const sourceStats = fs.statSync(sourcePath);
-            fs.mkdirSync(path.dirname(finalDestPath), { recursive: true });
-
-            if (sourceStats.isDirectory()) {
-                copyDirSync(sourcePath, finalDestPath);
-            } else {
-                fs.copyFileSync(sourcePath, finalDestPath);
-            }
-            console.log(`  ✓ Successfully copied.`);
-        } catch (error) {
-            console.error(`  ✗ Failed to copy from '${sourcePath}' to '${finalDestPath}': ${error.message}`);
-            throw error;
-        }
+    if (!fs.existsSync(sourcePath)) {
+      console.error(`  ✗ ERROR: Source path does not exist: ${sourcePath}`);
+      continue; // Skip to the next operation
     }
+
+    try {
+      const sourceStats = fs.statSync(sourcePath);
+      fs.mkdirSync(path.dirname(finalDestPath), { recursive: true });
+
+      if (sourceStats.isDirectory()) {
+        copyDirSync(sourcePath, finalDestPath);
+      } else {
+        fs.copyFileSync(sourcePath, finalDestPath);
+      }
+      console.log(`  ✓ Successfully copied.`);
+    } catch (error) {
+      console.error(`  ✗ Failed to copy from '${sourcePath}' to '${finalDestPath}': ${error.message}`);
+      throw error;
+    }
+  }
 }
 
 
@@ -708,16 +706,17 @@ function copyDirSync(src, dest) {
   try {
     console.log(`[DEBUG] Starting build for Python ${pythonVersion}`);
     console.log(`[DEBUG] Current working directory: ${process.cwd()}`);
+    console.log(`[DEBUG] Repository root: ${repoRoot}`);
     console.log(`[DEBUG] Package root: ${packageRoot}`);
-    
+    console.log(`[DEBUG] Package directory name: ${packageDirName}`);
+
     const osType = currentOS();
     const archType = currentArch();
     console.log(`[DEBUG] Detected OS: ${osType}, Arch: ${archType}`);
-    
+
     // Create version-specific pydist directory
     const installDir = path.join(
-      packageRoot,
-      `python-${fullVersion}`,
+      process.cwd(),
       'pydist',
       `${osType}-${archType}`
     );
@@ -753,7 +752,7 @@ function copyDirSync(src, dest) {
 
     console.log(`[DEBUG] Starting package downloads...`);
     await downloadPackages(pyBin, packagesDir, osType, archType);
-    
+
     console.log(`[DEBUG] Checking config for copyFiles before execution:`, JSON.stringify(config.packages.copyFiles, null, 2));
     console.log(`[DEBUG] Copying version-specific files...`);
     copyVersionSpecificFiles(installDir, osType, archType);

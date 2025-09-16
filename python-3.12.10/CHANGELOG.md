@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10
 
+## 1.2.8
+
+### Patch Changes
+
+- 83310d7: Support Mac OS X Ventura (pip binary wheels)
+
 ## 1.2.7
 
 ### Patch Changes

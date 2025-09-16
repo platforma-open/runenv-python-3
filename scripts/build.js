@@ -522,6 +522,22 @@ function buildPipArgs(packageSpec, destinationDir) {
   return args;
 }
 
+// Get list of additional platforms for binary wheels.
+// Makes pip to download wheels for older Mac OS X versions in addition to current one.
+function additionalPlatforms(osType, archType) {
+  if (osType !== os_macosx) {
+    return [];
+  }
+
+  if (archType === arch_x64) {
+    return ['macosx_13_0_x86_64'];
+  }
+
+  if (archType === arch_aarch64) {
+    return ['macosx_13_0_arm64'];
+  }
+}
+
 async function downloadPackages(pyBin, destinationDir, osType, archType) {
   const depsList = config.packages.dependencies || [];
 
@@ -576,7 +592,12 @@ async function downloadPackages(pyBin, destinationDir, osType, archType) {
         const pipArgs = buildPipArgs(depSpecClean, destinationDir);
         pipArgs.push('--only-binary', ':all:');
         runCommand(pyBin, pipArgs);
-        console.log(`  ✓ Successfully downloaded binary wheel for ${depSpecClean}`);
+        console.log(`  ✓ Successfully downloaded binary wheel for ${depSpecClean} (current platform)`);
+        for (const platform of additionalPlatforms(osType, archType)) {
+          console.log(`  Downloading additional binary wheel for ${platform}...`);
+          runCommand(pyBin, [...pipArgs, '--platform', platform]);
+          console.log(`  ✓ Successfully downloaded additional binary wheel for ${depSpecClean} (${platform} platform)`);
+        }
       } catch (error) {
         // Decide fallback according to resolution policy
         if (resolution.onlyBinaryList?.includes(packageNameNorm)) {

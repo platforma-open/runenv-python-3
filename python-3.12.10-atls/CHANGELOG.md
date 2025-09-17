@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10-atls
 
+## 1.1.11
+
+### Patch Changes
+
+- 1e16f1c: Add Patsy
+
 ## 1.1.10
 
 ### Patch Changes

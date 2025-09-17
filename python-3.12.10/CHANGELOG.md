@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10
 
+## 1.2.9
+
+### Patch Changes
+
+- 1e16f1c: Add Patsy
+
 ## 1.2.8
 
 ### Patch Changes

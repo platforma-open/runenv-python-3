@@ -1,5 +1,16 @@
 # @platforma-open/milaboratories.runenv-python-3
 
+## 1.4.10
+
+### Patch Changes
+
+- 1e16f1c: Add Patsy
+- Updated dependencies [1e16f1c]
+  - @platforma-open/milaboratories.runenv-python-3.10.11@1.1.11
+  - @platforma-open/milaboratories.runenv-python-3.12.10@1.2.9
+  - @platforma-open/milaboratories.runenv-python-3.12.10-atls@1.1.11
+  - @platforma-open/milaboratories.runenv-python-3.12.10-sccoda@1.2.10
+
 ## 1.4.9
 
 ### Patch Changes

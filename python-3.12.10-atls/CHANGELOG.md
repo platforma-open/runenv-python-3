@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10-atls
 
+## 1.1.12
+
+### Patch Changes
+
+- 01d6dd2: Technical release
+
 ## 1.1.11
 
 ### Patch Changes

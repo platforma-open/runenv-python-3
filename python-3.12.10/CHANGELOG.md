@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10
 
+## 1.2.10
+
+### Patch Changes
+
+- 01d6dd2: Technical release
+
 ## 1.2.9
 
 ### Patch Changes

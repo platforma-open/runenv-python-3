@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10-sccoda
 
+## 1.2.11
+
+### Patch Changes
+
+- 7773b41: Fix for hosts without R (rpy2 RPY2_CFFI_MODE=ABI)
+
 ## 1.2.10
 
 ### Patch Changes

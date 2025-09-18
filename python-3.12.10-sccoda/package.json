@@ -1,6 +1,6 @@
 {
   "name": "@platforma-open/milaboratories.runenv-python-3.12.10-sccoda",
-  "version": "1.2.10",
+  "version": "1.2.11",
   "description": "Python 3.12.10 run environment for Platforma Backend",
   "scripts": {
     "cleanup": "rm -rf ./pkg-*.tgz && rm -rf ./pydist && rm -rf ./dist/ && rm -rf ./build/",
@@ -20,7 +20,7 @@
             "runtime": "python",
             "registry": "platforma-open",
             "envVars": [
-                "RPY2_CFFI_MODE=ABI"
+              "RPY2_CFFI_MODE=ABI"
             ],
             "roots": {
               "linux-x64": "./pydist/linux-x64",

@@ -18,17 +18,19 @@ const exec = promisify(cp.exec);
 const args = process.argv.slice(2);
 console.log(`[DIAGNOSTIC] Raw arguments received: ${args.join(', ')}`);
 
-if (args.length !== 1) {
-  console.error(`Usage: node ${path.basename(process.argv[1])} <python-version>`);
-  console.error('  Requires exactly one argument.');
-  console.error('  Example: node build.js 3.12.10');
+if (args.length > 0) {
+  console.error(`Usage: node ${path.basename(process.argv[1])}`);
+  console.error('  Expects no arguments.');
+  console.error('  Example: node build.js');
   process.exit(1);
 }
 
-const pythonVersion = args[0];
+const pythonVersion = JSON.parse(
+  fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf8')
+)['block-software']['entrypoints']['main']['environment']['artifact']['python-version'];
 
 if (!pythonVersion) {
-  console.error('Could not determine base python version from the argument.');
+  console.error('Could not determine base python version from entrypoint settings.');
   process.exit(1);
 }
 

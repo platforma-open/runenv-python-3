@@ -4,7 +4,7 @@
   "description": "Python 3.10.11 run environment for Platforma Backend",
   "scripts": {
     "cleanup": "rm -rf ./pkg-*.tgz && rm -rf ./pydist && rm -rf ./dist/ && rm -rf ./build/",
-    "build": "node ../scripts/build.js 3.10.11",
+    "build": "node ../scripts/build.js",
     "after-prebuild": "pl-pkg publish packages",
     "before-publish": "pl-pkg prepublish"
   },
@@ -19,6 +19,7 @@
             "type": "environment",
             "runtime": "python",
             "registry": "platforma-open",
+            "python-version": "3.10.11",
             "roots": {
               "linux-x64": "./pydist/linux-x64",
               "linux-aarch64": "./pydist/linux-aarch64",

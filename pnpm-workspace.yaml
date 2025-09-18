@@ -8,7 +8,7 @@ packages:
 catalog:
   'turbo': ^2.5.4
   '@changesets/cli': ^2.29.5
-  '@platforma-sdk/package-builder': ^3.5.2
+  '@platforma-sdk/package-builder': ^3.6.0
   'tar': ^7.4.3
   'unzipper': ^0.12.3
   '@platforma-sdk/blocks-deps-updater': 2.0.0

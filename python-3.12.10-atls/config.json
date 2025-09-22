@@ -1,6 +1,8 @@
 {
   "registries": {
-    "additional": ["https://download.pytorch.org/whl/cpu"]
+    "additional": [
+      "https://download.pytorch.org/whl/cpu"
+    ]
   },
   "packages": {
     "dependencies": [
@@ -9,7 +11,9 @@
       "torch==2.7.0",
       "torchvision==0.22.0",
       "torchaudio==2.7.0",
-      "ImmuneBuilder==1.2"
+      "ImmuneBuilder==1.2",
+      "prodigy-prot==2.3.0",
+      "transformers==4.53.2"
     ],
     "skip": {
       "biopython": {
@@ -41,20 +45,45 @@
         "linux-aarch64": "Not required on this platform",
         "macosx-x64": "Not required on this platform",
         "windows-x64": "Not required on this platform"
+      },
+      "prodigy-prot": {
+        "linux-aarch64": "Not required on this platform",
+        "macosx-x64": "Not required on this platform",
+        "windows-x64": "Not required on this platform"
+      },
+      "transformers": {
+        "linux-aarch64": "Not required on this platform",
+        "macosx-x64": "Not required on this platform",
+        "windows-x64": "Not required on this platform"
       }
     },
     "platformSpecific": {
       "linux-x64": {
         "copyFiles": [
-          { "from": "linux-x64/bin/", "to": "bin/" },
-          { "from": "linux-x64/site-packages/", "to": "{site-packages}/" }
+          {
+            "from": "linux-x64/bin/",
+            "to": "bin/"
+          },
+          {
+            "from": "linux-x64/site-packages/",
+            "to": "{site-packages}/"
+          }
         ]
       },
       "macosx-aarch64": {
         "copyFiles": [
-          { "from": "macosx-aarch64/bin/", "to": "bin/" },
-          { "from": "macosx-aarch64/lib/", "to": "lib/" },
-          { "from": "macosx-aarch64/site-packages/", "to": "{site-packages}/" }
+          {
+            "from": "macosx-aarch64/bin/",
+            "to": "bin/"
+          },
+          {
+            "from": "macosx-aarch64/lib/",
+            "to": "lib/"
+          },
+          {
+            "from": "macosx-aarch64/site-packages/",
+            "to": "{site-packages}/"
+          }
         ]
       }
     }

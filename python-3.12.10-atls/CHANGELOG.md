@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10-atls
 
+## 1.1.13
+
+### Patch Changes
+
+- b1d9587: New dependencies for immunoMatch
+
 ## 1.1.12
 
 ### Patch Changes

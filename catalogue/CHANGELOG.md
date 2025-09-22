@@ -1,5 +1,16 @@
 # @platforma-open/milaboratories.runenv-python-3
 
+## 1.4.13
+
+### Patch Changes
+
+- b1d9587: New dependencies for immunoMatch
+- Updated dependencies [b1d9587]
+  - @platforma-open/milaboratories.runenv-python-3.10.11@1.1.13
+  - @platforma-open/milaboratories.runenv-python-3.12.10@1.2.11
+  - @platforma-open/milaboratories.runenv-python-3.12.10-atls@1.1.13
+  - @platforma-open/milaboratories.runenv-python-3.12.10-sccoda@1.2.13
+
 ## 1.4.12
 
 ### Patch Changes

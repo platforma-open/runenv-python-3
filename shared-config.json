@@ -37,7 +37,10 @@
       "accelerate==0.26.0",
       "torch==2.7.0",
       "torchvision==0.22.0",
-      "torchaudio==2.7.0"
+      "torchaudio==2.7.0",
+      "igraph==0.11.9",
+      "Cython==3.1.4",
+      "fa2==0.3.5"
     ],
     "skip": {
       "cudf-cu12": {

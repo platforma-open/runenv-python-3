@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10-sccoda
 
+## 1.2.15
+
+### Patch Changes
+
+- 6d644b2: Update dependances for Ptabler
+
 ## 1.2.14
 
 ### Patch Changes

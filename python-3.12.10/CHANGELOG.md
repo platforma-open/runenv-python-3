@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10
 
+## 1.2.13
+
+### Patch Changes
+
+- 6d644b2: Update dependances for Ptabler
+
 ## 1.2.12
 
 ### Patch Changes

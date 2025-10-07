@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10-atls
 
+## 1.1.14
+
+### Patch Changes
+
+- ed6c06f: New deps for PAGA
+
 ## 1.1.13
 
 ### Patch Changes

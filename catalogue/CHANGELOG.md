@@ -1,5 +1,16 @@
 # @platforma-open/milaboratories.runenv-python-3
 
+## 1.4.14
+
+### Patch Changes
+
+- ed6c06f: New deps for PAGA
+- Updated dependencies [ed6c06f]
+  - @platforma-open/milaboratories.runenv-python-3.10.11@1.1.14
+  - @platforma-open/milaboratories.runenv-python-3.12.10@1.2.12
+  - @platforma-open/milaboratories.runenv-python-3.12.10-atls@1.1.14
+  - @platforma-open/milaboratories.runenv-python-3.12.10-sccoda@1.2.14
+
 ## 1.4.13
 
 ### Patch Changes

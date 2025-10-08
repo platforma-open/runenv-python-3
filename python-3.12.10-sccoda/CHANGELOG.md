@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10-sccoda
 
+## 1.2.16
+
+### Patch Changes
+
+- 75d9273: Fix broken python-3.12.10 by moving polars-pf to shared config
+
 ## 1.2.15
 
 ### Patch Changes

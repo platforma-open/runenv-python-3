@@ -1,5 +1,16 @@
 # @platforma-open/milaboratories.runenv-python-3
 
+## 1.4.16
+
+### Patch Changes
+
+- 75d9273: Fix broken python-3.12.10 by moving polars-pf to shared config
+- Updated dependencies [75d9273]
+  - @platforma-open/milaboratories.runenv-python-3.12.10@1.2.14
+  - @platforma-open/milaboratories.runenv-python-3.10.11@1.1.16
+  - @platforma-open/milaboratories.runenv-python-3.12.10-atls@1.1.16
+  - @platforma-open/milaboratories.runenv-python-3.12.10-sccoda@1.2.16
+
 ## 1.4.15
 
 ### Patch Changes

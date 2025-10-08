@@ -1,8 +1,6 @@
 {
   "packages": {
-    "dependencies": [
-      "polars-pf==1.0.88"
-    ],
+    "dependencies": [],
     "overrides": {}
   }
 }

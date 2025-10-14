@@ -56,6 +56,9 @@ importers:
       '@platforma-open/milaboratories.runenv-python-3.12.10-atls':
         specifier: workspace:*
         version: link:../python-3.12.10-atls
+      '@platforma-open/milaboratories.runenv-python-3.12.10-rapids':
+        specifier: workspace:*
+        version: link:../python-3.12.10-rapids
       '@platforma-open/milaboratories.runenv-python-3.12.10-sccoda':
         specifier: workspace:*
         version: link:../python-3.12.10-sccoda
@@ -89,6 +92,18 @@ importers:
         version: 0.12.3
 
   python-3.12.10-atls:
+    devDependencies:
+      '@platforma-sdk/package-builder':
+        specifier: 'catalog:'
+        version: 3.6.0
+      tar:
+        specifier: 'catalog:'
+        version: 7.4.3
+      unzipper:
+        specifier: 'catalog:'
+        version: 0.12.3
+
+  python-3.12.10-rapids:
     devDependencies:
       '@platforma-sdk/package-builder':
         specifier: 'catalog:'

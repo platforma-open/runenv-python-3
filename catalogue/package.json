@@ -20,6 +20,9 @@
       },
       "3.12.10-sccoda": {
         "reference": "@platforma-open/milaboratories.runenv-python-3.12.10-sccoda/dist/tengo/software/main.sw.json"
+      },
+      "3.12.10-rapids": {
+        "reference": "@platforma-open/milaboratories.runenv-python-3.12.10-rapids/dist/tengo/software/main.sw.json"
       }
     }
   },
@@ -31,7 +34,8 @@
     "@platforma-open/milaboratories.runenv-python-3.12.10": "workspace:*",
     "@platforma-open/milaboratories.runenv-python-3.12.10-atls": "workspace:*",
     "@platforma-open/milaboratories.runenv-python-3.10.11": "workspace:*",
-    "@platforma-open/milaboratories.runenv-python-3.12.10-sccoda": "workspace:*"
+    "@platforma-open/milaboratories.runenv-python-3.12.10-sccoda": "workspace:*",
+    "@platforma-open/milaboratories.runenv-python-3.12.10-rapids": "workspace:*"
   },
   "devDependencies": {
     "@platforma-sdk/package-builder": "catalog:"

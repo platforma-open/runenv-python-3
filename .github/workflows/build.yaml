@@ -70,7 +70,11 @@ jobs:
             {"os":"ubuntu-large-amd64", "arch":"amd64", "python_version":"3.12.10-sccoda"},
             {"os":"ubuntu-large-arm64", "arch":"arm64", "python_version":"3.12.10-sccoda"},
             {"os":"macos-13", "arch":"amd64", "python_version":"3.12.10-sccoda"},
-            {"os":"macos-14", "arch":"arm64", "python_version":"3.12.10-sccoda"}
+            {"os":"macos-14", "arch":"arm64", "python_version":"3.12.10-sccoda"},
+
+            {"os":"windows-latest", "arch":"amd64", "python_version":"3.12.10-rapids"},
+            {"os":"ubuntu-large-amd64", "arch":"amd64", "python_version":"3.12.10-rapids"},
+            {"os":"ubuntu-large-arm64", "arch":"arm64", "python_version":"3.12.10-rapids"}
         ]
 
       sign-binaries: |

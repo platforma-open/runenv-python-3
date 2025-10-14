@@ -1,5 +1,16 @@
 # @platforma-open/milaboratories.runenv-python-3
 
+## 1.5.0
+
+### Minor Changes
+
+- e702bd0: New env with RAPIDS
+
+### Patch Changes
+
+- Updated dependencies [e702bd0]
+  - @platforma-open/milaboratories.runenv-python-3.12.10-rapids@1.3.0
+
 ## 1.4.16
 
 ### Patch Changes

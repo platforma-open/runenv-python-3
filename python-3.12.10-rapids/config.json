@@ -15,18 +15,85 @@
       "cuspatial-cu12==25.4.0",
       "cuproj-cu12==25.4.0",
       "cuxfilter-cu12==25.4.0",
-      "cugraph-cu12==25.4.0",
-      "nx-cugraph-cu12==25.4.0",
-      "cuspatial-cu12==25.4.0",
-      "cuproj-cu12==25.4.0",
-      "cuxfilter-cu12==25.4.0",
       "cucim-cu12==25.4.0",
       "pylibraft-cu12==25.4.0",
       "raft-dask-cu12==25.4.0",
-      "cuvs-cu12==25.4.0",
-      "nx-cugraph-cu12==25.4.0"
+      "cuvs-cu12==25.4.0"
     ],
-    "skip": {},
+    "skip": {
+      "cudf-cu12": {
+        "macosx-x64": "CUDA packages not supported on macOS",
+        "macosx-aarch64": "CUDA packages not supported on macOS",
+        "windows-x64": "CUDA packages not supported on Windows",
+        "linux-aarch64": "CUDA packages not supported on Linux ARM64"
+      },
+      "dask-cudf-cu12": {
+        "macosx-x64": "CUDA packages not supported on macOS",
+        "macosx-aarch64": "CUDA packages not supported on macOS",
+        "windows-x64": "CUDA packages not supported on Windows",
+        "linux-aarch64": "CUDA packages not supported on Linux ARM64"
+      },
+      "cuml-cu12": {
+        "macosx-x64": "CUDA packages not supported on macOS",
+        "macosx-aarch64": "CUDA packages not supported on macOS",
+        "windows-x64": "CUDA packages not supported on Windows",
+        "linux-aarch64": "CUDA packages not supported on Linux ARM64"
+      },
+      "cugraph-cu12": {
+        "macosx-x64": "CUDA packages not supported on macOS",
+        "macosx-aarch64": "CUDA packages not supported on macOS",
+        "windows-x64": "CUDA packages not supported on Windows",
+        "linux-aarch64": "CUDA packages not supported on Linux ARM64"
+      },
+      "nx-cugraph-cu12": {
+        "macosx-x64": "CUDA packages not supported on macOS",
+        "macosx-aarch64": "CUDA packages not supported on macOS",
+        "windows-x64": "CUDA packages not supported on Windows",
+        "linux-aarch64": "CUDA packages not supported on Linux ARM64"
+      },
+      "cuspatial-cu12": {
+        "macosx-x64": "CUDA packages not supported on macOS",
+        "macosx-aarch64": "CUDA packages not supported on macOS",
+        "windows-x64": "CUDA packages not supported on Windows",
+        "linux-aarch64": "CUDA packages not supported on Linux ARM64"
+      },
+      "cuproj-cu12": {
+        "macosx-x64": "CUDA packages not supported on macOS",
+        "macosx-aarch64": "CUDA packages not supported on macOS",
+        "windows-x64": "CUDA packages not supported on Windows",
+        "linux-aarch64": "CUDA packages not supported on Linux ARM64"
+      },
+      "cuxfilter-cu12": {
+        "macosx-x64": "CUDA packages not supported on macOS",
+        "macosx-aarch64": "CUDA packages not supported on macOS",
+        "windows-x64": "CUDA packages not supported on Windows",
+        "linux-aarch64": "CUDA packages not supported on Linux ARM64"
+      },
+      "cucim-cu12": {
+        "macosx-x64": "CUDA packages not supported on macOS",
+        "macosx-aarch64": "CUDA packages not supported on macOS",
+        "windows-x64": "CUDA packages not supported on Windows",
+        "linux-aarch64": "CUDA packages not supported on Linux ARM64"
+      },
+      "pylibraft-cu12": {
+        "macosx-x64": "CUDA packages not supported on macOS",
+        "macosx-aarch64": "CUDA packages not supported on macOS",
+        "windows-x64": "CUDA packages not supported on Windows",
+        "linux-aarch64": "CUDA packages not supported on Linux ARM64"
+      },
+      "raft-dask-cu12": {
+        "macosx-x64": "CUDA packages not supported on macOS",
+        "macosx-aarch64": "CUDA packages not supported on macOS",
+        "windows-x64": "CUDA packages not supported on Windows",
+        "linux-aarch64": "CUDA packages not supported on Linux ARM64"
+      },
+      "cuvs-cu12": {
+        "macosx-x64": "CUDA packages not supported on macOS",
+        "macosx-aarch64": "CUDA packages not supported on macOS",
+        "windows-x64": "CUDA packages not supported on Windows",
+        "linux-aarch64": "CUDA packages not supported on Linux ARM64"
+      }
+    },
     "platformSpecific": {}
   }
 }

@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10-sccoda
 
+## 1.2.17
+
+### Patch Changes
+
+- 4d0161d: PFrames version bump
+
 ## 1.2.16
 
 ### Patch Changes

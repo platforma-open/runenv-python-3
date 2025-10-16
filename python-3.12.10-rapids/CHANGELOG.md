@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10-rapids
 
+## 1.3.2
+
+### Patch Changes
+
+- 3dcf03e: Add more packages to rapids env
+
 ## 1.3.1
 
 ### Patch Changes

@@ -1,5 +1,17 @@
 # @platforma-open/milaboratories.runenv-python-3
 
+## 1.5.4
+
+### Patch Changes
+
+- e43c19a: PFrames version bump
+- Updated dependencies [e43c19a]
+  - @platforma-open/milaboratories.runenv-python-3.10.11@1.1.18
+  - @platforma-open/milaboratories.runenv-python-3.12.10@1.2.16
+  - @platforma-open/milaboratories.runenv-python-3.12.10-atls@1.1.18
+  - @platforma-open/milaboratories.runenv-python-3.12.10-rapids@1.3.4
+  - @platforma-open/milaboratories.runenv-python-3.12.10-sccoda@1.2.18
+
 ## 1.5.3
 
 ### Patch Changes

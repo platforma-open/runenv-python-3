@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10-rapids
 
+## 1.3.5
+
+### Patch Changes
+
+- 5be9552: Update package versions
+
 ## 1.3.4
 
 ### Patch Changes

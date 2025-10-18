@@ -12,7 +12,7 @@ jobs:
   init:
     runs-on: ubuntu-latest
     steps:
-      - uses: milaboratory/github-ci/actions/context/init@v4-beta
+      - uses: milaboratory/github-ci/actions/context/init@v4
         with:
           version-canonize: false
           branch-versioning: main
@@ -20,7 +20,7 @@ jobs:
     needs:
       - init
 
-    uses: milaboratory/github-ci/.github/workflows/node-matrix-pnpm.yaml@v4-beta
+    uses: milaboratory/github-ci/.github/workflows/node-matrix-pnpm.yaml@v4
     with:
       app-name: 'Runenv: Python 3'
       app-name-slug: 'runenv-python-3'

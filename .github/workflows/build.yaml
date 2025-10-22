@@ -20,7 +20,7 @@ jobs:
     needs:
       - init
 
-    uses: milaboratory/github-ci/.github/workflows/node-matrix-pnpm.yaml@v4-beta
+    uses: milaboratory/github-ci/.github/workflows/node-matrix-pnpm.yaml@v4
     with:
       app-name: 'Runenv: Python 3'
       app-name-slug: 'runenv-python-3'
@@ -51,32 +51,32 @@ jobs:
       main-metapackage-name: '@platforma-open/milaboratories.runenv-python-3'
       pre-calculated-task-list: |
         [
-            {"os":"windows-latest", "arch":"amd64", "python_version":"3.12.10"},
-            {"os":"ubuntu-large-amd64", "arch":"amd64", "python_version":"3.12.10"},
-            {"os":"ubuntu-large-arm64", "arch":"arm64", "python_version":"3.12.10"},
-            {"os":"macos-13", "arch":"amd64", "python_version":"3.12.10"},
-            {"os":"macos-14", "arch":"arm64", "python_version":"3.12.10"},
+            {"os":"windows-latest", "arch":"amd64", "selector":"./python-3.12.10"},
+            {"os":"ubuntu-large-amd64", "arch":"amd64", "selector":"./python-3.12.10"},
+            {"os":"ubuntu-large-arm64", "arch":"arm64", "selector":"./python-3.12.10"},
+            {"os":"macos-13", "arch":"amd64", "selector":"./python-3.12.10"},
+            {"os":"macos-14", "arch":"arm64", "selector":"./python-3.12.10"},
 
-            {"os":"windows-latest", "arch":"amd64", "python_version":"3.10.11"},
-            {"os":"ubuntu-large-amd64", "arch":"amd64", "python_version":"3.10.11"},
-            {"os":"ubuntu-large-arm64", "arch":"arm64", "python_version":"3.10.11"},
-            {"os":"macos-13", "arch":"amd64", "python_version":"3.10.11"},
-            {"os":"macos-14", "arch":"arm64", "python_version":"3.10.11"},
+            {"os":"windows-latest", "arch":"amd64", "selector":"./python-3.10.11"},
+            {"os":"ubuntu-large-amd64", "arch":"amd64", "selector":"./python-3.10.11"},
+            {"os":"ubuntu-large-arm64", "arch":"arm64", "selector":"./python-3.10.11"},
+            {"os":"macos-13", "arch":"amd64", "selector":"./python-3.10.11"},
+            {"os":"macos-14", "arch":"arm64", "selector":"./python-3.10.11"},
 
-            {"os":"ubuntu-large-amd64", "arch":"amd64", "python_version":"3.12.10-atls"},
-            {"os":"macos-14", "arch":"arm64", "python_version":"3.12.10-atls"},
+            {"os":"ubuntu-large-amd64", "arch":"amd64", "selector":"./python-3.12.10-atls"},
+            {"os":"macos-14", "arch":"arm64", "selector":"./python-3.12.10-atls"},
 
-            {"os":"windows-latest", "arch":"amd64", "python_version":"3.12.10-sccoda"},
-            {"os":"ubuntu-large-amd64", "arch":"amd64", "python_version":"3.12.10-sccoda"},
-            {"os":"ubuntu-large-arm64", "arch":"arm64", "python_version":"3.12.10-sccoda"},
-            {"os":"macos-13", "arch":"amd64", "python_version":"3.12.10-sccoda"},
-            {"os":"macos-14", "arch":"arm64", "python_version":"3.12.10-sccoda"},
+            {"os":"windows-latest", "arch":"amd64", "selector":"./python-3.12.10-sccoda"},
+            {"os":"ubuntu-large-amd64", "arch":"amd64", "selector":"./python-3.12.10-sccoda"},
+            {"os":"ubuntu-large-arm64", "arch":"arm64", "selector":"./python-3.12.10-sccoda"},
+            {"os":"macos-13", "arch":"amd64", "selector":"./python-3.12.10-sccoda"},
+            {"os":"macos-14", "arch":"arm64", "selector":"./python-3.12.10-sccoda"},
 
-            {"os":"windows-latest", "arch":"amd64", "python_version":"3.12.10-rapids"},
-            {"os":"ubuntu-large-amd64", "arch":"amd64", "python_version":"3.12.10-rapids"},
-            {"os":"ubuntu-large-arm64", "arch":"arm64", "python_version":"3.12.10-rapids"},
-            {"os":"macos-13", "arch":"amd64", "python_version":"3.12.10-rapids"},
-            {"os":"macos-14", "arch":"arm64", "python_version":"3.12.10-rapids"}
+            {"os":"windows-latest", "arch":"amd64", "selector":"./python-3.12.10-rapids"},
+            {"os":"ubuntu-large-amd64", "arch":"amd64", "selector":"./python-3.12.10-rapids"},
+            {"os":"ubuntu-large-arm64", "arch":"arm64", "selector":"./python-3.12.10-rapids"},
+            {"os":"macos-13", "arch":"amd64", "selector":"./python-3.12.10-rapids"},
+            {"os":"macos-14", "arch":"arm64", "selector":"./python-3.12.10-rapids"}
         ]
 
       sign-binaries: |
@@ -112,7 +112,7 @@ jobs:
         { "NPMJS_TOKEN": ${{ toJSON(secrets.NPMJS_TOKEN) }},
           "AWS_CI_IAM_MONOREPO_SIMPLE_ROLE": ${{ toJSON(secrets.AWS_CI_IAM_MONOREPO_SIMPLE_ROLE) }},
           "AWS_CI_TURBOREPO_S3_BUCKET": ${{ toJSON(secrets.AWS_CI_TURBOREPO_S3_BUCKET) }},
-          
+
           "PL_REGISTRY_PLATFORMA_OPEN_UPLOAD_URL": ${{ toJSON(secrets.PL_REGISTRY_PLOPEN_UPLOAD_URL) }},
           "QUAY_USERNAME": ${{ toJSON(secrets.QUAY_USERNAME) }},
           "QUAY_ROBOT_TOKEN": ${{ toJSON(secrets.QUAY_ROBOT_TOKEN) }} }

@@ -1,5 +1,41 @@
 # @platforma-open/milaboratories.runenv-python-3
 
+## 1.5.8
+
+### Patch Changes
+
+- 6eb48a8: PFrames version bump
+- Updated dependencies [6eb48a8]
+  - @platforma-open/milaboratories.runenv-python-3.10.11@1.1.21
+  - @platforma-open/milaboratories.runenv-python-3.12.10@1.2.19
+  - @platforma-open/milaboratories.runenv-python-3.12.10-atls@1.1.21
+  - @platforma-open/milaboratories.runenv-python-3.12.10-rapids@1.3.8
+  - @platforma-open/milaboratories.runenv-python-3.12.10-sccoda@1.2.21
+
+## 1.5.7
+
+### Patch Changes
+
+- 13301aa: PFrames version bump
+- Updated dependencies [13301aa]
+  - @platforma-open/milaboratories.runenv-python-3.10.11@1.1.20
+  - @platforma-open/milaboratories.runenv-python-3.12.10@1.2.18
+  - @platforma-open/milaboratories.runenv-python-3.12.10-atls@1.1.20
+  - @platforma-open/milaboratories.runenv-python-3.12.10-rapids@1.3.7
+  - @platforma-open/milaboratories.runenv-python-3.12.10-sccoda@1.2.20
+
+## 1.5.6
+
+### Patch Changes
+
+- 2e8d4d2: PFrames version bump
+- Updated dependencies [2e8d4d2]
+  - @platforma-open/milaboratories.runenv-python-3.10.11@1.1.19
+  - @platforma-open/milaboratories.runenv-python-3.12.10@1.2.17
+  - @platforma-open/milaboratories.runenv-python-3.12.10-atls@1.1.19
+  - @platforma-open/milaboratories.runenv-python-3.12.10-rapids@1.3.6
+  - @platforma-open/milaboratories.runenv-python-3.12.10-sccoda@1.2.19
+
 ## 1.5.5
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10-rapids
 
+## 1.3.11
+
+### Patch Changes
+
+- d9f683a: PFrames version bump
+
 ## 1.3.10
 
 ### Patch Changes

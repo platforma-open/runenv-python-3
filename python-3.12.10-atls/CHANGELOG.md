@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10-atls
 
+## 1.1.26
+
+### Patch Changes
+
+- 0fc0f47: Switch to custom built lts-cpu versions of polars extentions
+
 ## 1.1.25
 
 ### Patch Changes

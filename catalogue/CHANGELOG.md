@@ -1,5 +1,18 @@
 # @platforma-open/milaboratories.runenv-python-3
 
+## 1.6.1
+
+### Patch Changes
+
+- 0fc0f47: Switch to custom built lts-cpu versions of polars extentions
+- Updated dependencies [0fc0f47]
+  - @platforma-open/milaboratories.runenv-python-3.10.11@1.1.26
+  - @platforma-open/milaboratories.runenv-python-3.12.10@1.2.24
+  - @platforma-open/milaboratories.runenv-python-3.12.10-atls@1.1.26
+  - @platforma-open/milaboratories.runenv-python-3.12.10-h5ad@1.0.1
+  - @platforma-open/milaboratories.runenv-python-3.12.10-rapids@1.3.13
+  - @platforma-open/milaboratories.runenv-python-3.12.10-sccoda@1.2.26
+
 ## 1.6.0
 
 ### Minor Changes

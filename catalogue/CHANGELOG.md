@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3
 
+## 1.6.0
+
+### Minor Changes
+
+- 97245bb: New environment for h5ad support
+
 ## 1.5.12
 
 ### Patch Changes

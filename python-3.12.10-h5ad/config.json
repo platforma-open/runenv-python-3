@@ -1,0 +1,18 @@
+{
+  "registries": {
+    "additional": [
+      "https://download.pytorch.org/whl/cpu"
+    ]
+  },
+  "packages": {
+    "dependencies": [
+      "pandas==2.2.3",
+      "numpy==2.0.2",
+      "anndata==0.12.4",
+      "scanpy==1.11.5",
+      "scipy==1.13.0"
+    ],
+    "skip": {},
+    "platformSpecific": {}
+  }
+}

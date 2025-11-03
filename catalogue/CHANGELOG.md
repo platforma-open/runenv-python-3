@@ -1,5 +1,18 @@
 # @platforma-open/milaboratories.runenv-python-3
 
+## 1.6.2
+
+### Patch Changes
+
+- ff09dc3: polars-hash-lts-cpu - new linux package uploaded to pypi
+- Updated dependencies [ff09dc3]
+  - @platforma-open/milaboratories.runenv-python-3.10.11@1.1.27
+  - @platforma-open/milaboratories.runenv-python-3.12.10@1.2.25
+  - @platforma-open/milaboratories.runenv-python-3.12.10-atls@1.1.27
+  - @platforma-open/milaboratories.runenv-python-3.12.10-h5ad@1.0.2
+  - @platforma-open/milaboratories.runenv-python-3.12.10-rapids@1.3.14
+  - @platforma-open/milaboratories.runenv-python-3.12.10-sccoda@1.2.27
+
 ## 1.6.1
 
 ### Patch Changes

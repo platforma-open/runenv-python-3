@@ -40,7 +40,7 @@ function runDiagnostic(pythonVersion) {
 }
 
 // --- Versions to Test ---
-const versionsToTest = ['3.12.10', '3.10.11', '3.12.10-atls'];
+const versionsToTest = ['3.12.10', '3.12.10-atls'];
 
 console.log("Starting diagnostic run for multiple Python versions...");
 versionsToTest.forEach(version => {

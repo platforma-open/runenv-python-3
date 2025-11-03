@@ -6,7 +6,6 @@ This package provides multiple Python runtime environments for Platforma Backend
 
 - **Python 3.12.10** - Latest stable version with newest package compatibility
 - **Python 3.12.10-atls** - A variant of 3.12.10 with custom ATLS packages.
-- **Python 3.10.11** - Legacy version for older package compatibility
 
 ## Architecture
 
@@ -16,9 +15,6 @@ This project uses a **monorepo structure** similar to the Java Corretto setup:
 runenv-python-3/
 ├── shared-config.json          # Shared configuration for all versions
 ├── python-3.12.10/            # Python 3.12.10 specific package
-│   ├── config.json            # Version-specific overrides
-│   └── package.json           # Package metadata
-├── python-3.10.11/            # Python 3.10.11 specific package
 │   ├── config.json            # Version-specific overrides
 │   └── package.json           # Package metadata
 ├── catalogue/                  # Main package referencing all versions
@@ -177,12 +173,10 @@ pnpm build
 # Using Turbo filter
 pnpm build --filter=@platforma-open/milaboratories.runenv-python-3.12.10
 pnpm build --filter=@platforma-open/milaboratories.runenv-python-3.12.10-atls
-pnpm build --filter=@platforma-open/milaboratories.runenv-python-3.10.11
 
 # Direct script usage
 node scripts/build.js 3.12.10
 node scripts/build.js 3.12.10-atls
-node scripts/build.js 3.10.11
 ```
 
 ### Publishing
@@ -192,7 +186,7 @@ pnpm postbuild-publish
 
 # Publish specific version (from version directory)
 cd python-3.12.10 && pnpm postbuild-publish
-cd python-3.10.11 && pnpm postbuild-publish
+cd python-3.12.10-atls && pnpm postbuild-publish
 ```
 
 ### Cleanup
@@ -305,7 +299,6 @@ To add a new standard Python version or a custom variant, follow these steps.
     packages:
       - 'python-3.12.10'
       - 'python-3.12.10-atls'
-      - 'python-3.10.11'
       - 'python-3.13.0-custom' # Add new version here
     ```
 
@@ -326,11 +319,6 @@ Each Python version has different package compatibility:
 - Full CUDA support with platform-specific exclusions
 - Experimental TensorFlow ARM64 builds
 - **Dependencies**: pandas 2.2.3, numpy 2.2.6, scipy 1.15.3, scikit-learn 1.6.1, etc.
-
-### Python 3.10.11
-- Legacy package versions for older compatibility
-- Limited TensorFlow ARM64 support (excluded on ARM64)
-- **Dependencies**: pandas 2.0.3, numpy 1.24.3, scipy 1.10.1, scikit-learn 1.3.0, etc.
 
 ## Platform Support
 

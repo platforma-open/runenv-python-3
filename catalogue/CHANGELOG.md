@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3
 
+## 1.6.3
+
+### Patch Changes
+
+- d374c83: Python 3.10.11 dropped
+
 ## 1.6.2
 
 ### Patch Changes

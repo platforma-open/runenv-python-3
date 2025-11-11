@@ -41,9 +41,11 @@ if (!pythonVersion) {
 // which is always one level above the 'scripts' directory. This avoids
 // fragile relative path calculations based on the current working directory,
 // which can change depending on how the script is invoked.
-const repoRoot = path.resolve(__dirname, '..');
+const scriptDir = path.resolve(__dirname);
+const repoRoot = path.resolve(scriptDir, '..');
 const packageRoot = process.cwd();
 const packageDirName = path.relative(repoRoot, packageRoot);
+const isInBuilderContainer = process.env['BUILD_CONTAINER'] == 'true';
 
 // supported OSes
 const os_macosx = 'macosx';
@@ -156,9 +158,19 @@ function untarPythonArchive(archivePath, targetDir) {
   });
 }
 
+function buildInDocker() {
+  runCommand('docker', ['build', '-t', 'py-builder:local', `${scriptDir}/builder`]);
+  runCommand('docker', [
+    'run',
+    '-v', `${repoRoot}:/app`,
+    'py-builder:local',
+    `/app/${packageDirName}`
+  ]);
+}
+
 function buildFromSources(version, osType, archType, installDir) {
   runCommand('pipx', ['install', 'portable-python']);
-  runCommand('portable-python', ['build', version]);
+  runCommand('pipx', ['run', 'portable-python', 'build', version]);
 
   const archiveDir = 'dist'; // portable-python always creates python archive in 'dist' dir
   const tarGzName = detectTarGzArchive(archiveDir);
@@ -721,6 +733,28 @@ function copyDirSync(src, dest) {
   }
 }
 
+async function loadPackages(installDir, osType, archType) {
+  console.log(`[DEBUG] Loading packages...`);
+
+  const pyBin = path.join(installDir, 'bin', 'python');
+  const packagesDir = path.join(installDir, 'packages');
+  console.log(`[DEBUG] Python binary: ${pyBin}`);
+  console.log(`[DEBUG] Packages directory: ${packagesDir}`);
+
+  // Log configured registries and packages
+  const additionalRegistries = config.registries.additional || [];
+  const allRegistries = ['https://pypi.org', ...additionalRegistries];
+  console.log(`\nUsing PyPI registries: ${allRegistries.join(', ')}`);
+  console.log(`\nInstalling ${config.packages.dependencies.length} packages from configuration`);
+
+  console.log(`[DEBUG] Starting package downloads...`);
+  await downloadPackages(pyBin, packagesDir, osType, archType);
+
+  console.log(`[DEBUG] Checking config for copyFiles before execution:`, JSON.stringify(config.packages.copyFiles, null, 2));
+  console.log(`[DEBUG] Copying version-specific files...`);
+  copyVersionSpecificFiles(installDir, osType, archType);
+}
+
 /*
  * Script body
  */
@@ -752,33 +786,24 @@ function copyDirSync(src, dest) {
     if (osType === os_windows) {
       console.log(`[DEBUG] Building Windows distribution...`);
       await getPortableWindows(pythonVersion, archType, installDir);
+      await loadPackages(installDir, osType, archType);
     } else if (osType === os_macosx) {
       console.log(`[DEBUG] Building macOS distribution...`);
       buildFromSources(pythonVersion, osType, archType, installDir);
       console.log(`[DEBUG] Consolidating macOS libraries...`);
       await consolidateLibsOSX(installDir);
+      await loadPackages(installDir, osType, archType);
     } else {
-      console.log(`[DEBUG] Building Linux distribution...`);
-      buildFromSources(pythonVersion, osType, archType, installDir);
+      if (!isInBuilderContainer) {
+        console.log(`[DEBUG] Initializing docker build...`)
+        buildInDocker();
+      } else {
+        console.log(`[DEBUG] Building Linux distribution inside docker container...`);
+        buildFromSources(pythonVersion, osType, archType, installDir);
+        await loadPackages(installDir, osType, archType);
+        return
+      }
     }
-
-    const pyBin = path.join(installDir, 'bin', 'python');
-    const packagesDir = path.join(installDir, 'packages');
-    console.log(`[DEBUG] Python binary: ${pyBin}`);
-    console.log(`[DEBUG] Packages directory: ${packagesDir}`);
-
-    // Log configured registries and packages
-    const additionalRegistries = config.registries.additional || [];
-    const allRegistries = ['https://pypi.org', ...additionalRegistries];
-    console.log(`\nUsing PyPI registries: ${allRegistries.join(', ')}`);
-    console.log(`\nInstalling ${config.packages.dependencies.length} packages from configuration`);
-
-    console.log(`[DEBUG] Starting package downloads...`);
-    await downloadPackages(pyBin, packagesDir, osType, archType);
-
-    console.log(`[DEBUG] Checking config for copyFiles before execution:`, JSON.stringify(config.packages.copyFiles, null, 2));
-    console.log(`[DEBUG] Copying version-specific files...`);
-    copyVersionSpecificFiles(installDir, osType, archType);
 
     console.log(`[DEBUG] Building pl package...`);
     runCommand('pl-pkg', ['build']);
@@ -791,6 +816,7 @@ function copyDirSync(src, dest) {
     console.log(`[DEBUG] Build completed successfully`);
     console.log(`[DEBUG] Package root listing after build:`);
     console.log(fs.readdirSync('.'));
+
   } catch (error) {
     console.error(`[ERROR] Build failed: ${error.message}`);
     console.error(`[ERROR] Stack trace: ${error.stack}`);

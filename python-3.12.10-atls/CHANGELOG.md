@@ -1,5 +1,41 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10-atls
 
+## 1.1.27
+
+### Patch Changes
+
+- ff09dc3: polars-hash-lts-cpu - new linux package uploaded to pypi
+
+## 1.1.26
+
+### Patch Changes
+
+- 0fc0f47: Switch to custom built lts-cpu versions of polars extentions
+
+## 1.1.25
+
+### Patch Changes
+
+- cd65181: PFrames version bump
+
+## 1.1.24
+
+### Patch Changes
+
+- d9f683a: PFrames version bump
+
+## 1.1.23
+
+### Patch Changes
+
+- b116acb: PFrames version bump
+
+## 1.1.22
+
+### Patch Changes
+
+- 681cae4: PFrames version bump
+
 ## 1.1.21
 
 ### Patch Changes

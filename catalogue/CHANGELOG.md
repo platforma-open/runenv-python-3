@@ -1,5 +1,91 @@
 # @platforma-open/milaboratories.runenv-python-3
 
+## 1.6.3
+
+### Patch Changes
+
+- d374c83: Python 3.10.11 dropped
+
+## 1.6.2
+
+### Patch Changes
+
+- ff09dc3: polars-hash-lts-cpu - new linux package uploaded to pypi
+- Updated dependencies [ff09dc3]
+  - @platforma-open/milaboratories.runenv-python-3.10.11@1.1.27
+  - @platforma-open/milaboratories.runenv-python-3.12.10@1.2.25
+  - @platforma-open/milaboratories.runenv-python-3.12.10-atls@1.1.27
+  - @platforma-open/milaboratories.runenv-python-3.12.10-h5ad@1.0.2
+  - @platforma-open/milaboratories.runenv-python-3.12.10-rapids@1.3.14
+  - @platforma-open/milaboratories.runenv-python-3.12.10-sccoda@1.2.27
+
+## 1.6.1
+
+### Patch Changes
+
+- 0fc0f47: Switch to custom built lts-cpu versions of polars extentions
+- Updated dependencies [0fc0f47]
+  - @platforma-open/milaboratories.runenv-python-3.10.11@1.1.26
+  - @platforma-open/milaboratories.runenv-python-3.12.10@1.2.24
+  - @platforma-open/milaboratories.runenv-python-3.12.10-atls@1.1.26
+  - @platforma-open/milaboratories.runenv-python-3.12.10-h5ad@1.0.1
+  - @platforma-open/milaboratories.runenv-python-3.12.10-rapids@1.3.13
+  - @platforma-open/milaboratories.runenv-python-3.12.10-sccoda@1.2.26
+
+## 1.6.0
+
+### Minor Changes
+
+- 97245bb: New environment for h5ad support
+
+## 1.5.12
+
+### Patch Changes
+
+- cd65181: PFrames version bump
+- Updated dependencies [cd65181]
+  - @platforma-open/milaboratories.runenv-python-3.10.11@1.1.25
+  - @platforma-open/milaboratories.runenv-python-3.12.10@1.2.23
+  - @platforma-open/milaboratories.runenv-python-3.12.10-atls@1.1.25
+  - @platforma-open/milaboratories.runenv-python-3.12.10-rapids@1.3.12
+  - @platforma-open/milaboratories.runenv-python-3.12.10-sccoda@1.2.25
+
+## 1.5.11
+
+### Patch Changes
+
+- d9f683a: PFrames version bump
+- Updated dependencies [d9f683a]
+  - @platforma-open/milaboratories.runenv-python-3.10.11@1.1.24
+  - @platforma-open/milaboratories.runenv-python-3.12.10@1.2.22
+  - @platforma-open/milaboratories.runenv-python-3.12.10-atls@1.1.24
+  - @platforma-open/milaboratories.runenv-python-3.12.10-rapids@1.3.11
+  - @platforma-open/milaboratories.runenv-python-3.12.10-sccoda@1.2.24
+
+## 1.5.10
+
+### Patch Changes
+
+- b116acb: PFrames version bump
+- Updated dependencies [b116acb]
+  - @platforma-open/milaboratories.runenv-python-3.10.11@1.1.23
+  - @platforma-open/milaboratories.runenv-python-3.12.10@1.2.21
+  - @platforma-open/milaboratories.runenv-python-3.12.10-atls@1.1.23
+  - @platforma-open/milaboratories.runenv-python-3.12.10-rapids@1.3.10
+  - @platforma-open/milaboratories.runenv-python-3.12.10-sccoda@1.2.23
+
+## 1.5.9
+
+### Patch Changes
+
+- 681cae4: PFrames version bump
+- Updated dependencies [681cae4]
+  - @platforma-open/milaboratories.runenv-python-3.10.11@1.1.22
+  - @platforma-open/milaboratories.runenv-python-3.12.10@1.2.20
+  - @platforma-open/milaboratories.runenv-python-3.12.10-atls@1.1.22
+  - @platforma-open/milaboratories.runenv-python-3.12.10-rapids@1.3.9
+  - @platforma-open/milaboratories.runenv-python-3.12.10-sccoda@1.2.22
+
 ## 1.5.8
 
 ### Patch Changes

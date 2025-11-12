@@ -1,5 +1,13 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+
+export type ResolutionPolicy = {
+    allowSourceAll: boolean;
+    strictMissing: boolean;
+    allowSourceList: string[];
+    forceNoBinaryList: string[];
+    onlyBinaryList: string[];
+};
 
 /**
  * Merges shared configuration with version-specific overrides, handling deep merging of nested properties.
@@ -7,10 +15,10 @@ const path = require('path');
  * @param {string} packageRoot - The root directory of the package being built.
  * @returns {Object} The fully merged configuration object.
  */
-function mergeConfig(repoRoot, packageRoot) {
+export function mergeConfig(repoRoot: string, packageRoot: string): any {
     // 1. Load shared and version-specific configurations
     const sharedConfigPath = path.join(repoRoot, 'shared-config.json');
-    const sharedConfig = JSON.parse(fs.readFileSync(sharedConfigPath, 'utf8'));
+    const sharedConfig: any = JSON.parse(fs.readFileSync(sharedConfigPath, 'utf8'));
 
     const versionConfigPath = path.join(packageRoot, 'config.json');
     if (!fs.existsSync(versionConfigPath)) {
@@ -20,7 +28,7 @@ function mergeConfig(repoRoot, packageRoot) {
     const versionConfig = JSON.parse(fs.readFileSync(versionConfigPath, 'utf8'));
 
     // 2. Manually construct the final configuration to ensure correct deep merging
-    const mergedConfig = {
+    const mergedConfig: any = {
         // Merge 'build' object - version-specific keys override shared keys
         build: {
             ...(sharedConfig.build || {}),
@@ -65,11 +73,11 @@ function mergeConfig(repoRoot, packageRoot) {
                 ...(versionConfig.packages?.overrides || {}),
             },
             // 'resolution': policy for wheels/source; arrays are de-duped, booleans overridden by version-specific
-            resolution: (function () {
-                const s = sharedConfig.packages?.resolution || {};
-                const v = versionConfig.packages?.resolution || {};
-                const lc = (arr) => (arr || []).map(x => (typeof x === 'string' ? x.toLowerCase().replace(/_/g, '-') : x));
-                const dedup = (arr) => [...new Set(lc(arr))];
+            resolution: (function (): ResolutionPolicy {
+                const s = sharedConfig.packages?.resolution || {} as ResolutionPolicy;
+                const v = versionConfig.packages?.resolution || {} as ResolutionPolicy;
+                const lc = (arr: string[]) => (arr || []).map(x => (typeof x === 'string' ? x.toLowerCase().replace(/_/g, '-') : x));
+                const dedup = (arr: string[]) => [...new Set(lc(arr))];
                 return {
                     allowSourceAll: (typeof v.allowSourceAll === 'boolean') ? v.allowSourceAll : (s.allowSourceAll || false),
                     strictMissing: (typeof v.strictMissing === 'boolean') ? v.strictMissing : (s.strictMissing || false),
@@ -104,14 +112,14 @@ function mergeConfig(repoRoot, packageRoot) {
                         ...(shared.copyFiles ? shared.copyFiles.map(JSON.stringify) : []),
                         ...(version.copyFiles ? version.copyFiles.map(JSON.stringify) : [])
                     ])
-                ].map(JSON.parse),
+                ].map((value: any) => JSON.parse(value)),
                 resolution: (function () {
-                    const s = shared.resolution || {};
-                    const v = version.resolution || {};
-                    const lc = (arr) => (arr || []).map(x => (typeof x === 'string' ? x.toLowerCase().replace(/_/g, '-') : x));
-                    const dedup = (arr) => [...new Set(lc(arr))];
-                    const has = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
-                    const r = {};
+                    const s = shared.resolution || {} as ResolutionPolicy;
+                    const v = version.resolution || {} as ResolutionPolicy;
+                    const lc = (arr: string[]) => (arr || []).map(x => (typeof x === 'string' ? x.toLowerCase().replace(/_/g, '-') : x));
+                    const dedup = (arr: string[]) => [...new Set(lc(arr))];
+                    const has = (obj: any, key: string) => Object.prototype.hasOwnProperty.call(obj, key);
+                    const r: ResolutionPolicy = { allowSourceAll: false, strictMissing: false, allowSourceList: [], forceNoBinaryList: [], onlyBinaryList: [] };
                     if (Object.keys(s).length > 0 || Object.keys(v).length > 0) {
                         r.allowSourceAll = has(v, 'allowSourceAll') ? v.allowSourceAll : (s.allowSourceAll || false);
                         r.strictMissing = has(v, 'strictMissing') ? v.strictMissing : (s.strictMissing || false);
@@ -153,16 +161,13 @@ function mergeConfig(repoRoot, packageRoot) {
 
 /**
  * Validates the final merged configuration.
- * @param {string} version - The Python version being built.
- * @param {string} packageRoot - The root directory of the package being built.
- * @param {Object} config - The merged configuration object.
  */
-function validateConfig(config, packageDirName) {
-  const errors = [];
+export function validateConfig(config: any, packageDirName: string) {
+  const errors: string[] = [];
   
   // A config is valid if it has global dependencies OR at least one platform has dependencies.
   const hasGlobalDeps = config.packages?.dependencies?.length > 0;
-  const hasPlatformDeps = Object.values(config.packages?.platformSpecific || {}).some(p => p.dependencies?.length > 0);
+  const hasPlatformDeps = Object.values(config.packages?.platformSpecific || {}).some((p: any) => p.dependencies?.length > 0);
 
   if (!hasGlobalDeps && !hasPlatformDeps) {
     // This could be a valid scenario if only copying files, but for now, we'll suppress the error.

@@ -4,7 +4,7 @@
   "description": "Python 3.12.10 run environment with RAPIDS for Platforma Backend",
   "scripts": {
     "cleanup": "rm -rf ./pkg-*.tgz && rm -rf ./pydist && rm -rf ./dist/ && rm -rf ./build/",
-    "build": "node ../scripts/build.js",
+    "build": "py-builder",
     "after-prebuild": "pl-pkg publish packages",
     "before-publish": "pl-pkg prepublish"
   },
@@ -39,7 +39,6 @@
   "license": "UNLICENSED",
   "devDependencies": {
     "@platforma-sdk/package-builder": "catalog:",
-    "tar": "catalog:",
-    "unzipper": "catalog:"
+    "runenv-python-builder": "workspace:*"
   }
 }

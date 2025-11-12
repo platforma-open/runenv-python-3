@@ -1,0 +1,24 @@
+{
+  "name": "runenv-python-builder",
+  "private": true,
+  "version": "0.0.1",
+  "scripts": {
+  },
+  "bin": {
+    "py-builder": "bin/run.mjs"
+  },
+  "files": [
+    "bin/",
+    "src/"
+  ],
+  "license": "UNLICENSED",
+  "packageManager": "pnpm@10.13.1",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "tsx": "catalog:",
+    "tar": "catalog:",
+    "unzipper": "catalog:"
+  }
+}

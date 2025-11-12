@@ -11,7 +11,6 @@ import * as unzipper from 'unzipper';
 import { mergeConfig, validateConfig, ResolutionPolicy } from './config-merger';
 
 const exec = promisify(cp.exec);
-const spawn = promisify(cp.spawn);
 
 /*
  * Argument Parsing and Validation
@@ -49,9 +48,7 @@ const packageRoot = process.cwd();
 const packageDirName = path.relative(repoRoot, packageRoot);
 const isInBuilderContainer = process.env['BUILD_CONTAINER'] == 'true';
 
-const defaultExecOpts = {
-  env: {...process.env}
-};
+const defaultExecOpts = {env: {...process.env}};
 
 // supported OSes
 type OS = 'macosx' | 'linux' | 'windows';
@@ -128,6 +125,7 @@ function runCommand(command: string, args: string[]): void {
   const result = cp.spawnSync(command, args, {
     ...defaultExecOpts,
     stdio: 'inherit',
+    shell: currentOS() === 'windows' ? 'powershell' : 'bash',
   });
 
   if (result.error) {
@@ -161,29 +159,16 @@ function untarPythonArchive(archivePath: string, targetDir: string): void {
   });
 }
 
-async function buildInDocker(): Promise<void> {
+function buildInDocker(): void {
   const tagName = `py-builder-${Math.random().toString(32).substring(2, 6)}:local`;
-  await spawn(
-    'docker', ['build', '-t', tagName, path.join(builderDir, 'docker')],
-    {
-      ...defaultExecOpts,
-      stdio: 'inherit',
-    }
-  );
-  await spawn(
-    'docker',
-    [
-      'run',
-      '--rm',
-      '--volume', `${repoRoot}:/app`,
-      tagName,
-      `/app/${packageDirName}`,
-    ],
-    {
-      ...defaultExecOpts,
-      stdio: 'inherit',
-    }
-  );
+  runCommand('docker', ['build', '-t', tagName, path.join(builderDir, 'docker')]);
+  runCommand('docker', [
+    'run',
+    '--rm',
+    '--volume', `${repoRoot}:/app`,
+    tagName,
+    `/app/${packageDirName}`
+  ]);
 }
 
 function buildFromSources(version: string, osType: OS, archType: Arch, installDir: string): void {
@@ -826,7 +811,7 @@ async function loadPackages(installDir: string, osType: OS, archType: Arch): Pro
         }
   
         console.log(`[DEBUG] Initializing docker build...`)
-        await buildInDocker();
+        buildInDocker();
       }
       default: {
         (x: never): void => { throw new Error(`Unsupported OS: ${x}`); }

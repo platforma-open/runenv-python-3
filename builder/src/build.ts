@@ -810,6 +810,8 @@ async function loadPackages(installDir: string, osType: OS, archType: Arch): Pro
         console.log(`[DEBUG] Building Windows distribution...`);
         await getPortableWindows(pythonVersion, archType, installDir);
         await loadPackages(installDir, osType, archType);
+
+        break;
       }
       case 'macosx': {
         console.log(`[DEBUG] Building macOS distribution...`);
@@ -817,7 +819,8 @@ async function loadPackages(installDir: string, osType: OS, archType: Arch): Pro
         console.log(`[DEBUG] Consolidating macOS libraries...`);
         await consolidateLibsOSX(installDir);
         await loadPackages(installDir, osType, archType);
-  
+
+        break;
       }
       case 'linux': {
         if (isInBuilderContainer) {
@@ -829,6 +832,8 @@ async function loadPackages(installDir: string, osType: OS, archType: Arch): Pro
   
         console.log(`[DEBUG] Initializing docker build...`)
         await buildInDocker();
+
+        break;
       }
       default: {
         (x: never): void => { throw new Error(`Unsupported OS: ${x}`); }

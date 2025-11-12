@@ -1,4 +1,4 @@
-FROM rockylinux:8
+FROM rockylinux:8.9.20231119
 
 # Contract between this container and build.js script.
 ENV BUILD_CONTAINER=true

@@ -156,11 +156,13 @@ function untarPythonArchive(archivePath: string, targetDir: string): void {
 }
 
 function buildInDocker(): void {
-  runCommand('docker', ['build', '-t', 'py-builder:local', path.join(builderDir, 'docker')]);
+  const tagName = `py-builder-${Math.random().toString(32).substring(2, 6)}:local`;
+  runCommand('docker', ['build', '-t', tagName, path.join(builderDir, 'docker')]);
   runCommand('docker', [
     'run',
-    '-v', `${repoRoot}:/app`,
-    'py-builder:local',
+    '--rm',
+    '--volume', `${repoRoot}:/app`,
+    tagName,
     `/app/${packageDirName}`
   ]);
 }

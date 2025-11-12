@@ -142,11 +142,11 @@ async function runCommand(command: string, args: string[]): Promise<void> {
 
     child.on('close', (code, signal) => {
       if (signal) {
-        reject(new Error(`command was killed with signal ${signal}`));
+        reject(new Error(`command '${[command, ...args].join("' '")}' was killed with signal ${signal}`));
       } else if (code === null) {
-        reject(new Error('command exited with null exit code'));
+        reject(new Error(`command '${[command, ...args].join("' '")}' exited with null exit code`));
       } else if (code > 0) {
-        reject(new Error(`command exited with non-zero exit code ${code}`));
+        reject(new Error(`command '${[command, ...args].join("' '")}' exited with non-zero exit code ${code}`));
       } else {
         resolve();
       }

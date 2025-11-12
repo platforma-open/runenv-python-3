@@ -49,6 +49,8 @@ const packageDirName = path.relative(repoRoot, packageRoot);
 const isInBuilderContainer = process.env['BUILD_CONTAINER'] == 'true';
 
 const defaultExecOpts = {env: {...process.env}};
+console.log('[DEBUG] defaultExecOpts:');
+console.dir(defaultExecOpts);
 
 // supported OSes
 type OS = 'macosx' | 'linux' | 'windows';

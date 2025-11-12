@@ -12,17 +12,17 @@ import * as macos from './macos';
  * Argument Parsing and Validation
  */
 const args = process.argv.slice(2);
-console.log(`[DIAGNOSTIC] Raw arguments received: ${args.join(', ')}`);
-let isTestRun = false;
 
-if (args.length >= 1 && args[0] === '--test-run') {
-  isTestRun = true;
-} else if (args.length > 0) {
+console.log(`[DIAGNOSTIC] Raw arguments received: ${args.join(', ')}`);
+if (args.length > 0) {
   console.error(`Usage: node ${path.basename(process.argv[1])}`);
   console.error('  Expects no arguments.');
   console.error('  Example: node build.js');
   process.exit(1);
 }
+
+const isTestRun = process.env['TEST_RUN'] === 'true';
+console.log(`[DIAGNOSTIC] Test run: ${isTestRun}`);
 
 const pythonVersion = JSON.parse(
   fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf8')

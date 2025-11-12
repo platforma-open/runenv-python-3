@@ -5,7 +5,7 @@
   "scripts": {
     "cleanup": "rm -rf ./pkg-*.tgz ./pydist ./dist/ ./build/",
     "reset": "pnpm run cleanup && rm -rf ./node_modules ./.turbo",
-    "build": "pl-py-builder --test-run",
+    "build": "TEST_RUN=true pl-py-builder",
     "build-descriptors": "pl-pkg build descriptors",
     "postbuild-publish": "pl-pkg publish --force"
   },

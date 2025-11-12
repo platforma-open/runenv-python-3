@@ -2,7 +2,7 @@
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
     "build": {
-      "env": [ "RUNNER_OS", "RUNNER_ARCH" ],
+      "env": [ "RUNNER_OS", "RUNNER_ARCH", "TEST_RUN" ],
       "inputs": [ "$TURBO_DEFAULT$", "!./pkg-*.tgz", "!./pydist/**", "../shared-config.json", "../scripts/**" ],
       "outputs": [ "./dist/**" ],
 
@@ -16,7 +16,7 @@
     },
     "after-prebuild": {
       "dependsOn": ["^build"],
-      "env": [ "RUNNER_OS", "RUNNER_ARCH" ],
+      "env": [ "RUNNER_OS", "RUNNER_ARCH", "TEST_RUN" ],
       "inputs": [ "$TURBO_DEFAULT$", "!./pkg-*.tgz", "!./pydist/**", "../shared-config.json", "../scripts/**" ],
       "outputs": [ "./dist/**" ],
 

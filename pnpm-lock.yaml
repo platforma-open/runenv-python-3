@@ -90,6 +90,9 @@ importers:
       runenv-python-builder:
         specifier: workspace:*
         version: link:../builder
+      tsx:
+        specifier: 'catalog:'
+        version: 4.20.6
 
   python-3.12.10-h5ad:
     devDependencies:
@@ -99,6 +102,9 @@ importers:
       runenv-python-builder:
         specifier: workspace:*
         version: link:../builder
+      tsx:
+        specifier: 'catalog:'
+        version: 4.20.6
 
   python-3.12.10-rapids:
     devDependencies:
@@ -108,6 +114,9 @@ importers:
       runenv-python-builder:
         specifier: workspace:*
         version: link:../builder
+      tsx:
+        specifier: 'catalog:'
+        version: 4.20.6
 
   python-3.12.10-sccoda:
     devDependencies:
@@ -117,6 +126,9 @@ importers:
       runenv-python-builder:
         specifier: workspace:*
         version: link:../builder
+      tsx:
+        specifier: 'catalog:'
+        version: 4.20.6
 
 packages:
 

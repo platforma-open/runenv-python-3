@@ -15,6 +15,9 @@ const builderScript = path.join(builderRoot, 'src', 'build.ts');
 const result = spawnSync(tsxBin, [builderScript, ...process.argv.slice(2)], {
   stdio: 'inherit',
   shell: isWindows ? 'powershell' : 'bash',
+  env: {
+    ...process.env,
+  }
 });
 
 const status = result.status === null ? 121 : result.status;

@@ -48,6 +48,8 @@ const packageRoot = process.cwd();
 const packageDirName = path.relative(repoRoot, packageRoot);
 const isInBuilderContainer = process.env['BUILD_CONTAINER'] == 'true';
 
+const defaultExecOpts = {env: {...process.env}};
+
 // supported OSes
 type OS = 'macosx' | 'linux' | 'windows';
 // supported architectures
@@ -121,7 +123,8 @@ function runCommand(command: string, args: string[]): void {
   }
 
   const result = cp.spawnSync(command, args, {
-    stdio: 'inherit'
+    ...defaultExecOpts,
+    stdio: 'inherit',
   });
 
   if (result.error) {
@@ -362,7 +365,7 @@ function patchPipWheel(pythonExe: string, pipWheelPath: string): void {
 }
 
 async function isBinaryOSX(filePath: string): Promise<boolean> {
-  const { stdout } = await exec(`file --no-dereference ${filePath}`);
+  const { stdout } = await exec(`file --no-dereference ${filePath}`, defaultExecOpts);
   const attributes = stdout.split(':')[1].trim().split(' ');
   return (
     attributes.includes('Mach-O') ||
@@ -372,11 +375,11 @@ async function isBinaryOSX(filePath: string): Promise<boolean> {
 
 async function alterLibLoadPathOSX(binary: string, oldLibPath: string, newLibPath: string): Promise<void> {
   console.log(`\tPatching library '${oldLibPath}' load path in '${binary}'...`);
-  await exec(`install_name_tool -change ${oldLibPath} ${newLibPath} ${binary}`);
+  await exec(`install_name_tool -change ${oldLibPath} ${newLibPath} ${binary}`, defaultExecOpts);
 }
 
 async function listLibsOSX(binPath: string): Promise<string[]> {
-  const { stdout } = await exec(`otool -L ${binPath}`);
+  const { stdout } = await exec(`otool -L ${binPath}`, defaultExecOpts);
 
   const lines = stdout.split('\n') as string[];
   const libraries: string[] = [];

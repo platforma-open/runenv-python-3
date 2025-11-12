@@ -3,7 +3,7 @@
   "scripts": {
     "cleanup": "pnpm -r cleanup",
     "reset": "pnpm -r reset && rm -rf ./node_modules ./.turbo",
-    "build": "env TEST_RUN=true turbo run build --output-logs=full",
+    "build": "turbo run build --output-logs=full",
     "after-prebuild": "turbo run after-prebuild --output-logs=full",
     "before-publish": "pnpm -r before-publish",
     "changeset": "changeset",

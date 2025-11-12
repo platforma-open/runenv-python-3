@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10-rapids
 
+## 1.4.1
+
+### Patch Changes
+
+- f2adb55: Technical release
+
 ## 1.4.0
 
 ### Minor Changes

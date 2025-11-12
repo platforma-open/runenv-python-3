@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10-h5ad
 
+## 1.1.1
+
+### Patch Changes
+
+- f2adb55: Technical release
+
 ## 1.1.0
 
 ### Minor Changes

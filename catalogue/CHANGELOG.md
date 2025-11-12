@@ -1,5 +1,17 @@
 # @platforma-open/milaboratories.runenv-python-3
 
+## 1.7.1
+
+### Patch Changes
+
+- f2adb55: Technical release
+- Updated dependencies [f2adb55]
+  - @platforma-open/milaboratories.runenv-python-3.12.10@1.3.1
+  - @platforma-open/milaboratories.runenv-python-3.12.10-atls@1.2.1
+  - @platforma-open/milaboratories.runenv-python-3.12.10-h5ad@1.1.1
+  - @platforma-open/milaboratories.runenv-python-3.12.10-rapids@1.4.1
+  - @platforma-open/milaboratories.runenv-python-3.12.10-sccoda@1.3.1
+
 ## 1.7.0
 
 ### Minor Changes

@@ -1,6 +1,6 @@
 {
   "name": "@platforma-open/milaboratories.runenv-python-3.12.10-atls",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Python 3.12.10 run environment for Platforma Backend with ATLS",
   "scripts": {
     "cleanup": "rm -rf ./pkg-*.tgz ./pydist ./dist/ ./build/",

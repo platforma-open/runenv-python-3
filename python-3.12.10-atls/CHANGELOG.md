@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10-atls
 
+## 1.2.1
+
+### Patch Changes
+
+- f2adb55: Technical release
+
 ## 1.2.0
 
 ### Minor Changes

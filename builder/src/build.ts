@@ -128,7 +128,7 @@ function runCommand(command: string, args: string[]): void {
     throw result.error;
   }
 
-  if (!result.status || result.status > 0) {
+  if (result.status === null || result.status > 0) {
     throw new Error(`command exited with non-zero exit code ${result.status}`);
   }
 }

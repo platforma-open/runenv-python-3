@@ -3,7 +3,7 @@
 set -o errexit
 set -o nounset
 
-target_dir="${1}"
+target_dir="${1:?First argument must be the target directory}"
 
 cd "${target_dir}"
 echo "Starting build in $(pwd)"

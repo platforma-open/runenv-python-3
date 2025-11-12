@@ -48,7 +48,15 @@ const packageRoot = process.cwd();
 const packageDirName = path.relative(repoRoot, packageRoot);
 const isInBuilderContainer = process.env['BUILD_CONTAINER'] == 'true';
 
-const defaultExecOpts = {env: {...process.env}};
+const defaultExecOpts = {
+  env: {
+    ...process.env,
+    // Disable Python output buffering
+    PYTHONUNBUFFERED: '1',
+    // Disable pip progress bar buffering
+    PIP_PROGRESS_BAR: 'off',
+  }
+};
 
 // supported OSes
 type OS = 'macosx' | 'linux' | 'windows';

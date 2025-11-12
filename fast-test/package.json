@@ -1,0 +1,43 @@
+{
+  "name": "@platforma-open/milaboratories.runenv-python-build-test",
+  "version": "0.0.1",
+  "description": "Fake package for faster build script and CI testing. Does not contain real python",
+  "scripts": {
+    "cleanup": "rm -rf ./pkg-*.tgz ./pydist ./dist/ ./build/",
+    "reset": "pnpm run cleanup && rm -rf ./node_modules ./.turbo",
+    "build": "pl-py-builder --test-run",
+    "build-descriptors": "pl-pkg build descriptors",
+    "postbuild-publish": "pl-pkg publish --force"
+  },
+  "files": [
+    "dist/"
+  ],
+  "block-software": {
+    "entrypoints": {
+      "main": {
+        "environment": {
+          "artifact": {
+            "type": "environment",
+            "runtime": "python",
+            "registry": "platforma-open",
+            "python-version": "3.12.10",
+            "roots": {
+              "linux-x64": "./pydist/linux-x64",
+              "linux-aarch64": "./pydist/linux-aarch64",
+              "macosx-x64": "./pydist/macosx-x64",
+              "macosx-aarch64": "./pydist/macosx-aarch64",
+              "windows-x64": "./pydist/windows-x64"
+            },
+            "binDir": "bin"
+          }
+        }
+      }
+    }
+  },
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@platforma-sdk/package-builder": "catalog:",
+    "runenv-python-builder": "workspace:*",
+    "tsx": "catalog:"
+  }
+} 

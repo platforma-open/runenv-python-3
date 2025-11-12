@@ -86,14 +86,12 @@ async function buildInDocker(): Promise<void> {
     '--rm',
     '--volume', `${util.repoRoot}:/app`,
     '--env', `FIX_PERMS=${process.getuid!()}:${process.getgid!()}`,
-    tagName,
-    `/app/${util.packageDirName}`
   ]
   if (isTestRun) {
     runArgs.push('--env', 'TEST_RUN=true');
   }
 
-  await util.runCommand('docker', ['run', ...runArgs]);
+  await util.runCommand('docker', ['run', ...runArgs, tagName, `/app/${util.packageDirName}`]);
 }
 
 async function buildFromSources(version: string, osType: util.OS, archType: util.Arch, installDir: string): Promise<void> {

@@ -183,6 +183,7 @@ async function buildInDocker(): Promise<void> {
     'run',
     '--rm',
     '--volume', `${repoRoot}:/app`,
+    '--env', `FIX_PERMS=${process.getuid!()}:${process.getgid!()}`,
     tagName,
     `/app/${packageDirName}`
   ]);

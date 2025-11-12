@@ -81,14 +81,19 @@ function untarPythonArchive(archivePath: string, targetDir: string): void {
 async function buildInDocker(): Promise<void> {
   const tagName = `py-builder-${Math.random().toString(32).substring(2, 6)}:local`;
   await util.runCommand('docker', ['build', '-t', tagName, path.join(util.builderDir, 'docker')]);
-  await util.runCommand('docker', [
-    'run',
+
+  const runArgs = [
     '--rm',
     '--volume', `${util.repoRoot}:/app`,
     '--env', `FIX_PERMS=${process.getuid!()}:${process.getgid!()}`,
     tagName,
     `/app/${util.packageDirName}`
-  ]);
+  ]
+  if (isTestRun) {
+    runArgs.push('--env', 'TEST_RUN=true');
+  }
+
+  await util.runCommand('docker', ['run', ...runArgs]);
 }
 
 async function buildFromSources(version: string, osType: util.OS, archType: util.Arch, installDir: string): Promise<void> {
@@ -472,7 +477,7 @@ async function fakeBuild(installDir: string, osType: util.OS, archType: util.Arc
       }
       case 'macosx': {
         if (isTestRun) {
-          console.log(`[DEBUG] Skipping Windows distribution build in test run`);
+          console.log(`[DEBUG] Skipping MacOS X distribution build in test run`);
           await fakeBuild(installDir, osType, archType);
           break;
         }
@@ -488,7 +493,7 @@ async function fakeBuild(installDir: string, osType: util.OS, archType: util.Arc
       case 'linux': {
         if (util.isInBuilderContainer) {
           if (isTestRun) {
-            console.log(`[DEBUG] Skipping Windows distribution build in test run`);
+            console.log(`[DEBUG] Skipping Linux distribution build in test run`);
             await fakeBuild(installDir, osType, archType);
             return;
           }

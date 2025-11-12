@@ -426,7 +426,7 @@ async function loadPackages(installDir: string, osType: util.OS, archType: util.
 async function fakeBuild(installDir: string, osType: util.OS, archType: util.Arch): Promise<void> {
   console.log(`[DEBUG] Performing fake build to imitate script execution for faster CI checks...`);
   util.emptyDirSync(installDir);
-  fs.copyFileSync(path.join(util.packageRoot, 'README.md'), path.join(installDir, 'README.md'));
+  fs.copyFileSync(path.join(util.builderDir, 'assets', 'fake-package-content.md'), path.join(installDir, 'README.md'));
 }
 
 /*

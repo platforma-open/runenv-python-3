@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10-h5ad
 
+## 1.1.0
+
+### Minor Changes
+
+- e899f52: Lower glibc version requirement (2.28)
+
 ## 1.0.2
 
 ### Patch Changes

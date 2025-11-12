@@ -1,5 +1,20 @@
 # @platforma-open/milaboratories.runenv-python-3
 
+## 1.7.0
+
+### Minor Changes
+
+- e899f52: Lower glibc version requirement (2.28)
+
+### Patch Changes
+
+- Updated dependencies [e899f52]
+  - @platforma-open/milaboratories.runenv-python-3.12.10@1.3.0
+  - @platforma-open/milaboratories.runenv-python-3.12.10-atls@1.2.0
+  - @platforma-open/milaboratories.runenv-python-3.12.10-h5ad@1.1.0
+  - @platforma-open/milaboratories.runenv-python-3.12.10-rapids@1.4.0
+  - @platforma-open/milaboratories.runenv-python-3.12.10-sccoda@1.3.0
+
 ## 1.6.3
 
 ### Patch Changes

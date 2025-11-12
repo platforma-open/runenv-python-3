@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import * as fs from 'fs';
+import * as path from 'path';
 
 export type ResolutionPolicy = {
     allowSourceAll: boolean;
@@ -39,10 +39,10 @@ export function mergeConfig(repoRoot: string, packageRoot: string): any {
             ...sharedConfig.registries,
             ...versionConfig.registries,
             additional: [
-                ...new Set([
+                ...Array.from(new Set([
                     ...(sharedConfig.registries?.additional || []),
                     ...(versionConfig.registries?.additional || []),
-                ]),
+                ])),
             ],
         },
         packages: {
@@ -77,7 +77,7 @@ export function mergeConfig(repoRoot: string, packageRoot: string): any {
                 const s = sharedConfig.packages?.resolution || {} as ResolutionPolicy;
                 const v = versionConfig.packages?.resolution || {} as ResolutionPolicy;
                 const lc = (arr: string[]) => (arr || []).map(x => (typeof x === 'string' ? x.toLowerCase().replace(/_/g, '-') : x));
-                const dedup = (arr: string[]) => [...new Set(lc(arr))];
+                const dedup = (arr: string[]) => Array.from(new Set(lc(arr)));
                 return {
                     allowSourceAll: (typeof v.allowSourceAll === 'boolean') ? v.allowSourceAll : (s.allowSourceAll || false),
                     strictMissing: (typeof v.strictMissing === 'boolean') ? v.strictMissing : (s.strictMissing || false),
@@ -95,7 +95,7 @@ export function mergeConfig(repoRoot: string, packageRoot: string): any {
     // 3. Deep merge 'platformSpecific' separately
     const sharedPlatform = sharedConfig.packages?.platformSpecific || {};
     const versionPlatform = versionConfig.packages?.platformSpecific || {};
-    const allPlatformKeys = [...new Set([...Object.keys(sharedPlatform), ...Object.keys(versionPlatform)])];
+    const allPlatformKeys = Array.from(new Set([...Object.keys(sharedPlatform), ...Object.keys(versionPlatform)]));
 
     if (allPlatformKeys.length > 0) {
         mergedConfig.packages.platformSpecific = {};
@@ -105,19 +105,19 @@ export function mergeConfig(repoRoot: string, packageRoot: string): any {
 
             // For each platform, merge dependencies and copyFiles arrays
             const platformConfig = {
-                dependencies: [...new Set([...(shared.dependencies || []), ...(version.dependencies || [])])],
+                dependencies: Array.from(new Set([...(shared.dependencies || []), ...(version.dependencies || [])])),
                 copyFiles: [
                     // To handle arrays of objects correctly, stringify for Set and then parse back
-                    ...new Set([
+                    ...Array.from(new Set([
                         ...(shared.copyFiles ? shared.copyFiles.map(JSON.stringify) : []),
                         ...(version.copyFiles ? version.copyFiles.map(JSON.stringify) : [])
-                    ])
+                    ]))
                 ].map((value: any) => JSON.parse(value)),
                 resolution: (function () {
                     const s = shared.resolution || {} as ResolutionPolicy;
                     const v = version.resolution || {} as ResolutionPolicy;
                     const lc = (arr: string[]) => (arr || []).map(x => (typeof x === 'string' ? x.toLowerCase().replace(/_/g, '-') : x));
-                    const dedup = (arr: string[]) => [...new Set(lc(arr))];
+                    const dedup = (arr: string[]) => Array.from(new Set(lc(arr)));
                     const has = (obj: any, key: string) => Object.prototype.hasOwnProperty.call(obj, key);
                     const r: ResolutionPolicy = { allowSourceAll: false, strictMissing: false, allowSourceList: [], forceNoBinaryList: [], onlyBinaryList: [] };
                     if (Object.keys(s).length > 0 || Object.keys(v).length > 0) {
@@ -178,8 +178,3 @@ export function validateConfig(config: any, packageDirName: string) {
     throw new Error(`Configuration validation failed for '${packageDirName}':\n${errors.join('\n')}`);
   }
 }
-
-module.exports = {
-  mergeConfig,
-  validateConfig
-};

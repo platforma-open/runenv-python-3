@@ -2,13 +2,12 @@
   "name": "runenv-python-builder",
   "private": true,
   "version": "0.0.1",
-  "scripts": {
-  },
+  "type": "module",
+  "scripts": {},
   "bin": {
-    "py-builder": "bin/run.mjs"
+    "pl-py-builder": "src/build.ts"
   },
   "files": [
-    "bin/",
     "src/"
   ],
   "license": "UNLICENSED",
@@ -17,8 +16,8 @@
     "node": ">=20"
   },
   "dependencies": {
-    "tsx": "catalog:",
-    "tar": "catalog:",
-    "unzipper": "catalog:"
+    "tar": "^7.4.3",
+    "unzipper": "^0.12.3",
+    "tsx": "catalog:"
   }
 }

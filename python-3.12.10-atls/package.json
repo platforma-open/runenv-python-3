@@ -4,7 +4,7 @@
   "description": "Python 3.12.10 run environment for Platforma Backend with ATLS",
   "scripts": {
     "cleanup": "rm -rf ./pkg-*.tgz && rm -rf ./pydist && rm -rf ./dist/ && rm -rf ./build/",
-    "build": "py-builder",
+    "build": "pl-py-builder",
     "after-prebuild": "pl-pkg publish packages",
     "before-publish": "pl-pkg prepublish"
   },
@@ -33,6 +33,7 @@
   "license": "UNLICENSED",
   "devDependencies": {
     "@platforma-sdk/package-builder": "catalog:",
-    "runenv-python-builder": "workspace:*"
+    "runenv-python-builder": "workspace:*",
+    "tsx": "catalog:"
   }
 }

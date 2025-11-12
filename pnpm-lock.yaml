@@ -15,18 +15,12 @@ catalogs:
     '@platforma-sdk/package-builder':
       specifier: ^3.6.0
       version: 3.6.0
-    tar:
-      specifier: ^7.4.3
-      version: 7.4.3
     tsx:
-      specifier: ^4.20.6
+      specifier: ^4.20.2
       version: 4.20.6
     turbo:
       specifier: ^2.5.4
       version: 2.5.4
-    unzipper:
-      specifier: ^0.12.3
-      version: 0.12.3
 
 importers:
 
@@ -38,26 +32,20 @@ importers:
       '@platforma-sdk/blocks-deps-updater':
         specifier: 'catalog:'
         version: 2.0.0
-      tar:
-        specifier: 'catalog:'
-        version: 7.4.3
       turbo:
         specifier: 'catalog:'
         version: 2.5.4
-      unzipper:
-        specifier: 'catalog:'
-        version: 0.12.3
 
   builder:
     dependencies:
       tar:
-        specifier: 'catalog:'
+        specifier: ^7.4.3
         version: 7.4.3
       tsx:
         specifier: 'catalog:'
         version: 4.20.6
       unzipper:
-        specifier: 'catalog:'
+        specifier: ^0.12.3
         version: 0.12.3
 
   catalogue:
@@ -90,6 +78,9 @@ importers:
       runenv-python-builder:
         specifier: workspace:*
         version: link:../builder
+      tsx:
+        specifier: 'catalog:'
+        version: 4.20.6
 
   python-3.12.10-atls:
     devDependencies:

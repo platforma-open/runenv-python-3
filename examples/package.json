@@ -4,7 +4,7 @@
   "description": "Python 3.12.10 run environment for Platforma Backend",
   "scripts": {
     "cleanup": "rm -rf ./pkg-*.tgz && rm -rf ./pydist && rm -rf ./dist/ && rm -rf ./build/",
-    "build": "node ../scripts/build.js 3.12.10",
+    "build": "pl-py-builder",
     "build-descriptors": "pl-pkg build descriptors",
     "postbuild-publish": "pl-pkg publish --force"
   },
@@ -35,7 +35,7 @@
   "license": "UNLICENSED",
   "devDependencies": {
     "@platforma-sdk/package-builder": "catalog:",
-    "tar": "catalog:",
-    "unzipper": "catalog:"
+    "runenv-python-builder": "workspace:*",
+    "tsx": "catalog:"
   }
 } 

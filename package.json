@@ -2,7 +2,7 @@
   "name": "runenv-python-3",
   "scripts": {
     "cleanup": "pnpm -r cleanup",
-    "build": "turbo run build --force",
+    "build": "turbo run build",
     "after-prebuild": "turbo run after-prebuild",
     "before-publish": "pnpm -r before-publish",
     "changeset": "changeset",
@@ -17,8 +17,6 @@
   "devDependencies": {
     "turbo": "catalog:",
     "@changesets/cli": "catalog:",
-    "tar": "catalog:",
-    "unzipper": "catalog:",
     "@platforma-sdk/blocks-deps-updater": "catalog:"
   }
 }

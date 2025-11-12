@@ -1,14 +1,14 @@
-#!/usr/bin/env node
+#!/usr/bin/env tsx
 
-const cp = require('child_process');
-const { promisify } = require('util');
-const fs = require('fs');
-const path = require('path');
-const tar = require('tar');
-const os = require('os');
-const { get } = require('https');
-const unzipper = require('unzipper');
-const { mergeConfig, validateConfig } = require('./config-merger');
+import cp from 'child_process';
+import { promisify } from 'util';
+import fs from 'fs';
+import path from 'path';
+import * as tar from 'tar';
+import os from 'os';
+import { get } from 'https';
+import * as unzipper from 'unzipper';
+import { mergeConfig, validateConfig, ResolutionPolicy } from './config-merger';
 
 const exec = promisify(cp.exec);
 
@@ -41,21 +41,30 @@ if (!pythonVersion) {
 // which is always one level above the 'scripts' directory. This avoids
 // fragile relative path calculations based on the current working directory,
 // which can change depending on how the script is invoked.
-const repoRoot = path.resolve(__dirname, '..');
+const scriptDir = path.resolve(__dirname);
+const builderDir = path.dirname(scriptDir);
+const repoRoot = path.dirname(builderDir);
 const packageRoot = process.cwd();
 const packageDirName = path.relative(repoRoot, packageRoot);
+const isInBuilderContainer = process.env['BUILD_CONTAINER'] == 'true';
+
+const defaultExecOpts = {
+  env: {
+    ...process.env,
+    // Disable Python output buffering
+    PYTHONUNBUFFERED: '1',
+    // Disable pip progress bar buffering
+    PIP_PROGRESS_BAR: 'off',
+  }
+};
 
 // supported OSes
-const os_macosx = 'macosx';
-const os_linux = 'linux';
-const os_windows = 'windows';
-
+type OS = 'macosx' | 'linux' | 'windows';
 // supported architectures
-const arch_x64 = 'x64';
-const arch_aarch64 = 'aarch64';
+type Arch = 'x64' | 'aarch64';
 
 // Load and merge configuration using the FULL version string
-let config;
+let config: any;
 try {
   config = mergeConfig(repoRoot, packageRoot);
   validateConfig(config, packageDirName);
@@ -73,68 +82,79 @@ console.log(`- Dependencies: ${config.packages.dependencies.length} packages`);
  * Function definitions
  */
 
-function currentOS() {
+function currentOS(): OS {
   switch (process.env['RUNNER_OS']?.toLowerCase()) {
     case 'macos':
-      return os_macosx;
+      return 'macosx';
     case 'linux':
-      return os_linux;
+      return 'linux';
     case 'windows':
-      return os_windows;
+      return 'windows';
   }
 
   switch (os.platform()) {
     case 'darwin':
-      return os_macosx;
+      return 'macosx';
     case 'linux':
-      return os_linux;
+      return 'linux';
     case 'win32':
-      return os_windows;
+      return 'windows';
   }
 
-  return os.platform();
+  throw new Error(`Unsupported OS: ${os.platform()}`);
 }
 
-function currentArch() {
+function currentArch(): Arch {
   switch (process.env['RUNNER_ARCH']?.toLowerCase()) {
     case 'x64':
-      return arch_x64;
+      return 'x64';
     case 'arm64':
-      return arch_aarch64;
+      return 'aarch64';
   }
 
   switch (os.arch()) {
     case 'x64':
-      return arch_x64;
+      return 'x64';
     case 'arm64':
-      return arch_aarch64;
+      return 'aarch64';
   }
 
-  return os.arch();
+  throw new Error(`Unsupported architecture: ${os.arch()}`);
 }
 
-function runCommand(command, args) {
-  console.log(`running: '${[command, ...args].join("' '")}'...`);
+async function runCommand(command: string, args: string[]): Promise<void> {
+  return new Promise((resolve, reject) => {
+    console.log(`running: '${[command, ...args].join("' '")}'...`);
 
-  if (currentOS() === os_windows) {
-    args = ['/c', `${command}`, ...args];
-    command = 'cmd';
-  }
+    if (currentOS() === 'windows') {
+      args = ['/c', `${command}`, ...args];
+      command = 'cmd';
+    }
 
-  const result = cp.spawnSync(command, args, {
-    stdio: 'inherit'
+    const child = cp.spawn(command, args, {
+      ...defaultExecOpts,
+      stdio: 'inherit',
+    });
+
+    child.on('error', (error) => {
+      reject(error);
+    });
+
+    child.on('close', (code, signal) => {
+      if (signal) {
+        reject(new Error(`command '${[command, ...args].join("' '")}' was killed with signal ${signal}`));
+      } else if (code === null) {
+        reject(new Error(`command '${[command, ...args].join("' '")}' exited with null exit code`));
+      } else if (code > 0) {
+        reject(new Error(`command '${[command, ...args].join("' '")}' exited with non-zero exit code ${code}`));
+      } else {
+        resolve();
+      }
+    });
   });
-
-  if (result.error) {
-    throw result.error;
-  }
-
-  if (result.status > 0) {
-    throw new Error(`command exited with non-zero exit code ${result.status}`);
-  }
 }
 
-function detectTarGzArchive(searchDir) {
+function detectTarGzArchive(searchDir: string): string {
   const files = fs.readdirSync(searchDir);
   for (const file of files) {
     if (file.endsWith('.tar.gz')) {
@@ -145,7 +165,7 @@ function detectTarGzArchive(searchDir) {
   throw new Error(`No tar.gz archive found in '${searchDir}' directory`);
 }
 
-function untarPythonArchive(archivePath, targetDir) {
+function untarPythonArchive(archivePath: string, targetDir: string): void {
   console.log(`using python archive '${archivePath}'`);
   console.log(`  extracting to '${targetDir}'`);
 
@@ -156,9 +176,22 @@ function untarPythonArchive(archivePath, targetDir) {
   });
 }
 
-function buildFromSources(version, osType, archType, installDir) {
-  runCommand('pipx', ['install', 'portable-python']);
-  runCommand('portable-python', ['build', version]);
+async function buildInDocker(): Promise<void> {
+  const tagName = `py-builder-${Math.random().toString(32).substring(2, 6)}:local`;
+  await runCommand('docker', ['build', '-t', tagName, path.join(builderDir, 'docker')]);
+  await runCommand('docker', [
+    'run',
+    '--rm',
+    '--volume', `${repoRoot}:/app`,
+    '--env', `FIX_PERMS=${process.getuid!()}:${process.getgid!()}`,
+    tagName,
+    `/app/${packageDirName}`
+  ]);
+}
+
+async function buildFromSources(version: string, osType: OS, archType: Arch, installDir: string): Promise<void> {
+  await runCommand('pipx', ['install', 'portable-python']);
+  await runCommand('pipx', ['run', 'portable-python', 'build', version]);
 
   const archiveDir = 'dist'; // portable-python always creates python archive in 'dist' dir
   const tarGzName = detectTarGzArchive(archiveDir);
@@ -210,7 +243,7 @@ function buildFromSources(version, osType, archType, installDir) {
   );
 }
 
-async function downloadFile(url, dest) {
+async function downloadFile(url: string, dest: string): Promise<void> {
   return new Promise((resolve, reject) => {
     const file = fs.createWriteStream(dest);
     get(url, (response) => {
@@ -224,7 +257,7 @@ async function downloadFile(url, dest) {
       response.pipe(file);
 
       file.on('finish', () => {
-        file.close(resolve);
+        file.close(() => resolve());
       });
     }).on('error', (err) => {
       reject(err);
@@ -232,20 +265,20 @@ async function downloadFile(url, dest) {
   });
 }
 
-async function unzipFile(zipPath, destDir) {
-  return new Promise((resolve, reject) => {
+async function unzipFile(zipPath: string, destDir: string): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
     console.log(`extracting '${zipPath}' to '${destDir}'`);
 
     const readStream = fs.createReadStream(zipPath);
     readStream
       .pipe(unzipper.Extract({ path: destDir }))
-      .on('close', resolve)
-      .on('error', reject);
+      .on('close', () => resolve())
+      .on('error', (err: any) => reject(err));
   });
 }
 
-async function getPortableWindows(version, archType, installDir) {
-  if (archType != arch_x64) {
+async function getPortableWindows(version: string, archType: Arch, installDir: string): Promise<void> {
+  if (archType != 'x64') {
     throw new Error(`architecture '${archType}' is not supported for windows`);
   }
 
@@ -285,22 +318,22 @@ import site
   const pythonExe = path.join(pyBinRoot, 'python.exe');
 
   // Install pip with bootstrap pip.pyz script
-  runCommand(pythonExe, [pipFile, 'install', 'pip']);
+  await runCommand(pythonExe, [pipFile, 'install', 'pip']);
 
   // On windows pip has a flaw that causes exceptions during pip init step (confugutations reading).
   //   CSIDL_COMMON_APPDATA registry read issue (Error: FileNotFoundError: [WinError 2])
   // If this command fails, see if https://github.com/pypa/pip/pull/13567 is resolved.
   // If so - patch is not needed any more.
-  fixPipRegistryIssue(path.join(pyBinRoot, 'Lib', 'site-packages', 'pip'));
+  await fixPipRegistryIssue(path.join(pyBinRoot, 'Lib', 'site-packages', 'pip'));
 
   // Install rest of the packages required in all environments
-  runCommand(pythonExe, ['-m', 'pip', 'install', 'virtualenv', 'wheel']);
+  await runCommand(pythonExe, ['-m', 'pip', 'install', 'virtualenv', 'wheel']);
 
   // We have to patch pip embedded into venv package:
   const venvEmbeddedWheelsDir = path.join(pyBinRoot, 'Lib', 'site-packages', 'virtualenv', 'seed', 'wheels', 'embed');
   for (const wheel of fs.readdirSync(venvEmbeddedWheelsDir)) {
     if (wheel.startsWith('pip-') && wheel.endsWith('.whl')) {
-      patchPipWheel(
+      await patchPipWheel(
         pythonExe,
         path.join(venvEmbeddedWheelsDir, wheel),
       );
@@ -325,33 +358,33 @@ import site
   );
 }
 
-function fixPipRegistryIssue(pipRoot) {
+async function fixPipRegistryIssue(pipRoot: string): Promise<void> {
   const appdirsPath = path.join(pipRoot, '_internal', 'utils', 'appdirs.py');
   const patchPath = path.join(repoRoot, 'patches', 'pip-win-reg.patch');
-  runCommand("patch", [appdirsPath, patchPath])
+  await runCommand("patch", [appdirsPath, patchPath])
 }
 
 // Unpack wheel, patch appdirs.py and pack wheel back
-function patchPipWheel(pythonExe, pipWheelPath) {
+async function patchPipWheel(pythonExe: string, pipWheelPath: string): Promise<void> {
   const pipPatchDir = path.join('.', 'pip-patch')
   if (fs.existsSync(pipPatchDir)) {
     fs.rmdirSync(pipPatchDir, { recursive: true });
   }
 
-  runCommand(pythonExe, ["-m", "wheel", "unpack", pipWheelPath, '--dest', pipPatchDir]);
+  await runCommand(pythonExe, ["-m", "wheel", "unpack", pipWheelPath, '--dest', pipPatchDir]);
   // wheel unpack extracts .whl file contents into <dest>/<pkg>-<version> directory (pip-patch/pip-25.1)
   // We need to dynamically get name of this target dir to patch and re-assemble wheel
   for (const pkgDir of fs.readdirSync(pipPatchDir)) {
     const whlRootDir = path.join(pipPatchDir, pkgDir);
-    fixPipRegistryIssue(path.join(whlRootDir, 'pip'));
-    runCommand(pythonExe, ["-m", "wheel", "pack", whlRootDir, '--dest-dir', path.dirname(pipWheelPath)]);
+    await fixPipRegistryIssue(path.join(whlRootDir, 'pip'));
+    await runCommand(pythonExe, ["-m", "wheel", "pack", whlRootDir, '--dest-dir', path.dirname(pipWheelPath)]);
   }
 
   fs.rmdirSync(pipPatchDir, { recursive: true });
 }
 
-async function isBinaryOSX(filePath) {
-  const { stdout } = await exec(`file --no-dereference ${filePath}`);
+async function isBinaryOSX(filePath: string): Promise<boolean> {
+  const { stdout } = await exec(`file --no-dereference ${filePath}`, defaultExecOpts);
   const attributes = stdout.split(':')[1].trim().split(' ');
   return (
     attributes.includes('Mach-O') ||
@@ -359,16 +392,16 @@ async function isBinaryOSX(filePath) {
   );
 }
 
-async function alterLibLoadPathOSX(binary, oldLibPath, newLibPath) {
+async function alterLibLoadPathOSX(binary: string, oldLibPath: string, newLibPath: string): Promise<void> {
   console.log(`\tPatching library '${oldLibPath}' load path in '${binary}'...`);
-  await exec(`install_name_tool -change ${oldLibPath} ${newLibPath} ${binary}`);
+  await exec(`install_name_tool -change ${oldLibPath} ${newLibPath} ${binary}`, defaultExecOpts);
 }
 
-async function listLibsOSX(binPath) {
-  const { stdout } = await exec(`otool -L ${binPath}`);
+async function listLibsOSX(binPath: string): Promise<string[]> {
+  const { stdout } = await exec(`otool -L ${binPath}`, defaultExecOpts);
 
-  const lines = stdout.split('\n');
-  const libraries = [];
+  const lines = stdout.split('\n') as string[];
+  const libraries: string[] = [];
 
   // Skip the first line as it contains the binary path
   for (let i = 1; i < lines.length; i++) {
@@ -382,8 +415,8 @@ async function listLibsOSX(binPath) {
   return libraries;
 }
 
-function dropSystemLibsOSX(libraries) {
-  const result = [];
+function dropSystemLibsOSX(libraries: string[]): string[] {
+  const result: string[] = [];
 
   for (const [i, libName] of libraries.entries()) {
     if (libName.startsWith('/System/Library/Frameworks/')) continue;
@@ -395,7 +428,7 @@ function dropSystemLibsOSX(libraries) {
   return result;
 }
 
-async function consolidateLibsOSX(installDir) {
+async function consolidateLibsOSX(installDir: string): Promise<void> {
   console.log(`Consolidating libraries...`);
 
   const binDir = path.join(installDir, 'bin');
@@ -447,12 +480,12 @@ async function consolidateLibsOSX(installDir) {
   }
 }
 
-function getPackageName(packageSpec) {
+function getPackageName(packageSpec: string): string {
   // Extract package name from spec (e.g., "parasail==1.3.4" -> "parasail")
   return packageSpec.split(/[<>=!]/)[0].trim();
 }
 
-function shouldSkipPackage(packageName, osType, archType) {
+function shouldSkipPackage(packageName: string, osType: OS, archType: Arch): boolean {
   const platformKey = `${osType}-${archType}`;
 
   // Check skip configuration
@@ -465,7 +498,7 @@ function shouldSkipPackage(packageName, osType, archType) {
   return false;
 }
 
-function shouldForceSource(packageName, osType, archType) {
+function shouldForceSource(packageName: string, osType: OS, archType: Arch): boolean {
   const platformKey = `${osType}-${archType}`;
 
   // Check forceSource configuration
@@ -479,16 +512,16 @@ function shouldForceSource(packageName, osType, archType) {
 }
 
 // --- Resolution policy (config-driven) ---
-function normalizePackageName(name) {
+function normalizePackageName(name: string): string {
   return (name || '').toLowerCase().replace(/_/g, '-');
 }
 
-function mergeResolution(base, override) {
-  const lc = (arr) => (arr || []).map(x => (typeof x === 'string' ? x.toLowerCase().replace(/_/g, '-') : x));
-  const dedup = (arr) => [...new Set(lc(arr))];
-  const has = (obj, key) => obj && Object.prototype.hasOwnProperty.call(obj, key);
-  const b = base || {};
-  const o = override || {};
+function mergeResolution(base: any, override: any): ResolutionPolicy {
+  const lc = (arr: string[]) => (arr || []).map(x => (typeof x === 'string' ? x.toLowerCase().replace(/_/g, '-') : x));
+  const dedup = (arr: string[]) => [...new Set(lc(arr))];
+  const has = (obj: any, key: string) => obj && Object.prototype.hasOwnProperty.call(obj, key);
+  const b = base || {} as ResolutionPolicy;
+  const o = override || {} as ResolutionPolicy;
   return {
     allowSourceAll: has(o, 'allowSourceAll') ? o.allowSourceAll : !!b.allowSourceAll,
     strictMissing: has(o, 'strictMissing') ? o.strictMissing : !!b.strictMissing,
@@ -498,14 +531,14 @@ function mergeResolution(base, override) {
   };
 }
 
-function getResolutionPolicy(osType, archType) {
-  const base = config.packages?.resolution || {};
+function getResolutionPolicy(osType: OS, archType: Arch): ResolutionPolicy {
+  const base = config.packages?.resolution || {} as ResolutionPolicy;
   const platformKey = `${osType}-${archType}`;
   const plat = config.packages?.platformSpecific?.[platformKey]?.resolution || {};
   return mergeResolution(base, plat);
 }
 
-function buildPipArgs(packageSpec, destinationDir) {
+function buildPipArgs(packageSpec: string, destinationDir: string): string[] {
   const args = [
     '-m',
     'pip',
@@ -526,21 +559,23 @@ function buildPipArgs(packageSpec, destinationDir) {
 
 // Get list of additional platforms for binary wheels.
 // Makes pip to download wheels for older Mac OS X versions in addition to current one.
-function additionalPlatforms(osType, archType) {
-  if (osType !== os_macosx) {
+function additionalPlatforms(osType: OS, archType: Arch): string[] {
+  if (osType !== 'macosx') {
     return [];
   }
 
-  if (archType === arch_x64) {
+  if (archType === 'x64') {
     return ['macosx_13_0_x86_64'];
   }
 
-  if (archType === arch_aarch64) {
+  if (archType === 'aarch64') {
     return ['macosx_13_0_arm64'];
   }
+
+  return [];
 }
 
-async function downloadPackages(pyBin, destinationDir, osType, archType) {
+async function downloadPackages(pyBin: string, destinationDir: string, osType: OS, archType: Arch): Promise<void> {
   const depsList = config.packages.dependencies || [];
 
   // Also include platform-specific dependencies
@@ -581,7 +616,7 @@ async function downloadPackages(pyBin, destinationDir, osType, archType) {
         const pipArgs = buildPipArgs(depSpecClean, destinationDir);
         // Only force source for this package to preserve wheels for its dependencies
         pipArgs.push('--no-binary', packageName);
-        runCommand(pyBin, pipArgs);
+        await runCommand(pyBin, pipArgs);
         console.log(`  ✓ Successfully downloaded source for ${depSpecClean}`);
       } catch (sourceError) {
         console.error(`  ✗ Failed to download source for ${depSpecClean}: ${sourceError.message}`);
@@ -593,11 +628,11 @@ async function downloadPackages(pyBin, destinationDir, osType, archType) {
         console.log(`  Attempting to download binary wheel...`);
         const pipArgs = buildPipArgs(depSpecClean, destinationDir);
         pipArgs.push('--only-binary', ':all:');
-        runCommand(pyBin, pipArgs);
+        await runCommand(pyBin, pipArgs);
         console.log(`  ✓ Successfully downloaded binary wheel for ${depSpecClean} (current platform)`);
         for (const platform of additionalPlatforms(osType, archType)) {
           console.log(`  Downloading additional binary wheel for ${platform}...`);
-          runCommand(pyBin, [...pipArgs, '--platform', platform]);
+          await runCommand(pyBin, [...pipArgs, '--platform', platform]);
           console.log(`  ✓ Successfully downloaded additional binary wheel for ${depSpecClean} (${platform} platform)`);
         }
       } catch (error) {
@@ -628,7 +663,7 @@ async function downloadPackages(pyBin, destinationDir, osType, archType) {
           const pipArgs = buildPipArgs(depSpecClean, destinationDir);
           // Only force source for this package, not its dependencies
           pipArgs.push('--no-binary', packageName);
-          runCommand(pyBin, pipArgs);
+          await runCommand(pyBin, pipArgs);
           console.log(`  ✓ Successfully downloaded source for ${depSpecClean}`);
         } catch (sourceError) {
           console.error(`  ✗ Failed to download source for ${depSpecClean}: ${sourceError.message}`);
@@ -641,7 +676,7 @@ async function downloadPackages(pyBin, destinationDir, osType, archType) {
   }
 }
 
-function copyVersionSpecificFiles(installDir, osType, archType) {
+function copyVersionSpecificFiles(installDir: string, osType: OS, archType: Arch): void {
   const genericCopyFiles = config.packages.copyFiles || [];
 
   const platformKey = `${osType}-${archType}`;
@@ -667,7 +702,7 @@ function copyVersionSpecificFiles(installDir, osType, archType) {
     if (destPath.includes('{site-packages}')) {
       console.log(`[DEBUG]   Found '{site-packages}' in destination.`);
       const [major, minor] = pythonVersion.split('.');
-      const sitePackagesDir = (osType === os_windows)
+      const sitePackagesDir = (osType === 'windows')
         ? 'Lib/site-packages'
         : `lib/python${major}.${minor}/site-packages`;
       destPath = destPath.replace('{site-packages}', sitePackagesDir);
@@ -702,7 +737,7 @@ function copyVersionSpecificFiles(installDir, osType, archType) {
 }
 
 
-function copyDirSync(src, dest) {
+function copyDirSync(src: string, dest: string): void {
   if (!fs.existsSync(dest)) {
     fs.mkdirSync(dest, { recursive: true });
   }
@@ -719,6 +754,28 @@ function copyDirSync(src, dest) {
       fs.copyFileSync(srcPath, destPath); // copy file
     }
   }
+}
+
+async function loadPackages(installDir: string, osType: OS, archType: Arch): Promise<void> {
+  console.log(`[DEBUG] Loading packages...`);
+
+  const pyBin = path.join(installDir, 'bin', 'python');
+  const packagesDir = path.join(installDir, 'packages');
+  console.log(`[DEBUG] Python binary: ${pyBin}`);
+  console.log(`[DEBUG] Packages directory: ${packagesDir}`);
+
+  // Log configured registries and packages
+  const additionalRegistries = config.registries.additional || [];
+  const allRegistries = ['https://pypi.org', ...additionalRegistries];
+  console.log(`\nUsing PyPI registries: ${allRegistries.join(', ')}`);
+  console.log(`\nInstalling ${config.packages.dependencies.length} packages from configuration`);
+
+  console.log(`[DEBUG] Starting package downloads...`);
+  await downloadPackages(pyBin, packagesDir, osType, archType);
+
+  console.log(`[DEBUG] Checking config for copyFiles before execution:`, JSON.stringify(config.packages.copyFiles, null, 2));
+  console.log(`[DEBUG] Copying version-specific files...`);
+  copyVersionSpecificFiles(installDir, osType, archType);
 }
 
 /*
@@ -749,48 +806,53 @@ function copyDirSync(src, dest) {
     fs.mkdirSync(installDir, { recursive: true });
 
     console.log(`[DEBUG] Starting Python distribution build...`);
-    if (osType === os_windows) {
-      console.log(`[DEBUG] Building Windows distribution...`);
-      await getPortableWindows(pythonVersion, archType, installDir);
-    } else if (osType === os_macosx) {
-      console.log(`[DEBUG] Building macOS distribution...`);
-      buildFromSources(pythonVersion, osType, archType, installDir);
-      console.log(`[DEBUG] Consolidating macOS libraries...`);
-      await consolidateLibsOSX(installDir);
-    } else {
-      console.log(`[DEBUG] Building Linux distribution...`);
-      buildFromSources(pythonVersion, osType, archType, installDir);
+    switch (osType) {
+      case 'windows': {
+        console.log(`[DEBUG] Building Windows distribution...`);
+        await getPortableWindows(pythonVersion, archType, installDir);
+        await loadPackages(installDir, osType, archType);
+
+        break;
+      }
+      case 'macosx': {
+        console.log(`[DEBUG] Building macOS distribution...`);
+        await buildFromSources(pythonVersion, osType, archType, installDir);
+        console.log(`[DEBUG] Consolidating macOS libraries...`);
+        await consolidateLibsOSX(installDir);
+        await loadPackages(installDir, osType, archType);
+
+        break;
+      }
+      case 'linux': {
+        if (isInBuilderContainer) {
+          console.log(`[DEBUG] Building Linux distribution inside docker container...`);
+          await buildFromSources(pythonVersion, osType, archType, installDir);
+          await loadPackages(installDir, osType, archType);
+          return
+        }
+  
+        console.log(`[DEBUG] Initializing docker build...`)
+        await buildInDocker();
+
+        break;
+      }
+      default: {
+        (x: never): void => { throw new Error(`Unsupported OS: ${x}`); }
+      }
     }
 
-    const pyBin = path.join(installDir, 'bin', 'python');
-    const packagesDir = path.join(installDir, 'packages');
-    console.log(`[DEBUG] Python binary: ${pyBin}`);
-    console.log(`[DEBUG] Packages directory: ${packagesDir}`);
-
-    // Log configured registries and packages
-    const additionalRegistries = config.registries.additional || [];
-    const allRegistries = ['https://pypi.org', ...additionalRegistries];
-    console.log(`\nUsing PyPI registries: ${allRegistries.join(', ')}`);
-    console.log(`\nInstalling ${config.packages.dependencies.length} packages from configuration`);
-
-    console.log(`[DEBUG] Starting package downloads...`);
-    await downloadPackages(pyBin, packagesDir, osType, archType);
-
-    console.log(`[DEBUG] Checking config for copyFiles before execution:`, JSON.stringify(config.packages.copyFiles, null, 2));
-    console.log(`[DEBUG] Copying version-specific files...`);
-    copyVersionSpecificFiles(installDir, osType, archType);
-
     console.log(`[DEBUG] Building pl package...`);
-    runCommand('pl-pkg', ['build']);
+    await runCommand('pl-pkg', ['build']);
 
     if (process.env['CI'] === 'true') {
       console.log(`[DEBUG] Publishing packages...`);
-      runCommand('pl-pkg', ['publish', 'packages']);
+      await runCommand('pl-pkg', ['publish', 'packages']);
     }
 
     console.log(`[DEBUG] Build completed successfully`);
     console.log(`[DEBUG] Package root listing after build:`);
     console.log(fs.readdirSync('.'));
+
   } catch (error) {
     console.error(`[ERROR] Build failed: ${error.message}`);
     console.error(`[ERROR] Stack trace: ${error.stack}`);

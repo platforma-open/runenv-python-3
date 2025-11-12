@@ -1,19 +1,17 @@
-const fs = require('fs');
-const path = require('path');
-const { mergeConfig } = require('./config-merger.js');
+import { mergeConfig } from './config-merger';
 
 /**
  * This script is for diagnostic purposes. It loads the REAL configuration files
  * for a given list of Python versions, runs the merge logic for each, and prints 
  * the final resulting object.
  */
-function runDiagnostic(pythonVersion) {
+function runDiagnostic(pythonVersion: string) {
     console.log(`\n--- Running Config Merger for [${pythonVersion}] with REAL files ---`);
     
     try {
         // Suppress the merger's own debug output to avoid clutter
         const originalConsoleLog = console.log;
-        const capturedLogs = [];
+        const capturedLogs: string[] = [];
         console.log = (msg, ...args) => { 
             if (typeof msg === 'string' && msg.startsWith('[DEBUG]')) {
                 capturedLogs.push(msg); // Capture for potential display on error
@@ -23,7 +21,7 @@ function runDiagnostic(pythonVersion) {
         };
 
         // Run the merge function with the real files
-        const mergedConfig = mergeConfig(pythonVersion);
+        const mergedConfig = mergeConfig(pythonVersion, '.');
 
         // Restore console.log
         console.log = originalConsoleLog;

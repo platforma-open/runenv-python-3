@@ -6,11 +6,13 @@ import { spawnSync } from 'child_process';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const builderRoot = path.resolve(__dirname, '..');
-const builderBin = path.join(builderRoot, 'node_modules', '.bin', 'tsx');
+const tsxBin = path.join(builderRoot, 'node_modules', '.bin', 'tsx.ps1');
+const builderScript = path.join(builderRoot, 'src', 'build.ts');
 
-const result = spawnSync(builderBin, [path.join(builderRoot, 'src', 'build.ts'), ...process.argv.slice(2)], {
+const result = spawnSync(tsxBin, [builderScript, ...process.argv.slice(2)], {
   stdio: 'inherit',
-  shell: false
+  shell: os.platform() === 'win32' ? 'powershell' : 'bash',
 });
 
-process.exit(result.status ?? 1);
+const status = result.status === null ? 1 : result.status;
+process.exit(status);

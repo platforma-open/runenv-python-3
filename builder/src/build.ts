@@ -15,7 +15,7 @@ const args = process.argv.slice(2);
 console.log(`[DIAGNOSTIC] Raw arguments received: ${args.join(', ')}`);
 let isTestRun = false;
 
-if (args.length === 1 && args[0] === '--test-run') {
+if (args.length >= 1 && args[0] === '--test-run') {
   isTestRun = true;
 } else if (args.length > 0) {
   console.error(`Usage: node ${path.basename(process.argv[1])}`);

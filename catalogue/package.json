@@ -5,7 +5,7 @@
   "scripts": {
     "cleanup": "rm -rf ./pkg-*.tgz && rm -rf ./dist/",
     "build": "pl-pkg build",
-    "prepublishOnly": "pl-pkg prepublish"
+    "prepublishOnly": "pl-pkg prepublish && echo 'Prepublish is OK'; false"
   },
   "block-software": {
     "entrypoints": {

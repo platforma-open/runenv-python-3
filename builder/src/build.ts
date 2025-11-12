@@ -1,7 +1,7 @@
 #!/usr/bin/env tsx
 
-import fs from 'fs';
-import path from 'path';
+import * as fs from 'fs';
+import * as path from 'path';
 import * as tar from 'tar';
 import * as util from './util';
 import { mergeConfig, validateConfig, ResolutionPolicy } from './config-merger';
@@ -13,8 +13,11 @@ import * as macos from './macos';
  */
 const args = process.argv.slice(2);
 console.log(`[DIAGNOSTIC] Raw arguments received: ${args.join(', ')}`);
+let isTestRun = false;
 
-if (args.length > 0) {
+if (args.length === 1 && args[0] === '--test-run') {
+  isTestRun = true;
+} else if (args.length > 0) {
   console.error(`Usage: node ${path.basename(process.argv[1])}`);
   console.error('  Expects no arguments.');
   console.error('  Example: node build.js');
@@ -124,12 +127,8 @@ async function buildFromSources(version: string, osType: util.OS, archType: util
   const extractedPythonDir = path.join(tempExtractDir, extractedDirName);
   console.log(`[DEBUG] Found extracted directory: '${extractedDirName}'`);
 
-
   // Ensure the final destination exists and is empty
-  if (fs.existsSync(installDir)) {
-    fs.rmSync(installDir, { recursive: true });
-  }
-  fs.mkdirSync(installDir, { recursive: true });
+  util.emptyDirSync(installDir);
 
   // Move the extracted python directory to its final destination
   fs.renameSync(extractedPythonDir, installDir);
@@ -424,10 +423,15 @@ async function loadPackages(installDir: string, osType: util.OS, archType: util.
   copyVersionSpecificFiles(installDir, osType, archType);
 }
 
+async function fakeBuild(installDir: string, osType: util.OS, archType: util.Arch): Promise<void> {
+  console.log(`[DEBUG] Performing fake build to imitate script execution for faster CI checks...`);
+  util.emptyDirSync(installDir);
+  fs.copyFileSync(path.join(util.packageRoot, 'README.md'), path.join(installDir, 'README.md'));
+}
+
 /*
  * Script body
  */
-
 (async () => {
   try {
     console.log(`[DEBUG] Starting build for Python ${pythonVersion}`);
@@ -454,6 +458,12 @@ async function loadPackages(installDir: string, osType: util.OS, archType: util.
     console.log(`[DEBUG] Starting Python distribution build...`);
     switch (osType) {
       case 'windows': {
+        if (isTestRun) {
+          console.log(`[DEBUG] Skipping Windows distribution build in test run`);
+          await fakeBuild(installDir, osType, archType);
+          break;
+        }
+
         console.log(`[DEBUG] Building Windows distribution...`);
         await windows.getPortablePython(pythonVersion, archType, installDir);
         await loadPackages(installDir, osType, archType);
@@ -461,6 +471,12 @@ async function loadPackages(installDir: string, osType: util.OS, archType: util.
         break;
       }
       case 'macosx': {
+        if (isTestRun) {
+          console.log(`[DEBUG] Skipping Windows distribution build in test run`);
+          await fakeBuild(installDir, osType, archType);
+          break;
+        }
+
         console.log(`[DEBUG] Building macOS distribution...`);
         await buildFromSources(pythonVersion, osType, archType, installDir);
         console.log(`[DEBUG] Consolidating macOS libraries...`);
@@ -471,6 +487,12 @@ async function loadPackages(installDir: string, osType: util.OS, archType: util.
       }
       case 'linux': {
         if (util.isInBuilderContainer) {
+          if (isTestRun) {
+            console.log(`[DEBUG] Skipping Windows distribution build in test run`);
+            await fakeBuild(installDir, osType, archType);
+            return;
+          }
+
           console.log(`[DEBUG] Building Linux distribution inside docker container...`);
           await buildFromSources(pythonVersion, osType, archType, installDir);
           await loadPackages(installDir, osType, archType);
@@ -506,6 +528,6 @@ async function loadPackages(installDir: string, osType: util.OS, archType: util.
     if (stack) {
       console.error(`[ERROR] Stack trace: ${stack}`);
     }
-    process.exit(1);
+    process.exit(122);
   }
 })();

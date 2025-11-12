@@ -8,18 +8,6 @@ import * as unzipper from 'unzipper';
 
 export const exec = promisify(cp.exec);
 
-// By using path.resolve, we get a stable, absolute path to the project root,
-// which is always one level above the 'scripts' directory. This avoids
-// fragile relative path calculations based on the current working directory,
-// which can change depending on how the script is invoked.
-const __dirname = path.dirname(new URL(import.meta.url).pathname.slice(1));
-export const scriptDir = path.resolve(__dirname);
-export const builderDir = path.dirname(scriptDir);
-export const repoRoot = path.dirname(builderDir);
-export const packageRoot = process.cwd();
-export const packageDirName = path.relative(repoRoot, packageRoot);
-export const isInBuilderContainer = process.env['BUILD_CONTAINER'] == 'true';
-
 export type OS = 'macosx' | 'linux' | 'windows';
 export type Arch = 'x64' | 'aarch64';
 
@@ -73,9 +61,30 @@ export function currentArch(): Arch {
   throw new Error(`Unsupported architecture: ${os.arch()}`);
 }
 
+const pathFromMetaURL = (url: string) => {
+  const p = new URL(url).pathname
+  if (currentOS() === 'windows') {
+    return p.slice(1); // /D:/a/b/c -> D:/a/b/c
+  }
+
+  return p;
+}
+
+// By using path.resolve, we get a stable, absolute path to the project root,
+// which is always one level above the 'scripts' directory. This avoids
+// fragile relative path calculations based on the current working directory,
+// which can change depending on how the script is invoked.
+const __dirname = path.dirname(pathFromMetaURL(import.meta.url));
+export const scriptDir = path.resolve(__dirname);
+export const builderDir = path.dirname(scriptDir);
+export const repoRoot = path.dirname(builderDir);
+export const packageRoot = process.cwd();
+export const packageDirName = path.relative(repoRoot, packageRoot);
+export const isInBuilderContainer = process.env['BUILD_CONTAINER'] == 'true';
+
 export async function runCommand(command: string, args: string[]): Promise<void> {
   return new Promise((resolve, reject) => {
-    console.log(`running: '${[command, ...args].join("' '")}'...`);
+    console.log(`[DEBUG] running '${[command, ...args].join("' '")}'...`);
 
     if (currentOS() === 'windows') {
       args = ['/c', `${command}`, ...args];
@@ -156,4 +165,12 @@ export function copyDirSync(src: string, dest: string): void {
       fs.copyFileSync(srcPath, destPath); // copy file
     }
   }
+}
+
+// Ensure the directory exists and is empty
+export function emptyDirSync(dir: string): void {
+  if (fs.existsSync(dir)) {
+    fs.rmSync(dir, { recursive: true });
+  }
+  fs.mkdirSync(dir, { recursive: true });
 }

@@ -18,6 +18,9 @@
   "dependencies": {
     "tar": "^7.4.3",
     "unzipper": "^0.12.3",
+    "@types/unzipper": "^0.10.11",
+    "@types/node": "^24.10.1",
+    "@types/tar": "^6.1.13",
     "tsx": "catalog:"
   }
 }

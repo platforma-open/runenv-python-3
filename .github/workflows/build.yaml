@@ -51,33 +51,39 @@ jobs:
       main-metapackage-name: '@platforma-open/milaboratories.runenv-python-3'
       pre-calculated-task-list: |
         [
-            {"os":"windows-latest", "arch":"amd64", "selector":"./python-3.12.10"},
-            {"os":"ubuntu-large-amd64", "arch":"amd64", "selector":"./python-3.12.10"},
-            {"os":"ubuntu-large-arm64", "arch":"arm64", "selector":"./python-3.12.10"},
-            {"os":"macos-15-intel", "arch":"amd64", "selector":"./python-3.12.10"},
-            {"os":"macos-14", "arch":"arm64", "selector":"./python-3.12.10"},
+          {"os":"windows-latest", "arch":"amd64", "selector":"./fast-test"},
+          {"os":"ubuntu-large-amd64", "arch":"amd64", "selector":"./fast-test"},
+          {"os":"ubuntu-large-arm64", "arch":"arm64", "selector":"./fast-test"},
+          {"os":"macos-15-intel", "arch":"amd64", "selector":"./fast-test"},
+          {"os":"macos-14", "arch":"arm64", "selector":"./fast-test"},
 
-            {"os":"ubuntu-large-amd64", "arch":"amd64", "selector":"./python-3.12.10-atls"},
-            {"os":"macos-14", "arch":"arm64", "selector":"./python-3.12.10-atls"},
-
-            {"os":"windows-latest", "arch":"amd64", "selector":"./python-3.12.10-sccoda"},
-            {"os":"ubuntu-large-amd64", "arch":"amd64", "selector":"./python-3.12.10-sccoda"},
-            {"os":"ubuntu-large-arm64", "arch":"arm64", "selector":"./python-3.12.10-sccoda"},
-            {"os":"macos-15-intel", "arch":"amd64", "selector":"./python-3.12.10-sccoda"},
-            {"os":"macos-14", "arch":"arm64", "selector":"./python-3.12.10-sccoda"},
-
-            {"os":"windows-latest", "arch":"amd64", "selector":"./python-3.12.10-rapids"},
-            {"os":"ubuntu-large-amd64", "arch":"amd64", "selector":"./python-3.12.10-rapids"},
-            {"os":"ubuntu-large-arm64", "arch":"arm64", "selector":"./python-3.12.10-rapids"},
-            {"os":"macos-15-intel", "arch":"amd64", "selector":"./python-3.12.10-rapids"},
-            {"os":"macos-14", "arch":"arm64", "selector":"./python-3.12.10-rapids"},
-
-            {"os":"windows-latest", "arch":"amd64", "selector":"./python-3.12.10-h5ad"},
-            {"os":"ubuntu-large-amd64", "arch":"amd64", "selector":"./python-3.12.10-h5ad"},
-            {"os":"ubuntu-large-arm64", "arch":"arm64", "selector":"./python-3.12.10-h5ad"},
-            {"os":"macos-15-intel", "arch":"amd64", "selector":"./python-3.12.10-h5ad"},
-            {"os":"macos-14", "arch":"arm64", "selector":"./python-3.12.10-h5ad"}
         ]
+    #      {"os":"windows-latest", "arch":"amd64", "selector":"./python-3.12.10"},
+    #      {"os":"ubuntu-large-amd64", "arch":"amd64", "selector":"./python-3.12.10"},
+    #      {"os":"ubuntu-large-arm64", "arch":"arm64", "selector":"./python-3.12.10"},
+    #      {"os":"macos-15-intel", "arch":"amd64", "selector":"./python-3.12.10"},
+    #      {"os":"macos-14", "arch":"arm64", "selector":"./python-3.12.10"},
+
+    #      {"os":"ubuntu-large-amd64", "arch":"amd64", "selector":"./python-3.12.10-atls"},
+    #      {"os":"macos-14", "arch":"arm64", "selector":"./python-3.12.10-atls"},
+
+    #      {"os":"windows-latest", "arch":"amd64", "selector":"./python-3.12.10-sccoda"},
+    #      {"os":"ubuntu-large-amd64", "arch":"amd64", "selector":"./python-3.12.10-sccoda"},
+    #      {"os":"ubuntu-large-arm64", "arch":"arm64", "selector":"./python-3.12.10-sccoda"},
+    #      {"os":"macos-15-intel", "arch":"amd64", "selector":"./python-3.12.10-sccoda"},
+    #      {"os":"macos-14", "arch":"arm64", "selector":"./python-3.12.10-sccoda"},
+
+    #      {"os":"windows-latest", "arch":"amd64", "selector":"./python-3.12.10-rapids"},
+    #      {"os":"ubuntu-large-amd64", "arch":"amd64", "selector":"./python-3.12.10-rapids"},
+    #      {"os":"ubuntu-large-arm64", "arch":"arm64", "selector":"./python-3.12.10-rapids"},
+    #      {"os":"macos-15-intel", "arch":"amd64", "selector":"./python-3.12.10-rapids"},
+    #      {"os":"macos-14", "arch":"arm64", "selector":"./python-3.12.10-rapids"},
+
+    #      {"os":"windows-latest", "arch":"amd64", "selector":"./python-3.12.10-h5ad"},
+    #      {"os":"ubuntu-large-amd64", "arch":"amd64", "selector":"./python-3.12.10-h5ad"},
+    #      {"os":"ubuntu-large-arm64", "arch":"arm64", "selector":"./python-3.12.10-h5ad"},
+    #      {"os":"macos-15-intel", "arch":"amd64", "selector":"./python-3.12.10-h5ad"},
+    #      {"os":"macos-14", "arch":"arm64", "selector":"./python-3.12.10-h5ad"}
 
       sign-binaries: |
         python*/pydist/**/*.so

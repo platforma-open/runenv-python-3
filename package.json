@@ -2,6 +2,7 @@
   "name": "runenv-python-3",
   "scripts": {
     "cleanup": "pnpm -r cleanup",
+    "reset": "pnpm -r reset",
     "build": "turbo run build",
     "after-prebuild": "turbo run after-prebuild",
     "before-publish": "pnpm -r before-publish",

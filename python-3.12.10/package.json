@@ -3,7 +3,8 @@
   "version": "1.2.25",
   "description": "Python 3.12.10 run environment for Platforma Backend",
   "scripts": {
-    "cleanup": "rm -rf ./pkg-*.tgz && rm -rf ./pydist && rm -rf ./dist/ && rm -rf ./build/",
+    "cleanup": "rm -rf ./pkg-*.tgz ./pydist ./dist/ ./build/",
+    "reset": "pnpm run cleanup && rm -rf ./node_modules ./.turbo",
     "build": "pl-py-builder",
     "after-prebuild": "pl-pkg publish packages",
     "before-publish": "pl-pkg prepublish"

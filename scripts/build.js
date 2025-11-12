@@ -759,7 +759,7 @@ async function loadPackages(installDir, osType, archType) {
  * Script body
  */
 
-(async () => {
+await (async () => {
   try {
     console.log(`[DEBUG] Starting build for Python ${pythonVersion}`);
     console.log(`[DEBUG] Current working directory: ${process.cwd()}`);
@@ -794,15 +794,15 @@ async function loadPackages(installDir, osType, archType) {
       await consolidateLibsOSX(installDir);
       await loadPackages(installDir, osType, archType);
     } else {
-      if (!isInBuilderContainer) {
-        console.log(`[DEBUG] Initializing docker build...`)
-        buildInDocker();
-      } else {
+      if (isInBuilderContainer) {
         console.log(`[DEBUG] Building Linux distribution inside docker container...`);
         buildFromSources(pythonVersion, osType, archType, installDir);
         await loadPackages(installDir, osType, archType);
         return
       }
+
+      console.log(`[DEBUG] Initializing docker build...`)
+      buildInDocker();
     }
 
     console.log(`[DEBUG] Building pl package...`);

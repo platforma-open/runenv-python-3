@@ -1,7 +1,7 @@
-import os from 'os';
-import fs from 'fs';
-import path from 'path';
-import cp from 'child_process';
+import * as os from 'os';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as cp from 'child_process';
 import { promisify } from 'util';
 import { get } from 'https';
 import * as unzipper from 'unzipper';
@@ -12,7 +12,7 @@ export const exec = promisify(cp.exec);
 // which is always one level above the 'scripts' directory. This avoids
 // fragile relative path calculations based on the current working directory,
 // which can change depending on how the script is invoked.
-const __dirname = path.dirname(new URL(import.meta.url).pathname);
+const __dirname = path.dirname(new URL(import.meta.url).pathname.slice(1));
 export const scriptDir = path.resolve(__dirname);
 export const builderDir = path.dirname(scriptDir);
 export const repoRoot = path.dirname(builderDir);

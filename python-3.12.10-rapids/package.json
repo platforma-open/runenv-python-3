@@ -1,6 +1,6 @@
 {
   "name": "@platforma-open/milaboratories.runenv-python-3.12.10-rapids",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "Python 3.12.10 run environment with RAPIDS for Platforma Backend",
   "scripts": {
     "cleanup": "rm -rf ./pkg-*.tgz ./pydist ./dist/ ./build/",

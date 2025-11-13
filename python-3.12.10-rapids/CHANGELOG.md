@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10-rapids
 
+## 1.4.2
+
+### Patch Changes
+
+- Technical release
+
 ## 1.4.1
 
 ### Patch Changes

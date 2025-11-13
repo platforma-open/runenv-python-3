@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10-sccoda
 
+## 1.3.3
+
+### Patch Changes
+
+- Technical release
+
 ## 1.3.2
 
 ### Patch Changes

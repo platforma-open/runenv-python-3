@@ -47,7 +47,7 @@ function dropSystemLibsOSX(libraries: string[]): string[] {
   return result;
 }
 
-export async function consolidateLibsOSX(installDir: string): Promise<void> {
+export async function consolidateLibs(installDir: string): Promise<void> {
   console.log(`Consolidating libraries...`);
 
   const binDir = path.join(installDir, 'bin');

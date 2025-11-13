@@ -174,3 +174,72 @@ export function emptyDirSync(dir: string): void {
   }
   fs.mkdirSync(dir, { recursive: true });
 }
+
+
+// TODO: share this with r-builder
+export function uniq(list: string[]): string[] {
+  return [...new Set(list)];
+}
+
+// TODO: share this with r-builder
+export function run(command: string, opts: { env?: Record<string, string> } = {}): string {
+  const processOpts: cp.ExecSyncOptions = {
+    ...opts,
+    env: {
+      ...process.env,
+      ...opts.env,
+    },
+    stdio: 'pipe'
+  }
+
+  const stdout = cp.execSync(command, processOpts);
+  return stdout.toString();
+}
+
+// TODO: share this with r-builder
+export function runInherit(command: string, opts: { env?: Record<string, string> } = {}): void {
+  const processOpts: cp.ExecSyncOptions = {
+    ...opts,
+    env: {
+      ...process.env,
+      ...opts.env,
+    },
+    stdio: 'inherit'
+  }
+  cp.execSync(command, processOpts);
+}
+
+// TODO: share this with r-builder
+export type filterRule = ((n: string) => boolean) | RegExp;
+export function applyFilter(filter: filterRule, file: string): boolean {
+  return (typeof filter === 'function' && filter(file)) ||
+    (filter instanceof RegExp && filter.test(file));
+}
+export function findFiles(dir: string, filter: filterRule, type: 'file' | 'dir' | 'any' = 'file'): string[] {
+  let results: string[] = [];
+
+  const selectDirs = type === 'dir' || type === 'any';
+  const selectFiles = type === 'file' || type === 'any';
+
+  const list = fs.readdirSync(dir);
+  list.forEach((item) => {
+    const filePath = path.join(dir, item);
+    const stat = fs.statSync(filePath);
+
+    if (!stat.isDirectory()) {
+      if (selectFiles && applyFilter(filter, item)) {
+        results.push(filePath);
+      }
+      return;
+    }
+
+    // Item is directory here
+    if (selectDirs && applyFilter(filter, item)) {
+      results.push(path.resolve(filePath));
+    }
+
+    results = results.concat(findFiles(filePath, filter, type));
+  });
+
+  return uniq(results);
+}

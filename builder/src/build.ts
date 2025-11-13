@@ -5,8 +5,9 @@ import * as path from 'path';
 import * as tar from 'tar';
 import * as util from './util';
 import { mergeConfig, validateConfig, ResolutionPolicy } from './config-merger';
-import * as windows from './windows';
+import * as linux from './linux';
 import * as macos from './macos';
+import * as windows from './windows';
 
 /*
  * Argument Parsing and Validation
@@ -483,7 +484,7 @@ async function fakeBuild(installDir: string, osType: util.OS, archType: util.Arc
         console.log(`[DEBUG] Building macOS distribution...`);
         await buildFromSources(pythonVersion, osType, archType, installDir);
         console.log(`[DEBUG] Consolidating macOS libraries...`);
-        await macos.consolidateLibsOSX(installDir);
+        await macos.consolidateLibs(installDir);
         await loadPackages(installDir, osType, archType);
 
         break;
@@ -498,6 +499,7 @@ async function fakeBuild(installDir: string, osType: util.OS, archType: util.Arc
 
           console.log(`[DEBUG] Building Linux distribution inside docker container...`);
           await buildFromSources(pythonVersion, osType, archType, installDir);
+          linux.consolidateLibs(installDir, true);
           await loadPackages(installDir, osType, archType);
           return
         }

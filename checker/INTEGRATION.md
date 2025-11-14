@@ -212,7 +212,7 @@ Remove these entries to keep whitelists clean.
 
 ### Build Hangs
 
-- Check for import timeouts (30s per module)
+- Check for import timeouts (120s per module)
 - Some modules may hang during import - add timeout error to whitelist
 
 ### False Positives

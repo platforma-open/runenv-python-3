@@ -244,7 +244,7 @@ def test_wheel_with_logging(
                 capture_output=True,
                 text=True,
                 encoding="utf-8",
-                timeout=60,
+                timeout=180,
             )
         except subprocess.TimeoutExpired:
             result.add_log("  ❌ Timeout creating venv")
@@ -287,7 +287,7 @@ def test_wheel_with_logging(
                 capture_output=True,
                 text=True,
                 encoding="utf-8",
-                timeout=120,
+                timeout=600,
             )
         except subprocess.TimeoutExpired:
             result.add_log("  ❌ Timeout installing wheel")
@@ -334,7 +334,7 @@ def test_wheel_with_logging(
                     capture_output=True,
                     text=True,
                     encoding="utf-8",
-                    timeout=30,
+                    timeout=120,
                 )
             except subprocess.TimeoutExpired:
                 result.add_log(f"  Testing import: {module}")

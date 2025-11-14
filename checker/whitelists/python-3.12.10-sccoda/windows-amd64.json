@@ -1,3 +1,27 @@
 {
+  "matplotlib-3.10.7-cp312-cp312-win_amd64.whl": {
+    "matplotlib._c_internal_utils": "Could not determine home directory",
+    "matplotlib._image": "Could not determine home directory",
+    "matplotlib._path": "Could not determine home directory",
+    "matplotlib._qhull": "Could not determine home directory",
+    "matplotlib._tri": "Could not determine home directory",
+    "matplotlib.backends._backend_agg": "Could not determine home directory",
+    "matplotlib.backends._tkagg": "Could not determine home directory",
+    "matplotlib.ft2font": "Could not determine home directory"
+  },
+  "numpy-1.26.4-cp312-cp312-win_amd64.whl": {
+    "numpy.core._umath_tests": "cannot load _umath_tests module"
+  },
+  "numba-0.62.1-cp312-cp312-win_amd64.whl": {
+    "numba.np.ufunc.tbbpool": "DLL load failed while importing tbbpool: The specified module could not be found"
+  },
+  "rpy2_rinterface-3.6.3-cp312-cp312-win_amd64.whl": {
+    "_rinterface_cffi_api": "DLL load failed while importing _rinterface_cffi_api: The specified module could not be found"
+  },
+  "scipy-1.16.3-cp312-cp312-win_amd64.whl": {
+    "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module"
+  },
+  "tensorflow-2.20.0-cp312-cp312-win_amd64.whl": {
+    "tensorflow.lite.python._pywrap_tensorflow_lite_metrics_wrapper": "generic_type: type \"MetricsWrapper\" is already registered"
+  }
 }
-

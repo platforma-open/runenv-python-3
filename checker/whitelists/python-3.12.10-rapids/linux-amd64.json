@@ -1,3 +1,199 @@
 {
+  "cuproj_cu12-25.4.0-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl": {
+    "cuproj._lib.transform": "librapids_logger.so: cannot open shared object file: No such file or directory"
+  },
+  "cucim_cu12-25.4.0-cp312-cp312-manylinux_2_28_x86_64.whl": {
+    "cucim.clara.cucim.kit.cumed@25.04.00": "invalid syntax",
+    "cucim.clara.cucim.kit.cuslide@25.04.00": "invalid syntax"
+  },
+  "cupy_cuda12x-13.6.0-cp312-cp312-manylinux2014_x86_64.whl": {
+    "cupy.cuda.cufft": "libcufft.so.11: cannot open shared object file: No such file or directory",
+    "cupy.cuda.jitify": "libnvrtc.so.12: cannot open shared object file: No such file or directory",
+    "cupy_backends.cuda.libs.cublas": "libcublas.so.12: cannot open shared object file: No such file or directory",
+    "cupy_backends.cuda.libs.cudnn": "libcudnn.so.8: cannot open shared object file: No such file or directory",
+    "cupy_backends.cuda.libs.curand": "libcurand.so.10: cannot open shared object file: No such file or directory",
+    "cupy_backends.cuda.libs.cusolver": "libcusolver.so.11: cannot open shared object file: No such file or directory",
+    "cupy_backends.cuda.libs.cusparse": "libcusparse.so.12: cannot open shared object file: No such file or directory",
+    "cupy_backends.cuda.libs.cutensor": "libcutensor.so.2: cannot open shared object file: No such file or directory",
+    "cupy_backends.cuda.libs.nccl": "libnccl.so.2: cannot open shared object file: No such file or directory",
+    "cupyx.cudnn": "libcudnn.so.8: cannot open shared object file: No such file or directory",
+    "cupyx.cusolver": "libcusolver.so.11: cannot open shared object file: No such file or directory",
+    "cupyx.cutensor": "libcutensor.so.2: cannot open shared object file: No such file or directory"
+  },
+  "cudf_cu12-25.4.0-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl": {
+    "cudf._lib.libcudf_strings_udf": "CUDA driver version is insufficient for CUDA runtime version",
+    "cudf._lib.strings_udf": "CUDA driver version is insufficient for CUDA runtime version"
+  },
+  "cuspatial_cu12-25.4.0-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl": {
+    "cuspatial._lib.distance": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuspatial._lib.intersection": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuspatial._lib.linestring_bounding_boxes": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuspatial._lib.nearest_points": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuspatial._lib.pairwise_multipoint_equals_count": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuspatial._lib.pairwise_point_in_polygon": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuspatial._lib.point_in_polygon": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuspatial._lib.points_in_range": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuspatial._lib.polygon_bounding_boxes": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuspatial._lib.quadtree": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuspatial._lib.spatial": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuspatial._lib.spatial_join": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuspatial._lib.trajectory": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuspatial._lib.types": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuspatial._lib.utils": "CUDA driver version is insufficient for CUDA runtime version"
+  },
+  "cugraph_cu12-25.4.0-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl": {
+    "cugraph.components.connectivity_wrapper": "CUDA driver version is insufficient for CUDA runtime version",
+    "cugraph.dask.comms.comms_wrapper": "CUDA driver version is insufficient for CUDA runtime version",
+    "cugraph.dask.structure.replication": "CUDA driver version is insufficient for CUDA runtime version",
+    "cugraph.internals.internals": "CUDA driver version is insufficient for CUDA runtime version",
+    "cugraph.layout.force_atlas2_wrapper": "CUDA driver version is insufficient for CUDA runtime version",
+    "cugraph.linear_assignment.lap_wrapper": "CUDA driver version is insufficient for CUDA runtime version",
+    "cugraph.structure.graph_primtypes": "CUDA driver version is insufficient for CUDA runtime version",
+    "cugraph.structure.graph_primtypes_wrapper": "CUDA driver version is insufficient for CUDA runtime version",
+    "cugraph.structure.utils_wrapper": "CUDA driver version is insufficient for CUDA runtime version",
+    "cugraph.tree.minimum_spanning_tree_wrapper": "CUDA driver version is insufficient for CUDA runtime version",
+    "cugraph.utilities.path_retrieval_wrapper": "CUDA driver version is insufficient for CUDA runtime version"
+  },
+  "libcudf_cu12-25.4.0-py3-none-manylinux_2_28_x86_64.whl": {
+    "libcudf.lib64.libcudf": "libkvikio.so: cannot open shared object file: No such file or directory"
+  },
+  "libcuspatial_cu12-25.4.0-py3-none-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl": {
+    "libcuspatial.lib64.libcuspatial": "libcudf.so: cannot open shared object file: No such file or directory"
+  },
+  "libucx_cu12-1.18.1-py3-none-manylinux_2_28_x86_64.whl": {
+    "libucx.lib.libucm": "undefined symbol: ucs_load_modules",
+    "libucx.lib.ucx.libucm_cuda": "libucm.so.0: cannot open shared object file: No such file or directory",
+    "libucx.lib.ucx.libuct_cma": "libuct.so.0: cannot open shared object file: No such file or directory",
+    "libucx.lib.ucx.libuct_cuda": "libuct.so.0: cannot open shared object file: No such file or directory",
+    "libucx.lib.ucx.libucx_perftest_cuda": "undefined symbol: ucs_global_opts"
+  },
+  "libucxx_cu12-0.43.0-py3-none-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl": {
+    "libucxx.lib64.libucxx": "libucp.so.0: cannot open shared object file: No such file or directory"
+  },
+  "libraft_cu12-25.4.0-py3-none-manylinux_2_28_x86_64.whl": {
+    "libraft.lib64.libraft": "librapids_logger.so: cannot open shared object file: No such file or directory"
+  },
+  "libcuvs_cu12-25.4.0-py3-none-manylinux_2_28_x86_64.whl": {
+    "libcuvs.lib64.libcuvs": "librapids_logger.so: cannot open shared object file: No such file or directory",
+    "libcuvs.lib64.libcuvs_c": "librapids_logger.so: cannot open shared object file: No such file or directory"
+  },
+  "libcugraph_cu12-25.4.1-py3-none-manylinux_2_28_x86_64.whl": {
+    "libcugraph.lib64.libcugraph": "libraft.so: cannot open shared object file: No such file or directory",
+    "libcugraph.lib64.libcugraph_c": "librapids_logger.so: cannot open shared object file: No such file or directory"
+  },
+  "libcuml_cu12-25.4.0-py3-none-manylinux_2_28_x86_64.whl": {
+    "libcuml.lib64.libcuml++": "invalid syntax",
+    "libcuml.lib64.libcumlprims_mg": "libcublas.so.12: cannot open shared object file: No such file or directory"
+  },
+  "numba-0.60.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl": {
+    "numba.np.ufunc.tbbpool": "libtbb.so.12: cannot open shared object file: No such file or directory"
+  },
+  "numba-0.61.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl": {
+    "numba.np.ufunc.tbbpool": "libtbb.so.12: cannot open shared object file: No such file or directory"
+  },
+  "numba-0.62.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl": {
+    "numba.np.ufunc.tbbpool": "libtbb.so.12: cannot open shared object file: No such file or directory"
+  },
+  "cuml_cu12-25.4.0-cp312-cp312-manylinux_2_28_x86_64.whl": {
+    "cuml.cluster.agglomerative": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.cluster.dbscan": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.cluster.dbscan_mg": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.cluster.hdbscan.hdbscan": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.cluster.hdbscan.prediction": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.cluster.kmeans": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.cluster.kmeans_mg": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.common.cuda": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.common.handle": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.common.opg_data_utils_mg": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.common.pointer_utils": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.datasets.arima": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.datasets.regression": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.decomposition.base_mg": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.decomposition.pca": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.decomposition.pca_mg": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.decomposition.tsvd": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.decomposition.tsvd_mg": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.ensemble.randomforest_common": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.ensemble.randomforest_shared": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.ensemble.randomforestclassifier": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.ensemble.randomforestregressor": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.experimental.fil.fil": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.experimental.linear_model.lars": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.explainer.base": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.explainer.kernel_shap": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.explainer.permutation_shap": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.explainer.tree_shap": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.internals.base": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.internals.device_support": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.internals.internals": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.internals.logger": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.kernel_ridge.kernel_ridge": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.legacy.fil.fil": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.linear_model.base": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.linear_model.base_mg": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.linear_model.elastic_net": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.linear_model.linear_regression": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.linear_model.linear_regression_mg": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.linear_model.logistic_regression": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.linear_model.logistic_regression_mg": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.linear_model.mbsgd_classifier": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.linear_model.mbsgd_regressor": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.linear_model.ridge": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.linear_model.ridge_mg": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.manifold.simpl_set": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.manifold.t_sne": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.manifold.umap": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.manifold.umap_utils": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.metrics.cluster.adjusted_rand_index": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.metrics.cluster.completeness_score": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.metrics.cluster.entropy": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.metrics.cluster.homogeneity_score": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.metrics.cluster.mutual_info_score": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.metrics.cluster.silhouette_score": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.metrics.cluster.utils": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.metrics.cluster.v_measure": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.metrics.hinge_loss": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.metrics.kl_divergence": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.metrics.pairwise_distances": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.metrics.trustworthiness": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.neighbors.ann": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.neighbors.kneighbors_classifier": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.neighbors.kneighbors_classifier_mg": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.neighbors.kneighbors_regressor": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.neighbors.kneighbors_regressor_mg": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.neighbors.nearest_neighbors": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.neighbors.nearest_neighbors_mg": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.random_projection.random_projection": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.solvers.cd": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.solvers.cd_mg": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.solvers.qn": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.solvers.sgd": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.svm.linear": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.svm.svc": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.svm.svm_base": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.svm.svr": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.tsa.arima": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.tsa.auto_arima": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.tsa.holtwinters": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.tsa.seasonality": "CUDA driver version is insufficient for CUDA runtime version",
+    "cuml.tsa.stationarity": "CUDA driver version is insufficient for CUDA runtime version"
+  },
+  "pynvjitlink_cu12-0.7.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl": {
+    "pynvjitlink._nvjitlinklib": "libcuda.so.1: cannot open shared object file: No such file or directory"
+  },
+  "ucxx_cu12-0.43.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl": {
+    "ucxx._lib.arr": "libpython3.12.so.1.0: cannot open shared object file: No such file or directory",
+    "ucxx._lib.libucxx": "libpython3.12.so.1.0: cannot open shared object file: No such file or directory",
+    "ucxx.examples.python_future_task_app": "libpython3.12.so.1.0: cannot open shared object file: No such file or directory",
+    "ucxx.lib64.libucxx_python": "libpython3.12.so.1.0: cannot open shared object file: No such file or directory"
+  },
+  "scipy-1.16.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl": {
+    "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module"
+  },
+  "scipy-1.16.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl": {
+    "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module"
+  },
+  "torch-2.7.0+cpu-cp312-cp312-manylinux_2_28_x86_64.whl": {
+    "functorch._C": "initialization failed"
+  }
 }
-

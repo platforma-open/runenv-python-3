@@ -1,3 +1,26 @@
 {
+  "ml_dtypes-0.3.2-cp312-cp312-macosx_10_9_universal2.whl": {
+    "ml_dtypes._ml_dtypes_ext": "numpy.core.umath failed to import"
+  },
+  "numpy-1.26.4-cp312-cp312-macosx_10_9_x86_64.whl": {
+    "numpy.core._umath_tests": "cannot load _umath_tests module"
+  },
+  "numba-0.62.1-cp312-cp312-macosx_10_15_x86_64.whl": {
+    "numba.np.ufunc.omppool": "'/Users/runner/miniconda3/envs/test/lib/libomp.dylib' (no such file)"
+  },
+  "rpy2_rinterface-3.6.3-cp312-cp312-macosx_10_13_universal2.whl": {
+    "_rinterface_cffi_api": "symbol not found in flat namespace '_R_BaseEnv'"
+  },
+  "scipy-1.16.3-cp312-cp312-macosx_10_14_x86_64.whl": {
+    "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module"
+  },
+  "scipy-1.16.3-cp312-cp312-macosx_14_0_x86_64.whl": {
+    "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module"
+  },
+  "torch-2.2.2-cp312-none-macosx_10_9_x86_64.whl": {
+    "functorch._C": "initialization failed"
+  },
+  "tensorflow-2.16.2-cp312-cp312-macosx_10_15_x86_64.whl": {
+    "tensorflow.compiler.tf2xla.ops._xla_ops": "ALREADY_EXISTS: Op with name XlaBroadcastHelper"
+  }
 }
-

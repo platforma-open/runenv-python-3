@@ -1,3 +1,11 @@
 {
+  "numba-0.62.1-cp312-cp312-macosx_11_0_arm64.whl": {
+    "numba.np.ufunc.omppool": "'/Users/runner/miniconda3/envs/test/lib/libomp.dylib' (no such file)"
+  },
+  "scipy-1.16.3-cp312-cp312-macosx_12_0_arm64.whl": {
+    "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module"
+  },
+  "scipy-1.16.3-cp312-cp312-macosx_14_0_arm64.whl": {
+    "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module"
+  }
 }
-

@@ -500,6 +500,8 @@ def main():
     used_whitelist_lock = threading.Lock()
 
     safe_print(f"Using {max_workers} parallel workers")
+    
+    overall_start_time = time.time()
 
     test_args = [
         (wheel_path, packages_dir, python_bin, whitelist, used_whitelist_lock)
@@ -540,6 +542,8 @@ def main():
                 failed_wheels[wheel_path.name] = [("exception", str(e))]
 
     unused_whitelist = find_unused_whitelist_entries(whitelist, used_whitelist)
+    
+    overall_duration = time.time() - overall_start_time
 
     print("\n" + "=" * 50)
     print("Test Summary")
@@ -552,6 +556,7 @@ def main():
     print(f"Failed: {len(failed_wheels)}")
     if whitelisted_wheels:
         print(f"Whitelisted warnings: {len(whitelisted_wheels)}")
+    print(f"Overall test time: {overall_duration:.1f}s")
     print("=" * 50)
 
     if whitelisted_wheels:

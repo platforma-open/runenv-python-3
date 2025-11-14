@@ -1,3 +1,18 @@
 {
+  "matplotlib-3.10.7-cp312-cp312-win_amd64.whl": {
+    "matplotlib._c_internal_utils": "Could not determine home directory",
+    "matplotlib._image": "Could not determine home directory",
+    "matplotlib._path": "Could not determine home directory",
+    "matplotlib._qhull": "Could not determine home directory",
+    "matplotlib._tri": "Could not determine home directory",
+    "matplotlib.backends._backend_agg": "Could not determine home directory",
+    "matplotlib.backends._tkagg": "Could not determine home directory",
+    "matplotlib.ft2font": "Could not determine home directory"
+  },
+  "numba-0.62.1-cp312-cp312-win_amd64.whl": {
+    "numba.np.ufunc.tbbpool": "DLL load failed while importing tbbpool: The specified module could not be found"
+  },
+  "scipy-1.16.3-cp312-cp312-win_amd64.whl": {
+    "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module"
+  }
 }
-

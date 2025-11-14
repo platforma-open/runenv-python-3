@@ -1,3 +1,14 @@
 {
+  "numba-0.62.1-cp312-cp312-win_amd64.whl": {
+    "numba.np.ufunc.tbbpool": "DLL load failed while importing tbbpool: The specified module could not be found"
+  },
+  "scipy-1.16.2-cp312-cp312-win_amd64.whl": {
+    "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module"
+  },
+  "scipy-1.16.3-cp312-cp312-win_amd64.whl": {
+    "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module"
+  },
+  "torch-2.7.0+cpu-cp312-cp312-win_amd64.whl": {
+    "functorch._C": "initialization failed"
+  }
 }
-

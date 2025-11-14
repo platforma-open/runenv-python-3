@@ -1,3 +1,21 @@
 {
+  "torchaudio-2.7.0+cpu-cp312-cp312-manylinux_2_28_x86_64.whl": {
+    "torchaudio.lib._torchaudio_sox": "libtorchaudio_sox.so: cannot open shared object file: No such file or directory",
+    "torchaudio.lib.libtorchaudio_sox": "libsox.so: cannot open shared object file: No such file or directory",
+    "torio.lib._torio_ffmpeg4": "libtorio_ffmpeg4.so: cannot open shared object file: No such file or directory",
+    "torio.lib._torio_ffmpeg5": "libtorio_ffmpeg5.so: cannot open shared object file: No such file or directory",
+    "torio.lib._torio_ffmpeg6": "libtorio_ffmpeg6.so: cannot open shared object file: No such file or directory",
+    "torio.lib.libtorio_ffmpeg4": "libavutil.so.56: cannot open shared object file: No such file or directory",
+    "torio.lib.libtorio_ffmpeg5": "libavutil.so.57: cannot open shared object file: No such file or directory",
+    "torio.lib.libtorio_ffmpeg6": "libavutil.so.58: cannot open shared object file: No such file or directory"
+  },
+  "torch-2.9.1+cpu-cp312-cp312-manylinux_2_28_x86_64.whl": {
+    "functorch._C": "initialization failed"
+  },
+  "torch-2.7.0+cpu-cp312-cp312-manylinux_2_28_x86_64.whl": {
+    "functorch._C": "initialization failed"
+  },
+  "scipy-1.16.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl": {
+    "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module"
+  }
 }
-

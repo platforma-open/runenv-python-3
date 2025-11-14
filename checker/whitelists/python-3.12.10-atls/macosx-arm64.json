@@ -1,3 +1,24 @@
 {
+  "torch-2.7.0-cp312-none-macosx_11_0_arm64.whl": {
+    "functorch._C": "initialization failed"
+  },
+  "scipy-1.16.3-cp312-cp312-macosx_12_0_arm64.whl": {
+    "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module"
+  },
+  "scipy-1.16.3-cp312-cp312-macosx_14_0_arm64.whl": {
+    "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module"
+  },
+  "torch-2.9.1-cp312-none-macosx_11_0_arm64.whl": {
+    "functorch._C": "initialization failed"
+  },
+  "torchaudio-2.7.0-cp312-cp312-macosx_11_0_arm64.whl": {
+    "torchaudio.lib._torchaudio_sox": "Reason: no LC_RPATH's found",
+    "torchaudio.lib.libtorchaudio_sox": "Reason: no LC_RPATH's found",
+    "torio.lib._torio_ffmpeg4": "Reason: no LC_RPATH's found",
+    "torio.lib._torio_ffmpeg5": "Reason: no LC_RPATH's found",
+    "torio.lib._torio_ffmpeg6": "Reason: no LC_RPATH's found",
+    "torio.lib.libtorio_ffmpeg4": "Reason: no LC_RPATH's found",
+    "torio.lib.libtorio_ffmpeg5": "Reason: no LC_RPATH's found",
+    "torio.lib.libtorio_ffmpeg6": "Reason: no LC_RPATH's found"
+  }
 }
-

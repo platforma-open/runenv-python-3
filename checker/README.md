@@ -5,7 +5,7 @@ Test Python wheel packages by importing all native modules. Useful for validatin
 ## Features
 
 - Auto-discovers packages from `../packages` directory
-- Tests all native extensions (`.so`, `.pyd`, `.dylib`, `.dll`)
+- Tests all native extensions (`.so` on Unix/Linux/macOS, `.pyd` on Windows)
 - Cross-platform support (Linux, macOS, Windows)
 - Whitelist support for known issues
 - Helpful error suggestions and cleanup recommendations
@@ -79,25 +79,6 @@ Failed imports automatically generate JSON snippets for your whitelist:
 ### Unused Entries
 
 The script identifies whitelist entries that can be safely removed.
-
-## Common Error Types
-
-| Error | Meaning | Action |
-|-------|---------|--------|
-| `libgomp.so.1: cannot open shared object` | Missing system library | Install library or whitelist |
-| `No module named '_tkinter'` | Optional dependency missing | Whitelist if not needed |
-| `initialization failed` | ABI mismatch or missing deps | Investigate or whitelist |
-| `circular import` | Package bug | Report upstream or whitelist |
-
-## Platform Notes
-
-| Platform | Extensions | Libraries | venv Path |
-|----------|------------|-----------|-----------|
-| Linux/Unix | `.so` | `lib*.so` | `bin/python` |
-| macOS | `.so`, `.dylib` | `lib*.dylib` | `bin/python` |
-| Windows | `.pyd`, `.dll` | `lib*.dll`* | `Scripts\python.exe` |
-
-*Windows libraries: `lib*.dll` without Python version markers
 
 ## Use Cases
 

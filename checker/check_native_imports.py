@@ -155,27 +155,12 @@ def get_venv_python(venv_path: Path) -> Path:
         return venv_path / "bin" / "python"
 
 
-def is_library_file(filename: str) -> bool:
-    """Check if file is a C/C++ library rather than Python module."""
-    if any(ext in filename for ext in [".so", ".dylib"]):
-        if filename.startswith("lib"):
-            return True
-
-    if ".dll" in filename:
-        if filename.startswith("lib") and not any(
-            v in filename for v in ["cpython", "cp3", "abi3"]
-        ):
-            return True
-
-    return False
-
-
 def extract_native_modules(wheel_path: Path) -> Tuple[List[str], List[str]]:
     """Extract native module names from wheel file."""
     modules = []
     top_level_packages = []
     has_native_files = False
-    native_extensions = [".so", ".pyd", ".dylib", ".dll"]
+    native_extensions = [".so", ".pyd"]
 
     try:
         with zipfile.ZipFile(wheel_path, "r") as whl:
@@ -203,7 +188,7 @@ def extract_native_modules(wheel_path: Path) -> Tuple[List[str], List[str]]:
 
                 path_parts = name.split("/")
                 basename = path_parts[-1] if path_parts else name
-                if is_library_file(basename):
+                if basename.startswith("lib") and ".so." in basename:
                     continue
 
                 module_path = name
@@ -380,12 +365,9 @@ def test_wheel_with_logging(
                 else:
                     actual_error = "Unknown error"
 
-                if "dynamic module does not define module export function" in error_msg:
-                    continue
-
                 if (
-                    "DLL load failed" in error_msg
-                    and "not a valid Win32 application" in error_msg
+                    "dynamic module does not define module export function" in error_msg
+                    or "ModuleNotFoundError" in error_msg
                 ):
                     continue
 
@@ -458,23 +440,14 @@ def generate_whitelist_snippet(failed_wheels: Dict[str, List[Tuple[str, str]]]) 
     for wheel_name, errors in failed_wheels.items():
         snippet[wheel_name] = {}
         for module, error in errors:
-            if "cannot open shared object file" in error:
-                if ".so" in error:
-                    lib_name = error.split("cannot open")[0].strip().split()[-1]
-                    snippet[wheel_name][module] = lib_name
-                else:
-                    snippet[wheel_name][module] = "cannot open shared object file"
-            elif "No module named" in error:
-                snippet[wheel_name][module] = error.split("ModuleNotFoundError:")[
-                    -1
-                ].strip()
-            elif "initialization failed" in error:
-                snippet[wheel_name][module] = "initialization failed"
-            elif "circular import" in error:
-                snippet[wheel_name][module] = "circular import"
-            else:
-                truncated_error = error[:100] if len(error) > 100 else error
-                snippet[wheel_name][module] = truncated_error.strip()
+            # Remove Python error type prefix (e.g., "ImportError: ")
+            if ": " in error:
+                parts = error.split(": ", 1)
+                if parts[0] and (parts[0].endswith("Error") or parts[0].endswith("Exception")):
+                    error = parts[1]
+            
+            truncated_error = error[:100] if len(error) > 100 else error
+            snippet[wheel_name][module] = truncated_error.strip()
 
     return json.dumps(snippet, indent=2)
 

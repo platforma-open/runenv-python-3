@@ -25,7 +25,7 @@ See [QUICKSTART.md](QUICKSTART.md) for more examples.
 ## Requirements
 
 - Python 3.7+
-- Wheel files in `../packages` directory relative to Python executable
+- Wheel files in `../packages` (relative to the Python executable) or in `packages/` (in the current directory).
 
 ## Expected Directory Structure
 
@@ -137,7 +137,7 @@ vim whitelist.json
 ## Troubleshooting
 
 **Can't find packages directory**  
-Ensure `../packages` exists relative to your Python executable, or run from the packages directory.
+Ensure a `packages` directory exists, either relative to your Python executable (`../packages`) or in your current working directory.
 
 **venv creation fails**  
 Verify the `venv` module is available: `python -m venv --help`

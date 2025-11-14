@@ -1,26 +1,70 @@
 #!/usr/bin/env python3
 """
-Test wheel packages by importing their native modules.
-
-Automatically finds ../packages relative to Python executable.
-Cross-platform support for Linux, macOS, and Windows.
+Native Import Checker - Test wheel packages by importing their native modules.
 
 Usage: python check_native_imports.py [whitelist.json]
 """
 
 import sys
+import os
 import platform
 import subprocess
 import tempfile
 import zipfile
 import json
 import argparse
+import threading
+import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import List, Dict, Tuple, Set, Optional
 
 
+_print_lock = threading.Lock()
+
+
+class PackageTestResult:
+    """Container for package test results and logs."""
+    def __init__(self, wheel_name: str):
+        self.wheel_name = wheel_name
+        self.success = False
+        self.errors: List[Tuple[str, str]] = []
+        self.whitelisted: List[Tuple[str, str]] = []
+        self.logs: List[str] = []
+        self.start_time = time.time()
+        self.end_time = None
+    
+    def add_log(self, message: str):
+        """Add log message with timestamp."""
+        self.logs.append(message)
+    
+    def finish(self, success: bool, errors: List[Tuple[str, str]], whitelisted: List[Tuple[str, str]]):
+        """Mark test as finished with results."""
+        self.success = success
+        self.errors = errors
+        self.whitelisted = whitelisted
+        self.end_time = time.time()
+    
+    def duration(self) -> float:
+        """Get test duration in seconds."""
+        end = self.end_time or time.time()
+        return end - self.start_time
+    
+    def print_logs(self):
+        """Print all collected logs for this package."""
+        with _print_lock:
+            for log in self.logs:
+                print(log)
+
+
+def safe_print(*args, **kwargs):
+    """Thread-safe print function."""
+    with _print_lock:
+        print(*args, **kwargs)
+
+
 def find_packages_dir() -> Path:
-    """Find packages directory relative to Python executable."""
+    """Find packages directory (../packages or ./packages)."""
     python_dir = Path(sys.executable).parent
     packages_dir = python_dir.parent / "packages"
     
@@ -38,7 +82,7 @@ def find_packages_dir() -> Path:
 
 
 def load_whitelist(whitelist_path: Optional[Path]) -> Dict[str, Dict[str, str]]:
-    """Load error whitelist from JSON file."""
+    """Load and validate whitelist from JSON file."""
     if not whitelist_path:
         return {}
     
@@ -47,29 +91,45 @@ def load_whitelist(whitelist_path: Optional[Path]) -> Dict[str, Dict[str, str]]:
         return {}
     
     try:
-        with open(whitelist_path, 'r') as f:
+        with open(whitelist_path, 'r', encoding='utf-8') as f:
             whitelist = json.load(f)
+        
+        if not isinstance(whitelist, dict):
+            print(f"Error: Whitelist must be a JSON object, got {type(whitelist).__name__}")
+            sys.exit(1)
+        
+        for wheel_name, modules in whitelist.items():
+            if not isinstance(modules, dict):
+                print(f"Error: Whitelist entry for '{wheel_name}' must be an object")
+                sys.exit(1)
+            for module_name, error_pattern in modules.items():
+                if not isinstance(error_pattern, str):
+                    print(f"Error: Error pattern for '{wheel_name}.{module_name}' must be a string")
+                    sys.exit(1)
+        
         print(f"Loaded whitelist with {len(whitelist)} wheel(s)")
         return whitelist
+    except (OSError, IOError) as e:
+        print(f"Error: Cannot read whitelist file: {whitelist_path}\n{e}")
+        sys.exit(1)
     except json.JSONDecodeError as e:
-        print(f"Error parsing whitelist file: {e}")
-        return {}
+        print(f"Error: Failed to parse whitelist file: {whitelist_path}\n{e}")
+        sys.exit(1)
 
 
 def is_whitelisted(wheel_name: str, module: str, error: str, whitelist: Dict[str, Dict[str, str]]) -> bool:
-    """Check if an error is whitelisted (case-insensitive substring match)."""
-    if wheel_name not in whitelist:
+    """Check if error matches whitelist pattern."""
+    if not isinstance(whitelist, dict) or not wheel_name or not module or not error:
         return False
     
-    if module not in whitelist[wheel_name]:
+    expected_error = whitelist.get(wheel_name, {}).get(module)
+    if not expected_error or not isinstance(expected_error, str):
         return False
-    
-    expected_error = whitelist[wheel_name][module]
     return expected_error.lower() in error.lower()
 
 
 def get_venv_python(venv_path: Path) -> Path:
-    """Get Python executable path in venv (cross-platform)."""
+    """Get Python executable path in virtual environment."""
     if platform.system() == "Windows":
         return venv_path / "Scripts" / "python.exe"
     else:
@@ -77,7 +137,7 @@ def get_venv_python(venv_path: Path) -> Path:
 
 
 def is_library_file(filename: str) -> bool:
-    """Check if file is a C/C++ library (not a Python module)."""
+    """Check if file is a C/C++ library rather than Python module."""
     if any(ext in filename for ext in ['.so', '.dylib']):
         if filename.startswith('lib'):
             return True
@@ -90,137 +150,183 @@ def is_library_file(filename: str) -> bool:
 
 
 def extract_native_modules(wheel_path: Path) -> Tuple[List[str], List[str]]:
-    """Extract native module names from wheel. Returns (modules, top_level_packages)."""
+    """Extract native module names from wheel file."""
     modules = []
     top_level_packages = []
     has_native_files = False
     native_extensions = ['.so', '.pyd', '.dylib', '.dll']
     
-    with zipfile.ZipFile(wheel_path, 'r') as whl:
-        all_files = whl.namelist()
+    try:
+        with zipfile.ZipFile(wheel_path, 'r') as whl:
+            all_files = whl.namelist()
         
-        for name in all_files:
-            if name.endswith('.dist-info/top_level.txt'):
-                content = whl.read(name).decode('utf-8')
-                top_level_packages = [m.strip() for m in content.strip().split('\n') if m.strip()]
-                break
-        
-        for name in all_files:
-            if '.dist-info/' in name or '.data/' in name or '.libs/' in name:
-                continue
-            
-            if not any(name.endswith(ext) for ext in native_extensions):
-                continue
-            
-            has_native_files = True
-            
-            path_parts = name.split('/')
-            basename = path_parts[-1] if path_parts else name
-            if is_library_file(basename):
-                continue
-            
-            module_path = name
-            for ext in native_extensions:
-                if ext in module_path:
-                    module_path = module_path.split(ext)[0]
+            for name in all_files:
+                if name.endswith('.dist-info/top_level.txt'):
+                    try:
+                        content = whl.read(name).decode('utf-8')
+                        top_level_packages = [m.strip() for m in content.strip().split('\n') if m.strip()]
+                    except (UnicodeDecodeError, KeyError):
+                        pass
                     break
             
-            parts = module_path.split('.')
-            clean_parts = []
-            for part in parts:
-                if part.startswith(('cpython-', 'abi3', 'pypy', 'cp3')):
-                    break
-                clean_parts.append(part)
-            module_path = '.'.join(clean_parts)
-            
-            module_name = module_path.replace('/', '.').rstrip('.')
-            
-            if module_name:
-                modules.append(module_name)
+            for name in all_files:
+                if '.dist-info/' in name or '.data/' in name or '.libs/' in name:
+                    continue
+                
+                if not any(name.endswith(ext) for ext in native_extensions):
+                    continue
+                
+                has_native_files = True
+                
+                path_parts = name.split('/')
+                basename = path_parts[-1] if path_parts else name
+                if is_library_file(basename):
+                    continue
+                
+                module_path = name
+                for ext in native_extensions:
+                    if ext in module_path:
+                        module_path = module_path.split(ext)[0]
+                        break
+                
+                parts = module_path.split('.')
+                clean_parts = []
+                for part in parts:
+                    if part.startswith(('cpython-', 'abi3', 'pypy', 'cp3')):
+                        break
+                    clean_parts.append(part)
+                module_path = '.'.join(clean_parts)
+                
+                module_name = module_path.replace('/', '.').rstrip('.')
+                
+                if module_name:
+                    modules.append(module_name)
+        
+        if not modules and has_native_files and top_level_packages:
+            return top_level_packages, top_level_packages
+        
+        return sorted(set(modules)), top_level_packages
     
-    if not modules and has_native_files and top_level_packages:
-        return top_level_packages, top_level_packages
-    
-    return sorted(set(modules)), top_level_packages
+    except (zipfile.BadZipFile, OSError, IOError) as e:
+        print(f"Warning: Cannot read wheel file {wheel_path}: {e}")
+        return [], []
 
 
-def test_wheel(
+def test_wheel_with_logging(
     wheel_path: Path, 
     packages_dir: Path, 
     python_bin: Path,
     whitelist: Dict[str, Dict[str, str]],
-    used_whitelist: Set[Tuple[str, str]]
-) -> Tuple[bool, List[Tuple[str, str]], List[Tuple[str, str]]]:
-    """Test wheel by installing and importing native modules. Returns (success, errors, whitelisted)."""
+    used_whitelist_lock: threading.Lock
+) -> PackageTestResult:
+    """Test wheel by installing and importing native modules with logging."""
     wheel_name = wheel_path.name
-    print(f"\nTesting: {wheel_name}")
+    result = PackageTestResult(wheel_name)
+    used_whitelist_local: Set[Tuple[str, str]] = set()
+    
+    result.add_log(f"\nTesting: {wheel_name}")
     
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_path = Path(temp_dir)
         venv_path = temp_path / ".venv"
         
-        result = subprocess.run(
-            [str(python_bin), "-m", "venv", str(venv_path)],
-            capture_output=True,
-            text=True
-        )
+        try:
+            proc_result = subprocess.run(
+                [str(python_bin), "-m", "venv", str(venv_path)],
+                capture_output=True,
+                text=True,
+                encoding='utf-8',
+                timeout=60
+            )
+        except subprocess.TimeoutExpired:
+            result.add_log("  ❌ Timeout creating venv")
+            result.finish(False, [("venv", "Timeout creating virtual environment")], [])
+            return result
         
-        if result.returncode != 0:
-            print("  ❌ Failed to create venv")
-            return False, [("venv", "Failed to create virtual environment")], []
+        if proc_result.returncode != 0:
+            result.add_log("  ❌ Failed to create venv")
+            error_msg = proc_result.stderr.strip() if proc_result.stderr else "Failed to create virtual environment"
+            result.finish(False, [("venv", error_msg)], [])
+            return result
         
-        print("  ✓ Created venv")
+        result.add_log("  ✓ Created venv")
         
         venv_python = get_venv_python(venv_path)
         
         if not venv_python.exists():
-            print(f"  ❌ venv Python not found at {venv_python}")
-            return False, [("venv", f"Python executable not found at {venv_python}")], []
+            result.add_log(f"  ❌ venv Python not found at {venv_python}")
+            result.finish(False, [("venv", f"Python executable not found at {venv_python}")], [])
+            return result
         
-        result = subprocess.run(
-            [
-                str(venv_python), "-m", "pip", "install",
-                "--find-links", str(packages_dir),
-                "--no-index",
-                str(wheel_path)
-            ],
-            capture_output=True,
-            text=True
-        )
+        try:
+            proc_result = subprocess.run(
+                [
+                    str(venv_python), "-m", "pip", "install",
+                    "--find-links", str(packages_dir),
+                    "--no-index",
+                    str(wheel_path)
+                ],
+                capture_output=True,
+                text=True,
+                encoding='utf-8',
+                timeout=120
+            )
+        except subprocess.TimeoutExpired:
+            result.add_log("  ❌ Timeout installing wheel")
+            result.finish(False, [("install", "Timeout installing wheel")], [])
+            return result
         
-        if result.returncode != 0:
-            print("  ❌ Failed to install")
-            error_msg = result.stderr.strip() if result.stderr else result.stdout.strip()
-            return False, [("install", error_msg or "Failed to install wheel")], []
+        if proc_result.returncode != 0:
+            result.add_log("  ❌ Failed to install")
+            error_msg = proc_result.stderr.strip() if proc_result.stderr else proc_result.stdout.strip()
+            result.finish(False, [("install", error_msg or "Failed to install wheel")], [])
+            return result
         
-        print("  ✓ Installed")
+        result.add_log("  ✓ Installed")
         
-        print("  Analyzing wheel for native modules")
+        result.add_log("  Analyzing wheel for native modules")
         modules_to_test, _ = extract_native_modules(wheel_path)
         
         if not modules_to_test:
-            print("  No native modules found (pure Python package)")
-            print("  ✓ All imports successful")
-            return True, [], []
+            result.add_log("  No native modules found (pure Python package)")
+            result.add_log("  ✓ All imports successful")
+            result.finish(True, [], [])
+            return result
         
-        print(f"  Found {len(modules_to_test)} native module(s) to test")
+        result.add_log(f"  Found {len(modules_to_test)} native module(s) to test")
         
         failed_imports = []
         whitelisted_imports = []
         tested_count = 0
         
         for module in modules_to_test:
-            result = subprocess.run(
-                [str(venv_python), "-c", f"import {module}"],
-                capture_output=True,
-                text=True
-            )
+            try:
+                proc_result = subprocess.run(
+                    [str(venv_python), "-c", f"import {module.replace(';', '').replace('&', '').replace('|', '')}"],
+                    capture_output=True,
+                    text=True,
+                    encoding='utf-8',
+                    timeout=30
+                )
+            except subprocess.TimeoutExpired:
+                result.add_log(f"  Testing import: {module}")
+                tested_count += 1
+                actual_error = "Import timeout (module may be hanging)"
+                
+                if is_whitelisted(wheel_name, module, actual_error, whitelist):
+                    result.add_log(f"  ⚠️  Whitelisted: {actual_error}")
+                    whitelisted_imports.append((module, actual_error))
+                    used_whitelist_local.add((wheel_name, module))
+                else:
+                    result.add_log(f"  ❌ Failed: {actual_error}")
+                    failed_imports.append((module, actual_error))
+                continue
             
-            if result.returncode == 0:
-                print(f"  Testing import: {module}")
+            if proc_result.returncode == 0:
+                result.add_log(f"  Testing import: {module}")
                 tested_count += 1
             else:
-                error_msg = result.stderr.strip()
+                error_msg = proc_result.stderr.strip()
                 
                 if error_msg:
                     error_lines = error_msg.split('\n')
@@ -234,34 +340,53 @@ def test_wheel(
                 if "DLL load failed" in error_msg and "not a valid Win32 application" in error_msg:
                     continue
                 
-                print(f"  Testing import: {module}")
+                result.add_log(f"  Testing import: {module}")
                 tested_count += 1
                 
                 if is_whitelisted(wheel_name, module, actual_error, whitelist):
-                    print(f"  ⚠️  Whitelisted: {actual_error}")
+                    result.add_log(f"  ⚠️  Whitelisted: {actual_error}")
                     whitelisted_imports.append((module, actual_error))
-                    used_whitelist.add((wheel_name, module))
+                    used_whitelist_local.add((wheel_name, module))
                 else:
-                    print(f"  ❌ Failed: {actual_error}")
+                    result.add_log(f"  ❌ Failed: {actual_error}")
                     failed_imports.append((module, actual_error))
         
-        print(f"  Tested {tested_count} native module(s)")
+        result.add_log(f"  Tested {tested_count} native module(s)")
+        
+        with used_whitelist_lock:
+            for item in used_whitelist_local:
+                pass
         
         if failed_imports:
-            return False, failed_imports, whitelisted_imports
+            result.finish(False, failed_imports, whitelisted_imports)
         elif whitelisted_imports:
-            print("  ⚠️  All failures are whitelisted")
-            return True, [], whitelisted_imports
+            result.add_log("  ⚠️  All failures are whitelisted")
+            result.finish(True, [], whitelisted_imports)
         else:
-            print("  ✓ All imports successful")
-            return True, [], []
+            result.add_log("  ✓ All imports successful")
+            result.finish(True, [], [])
+        
+        result.used_whitelist_local = used_whitelist_local
+        return result
+
+
+def test_wheel_wrapper(args):
+    """Wrapper function for parallel execution."""
+    wheel_path, packages_dir, python_bin, whitelist, used_whitelist_lock = args
+    try:
+        return test_wheel_with_logging(wheel_path, packages_dir, python_bin, whitelist, used_whitelist_lock)
+    except Exception as e:
+        result = PackageTestResult(wheel_path.name)
+        result.add_log(f"  ❌ Unexpected error: {e}")
+        result.finish(False, [("exception", str(e))], [])
+        return result
 
 
 def find_unused_whitelist_entries(
     whitelist: Dict[str, Dict[str, str]], 
     used_whitelist: Set[Tuple[str, str]]
 ) -> Dict[str, List[str]]:
-    """Find whitelist entries that were not used."""
+    """Find unused whitelist entries."""
     unused = {}
     
     for wheel_name, modules in whitelist.items():
@@ -277,7 +402,7 @@ def find_unused_whitelist_entries(
 
 
 def generate_whitelist_snippet(failed_wheels: Dict[str, List[Tuple[str, str]]]) -> str:
-    """Generate JSON snippet for whitelist from failed imports."""
+    """Generate whitelist JSON snippet from failed imports."""
     snippet = {}
     
     for wheel_name, errors in failed_wheels.items():
@@ -296,13 +421,14 @@ def generate_whitelist_snippet(failed_wheels: Dict[str, List[Tuple[str, str]]]) 
             elif "circular import" in error:
                 snippet[wheel_name][module] = "circular import"
             else:
-                snippet[wheel_name][module] = error[:50]
+                truncated_error = error[:100] if len(error) > 100 else error
+                snippet[wheel_name][module] = truncated_error.strip()
     
     return json.dumps(snippet, indent=2)
 
 
 def main():
-    """Test all wheels by importing native modules."""
+    """Main entry point - test all wheel packages."""
     parser = argparse.ArgumentParser(
         description="Test wheel packages by importing native modules",
         usage="%(prog)s [whitelist.json]"
@@ -348,21 +474,44 @@ def main():
     failed_wheels: Dict[str, List[Tuple[str, str]]] = {}
     whitelisted_wheels: Dict[str, List[Tuple[str, str]]] = {}
     
-    for wheel_path in wheel_files:
-        try:
-            success, errors, whitelisted = test_wheel(
-                wheel_path, packages_dir, python_bin, whitelist, used_whitelist
-            )
+    max_workers = min(len(wheel_files), (os.cpu_count() or 1))
+    used_whitelist_lock = threading.Lock()
+    
+    safe_print(f"Using {max_workers} parallel workers")
+    
+    test_args = [
+        (wheel_path, packages_dir, python_bin, whitelist, used_whitelist_lock)
+        for wheel_path in wheel_files
+    ]
+    
+    completed_count = 0
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        future_to_wheel = {executor.submit(test_wheel_wrapper, args): args[0] for args in test_args}
+        
+        for future in as_completed(future_to_wheel):
+            wheel_path = future_to_wheel[future]
+            completed_count += 1
             
-            if not success:
-                failed_wheels[wheel_path.name] = errors
-            
-            if whitelisted:
-                whitelisted_wheels[wheel_path.name] = whitelisted
+            try:
+                result = future.result()
                 
-        except Exception as e:
-            print(f"  ❌ Unexpected error: {e}")
-            failed_wheels[wheel_path.name] = [("exception", str(e))]
+                result.print_logs()
+                
+                if not result.success:
+                    failed_wheels[result.wheel_name] = result.errors
+                
+                if result.whitelisted:
+                    whitelisted_wheels[result.wheel_name] = result.whitelisted
+                
+                if hasattr(result, 'used_whitelist_local'):
+                    with used_whitelist_lock:
+                        used_whitelist.update(result.used_whitelist_local)
+                
+                safe_print(f"\nProgress: {completed_count}/{wheel_count} packages tested ({result.duration():.1f}s)")
+                
+            except Exception as e:
+                safe_print(f"\n❌ Error processing {wheel_path.name}: {e}")
+                failed_wheels[wheel_path.name] = [("exception", str(e))]
     
     unused_whitelist = find_unused_whitelist_entries(whitelist, used_whitelist)
     

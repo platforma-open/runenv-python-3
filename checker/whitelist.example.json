@@ -1,0 +1,37 @@
+{
+  "_comment": "Example whitelist file for check_native_imports.py",
+  "_comment2": "Copy this to whitelist.json and modify as needed",
+  
+  "matplotlib-3.10.7-cp312-cp312-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl": {
+    "matplotlib.backends._tkagg": "initialization failed"
+  },
+  
+  "numba-0.62.1-cp312-cp312-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl": {
+    "numba.np.ufunc.omppool": "libgomp.so.1.0.0: cannot open shared object file"
+  },
+  
+  "pillow-12.0.0-cp312-cp312-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl": {
+    "PIL._imagingtk": "No module named '_tkinter'"
+  },
+  
+  "scipy-1.16.3-cp312-cp312-manylinux2014_aarch64.manylinux_2_17_aarch64.whl": {
+    "scipy.linalg._matfuncs_sqrtm_triu": "circular import"
+  },
+  
+  "torch-2.7.0+cpu-cp312-cp312-manylinux_2_28_aarch64.whl": {
+    "functorch._C": "initialization failed"
+  },
+  
+  "torch-2.9.1+cpu-cp312-cp312-manylinux_2_28_aarch64.whl": {
+    "functorch._C": "initialization failed"
+  },
+  
+  "torchaudio-2.7.0-cp312-cp312-manylinux_2_28_aarch64.whl": {
+    "torchaudio.lib._torchaudio": "libgomp.so.1",
+    "torchaudio.lib._torchaudio_sox": "libgomp.so.1",
+    "torio.lib._torio_ffmpeg4": "libtorio_ffmpeg4.so",
+    "torio.lib._torio_ffmpeg5": "libtorio_ffmpeg5.so",
+    "torio.lib._torio_ffmpeg6": "libtorio_ffmpeg6.so"
+  }
+}
+

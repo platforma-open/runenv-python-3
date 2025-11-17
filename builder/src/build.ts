@@ -405,6 +405,34 @@ function copyVersionSpecificFiles(installDir: string, osType: util.OS, archType:
 }
 
 
+async function runNativeImportChecker(installDir: string, osType: util.OS, archType: util.Arch): Promise<void> {
+  console.log(`\n[DEBUG] Running native import checker...`);
+
+  const pyBin = path.join(installDir, 'bin', 'python');
+  const checkerScript = path.join(util.repoRoot, 'checker', 'check_native_imports.py');
+  
+  // Determine whitelist path based on package name and platform
+  const platformKey = `${osType}-${archType}`;
+  const whitelistPath = path.join(util.repoRoot, 'checker', 'whitelists', util.packageDirName, `${platformKey}.json`);
+  
+  console.log(`[DEBUG] Checker script: ${checkerScript}`);
+  console.log(`[DEBUG] Whitelist: ${whitelistPath}`);
+  
+  if (!fs.existsSync(checkerScript)) {
+    console.warn(`[WARN] Native import checker script not found: ${checkerScript}`);
+    return;
+  }
+  
+  if (!fs.existsSync(whitelistPath)) {
+    console.warn(`[WARN] Whitelist not found: ${whitelistPath}, running checker without whitelist...`);
+    await util.runCommand(pyBin, [checkerScript]);
+  } else {
+    await util.runCommand(pyBin, [checkerScript, whitelistPath]);
+  }
+  
+  console.log(`[DEBUG] Native import checker completed`);
+}
+
 async function loadPackages(installDir: string, osType: util.OS, archType: util.Arch): Promise<void> {
   console.log(`[DEBUG] Loading packages...`);
 
@@ -425,6 +453,9 @@ async function loadPackages(installDir: string, osType: util.OS, archType: util.
   console.log(`[DEBUG] Checking config for copyFiles before execution:`, JSON.stringify(config.packages.copyFiles, null, 2));
   console.log(`[DEBUG] Copying version-specific files...`);
   copyVersionSpecificFiles(installDir, osType, archType);
+  
+  // Run native import checker after all packages are loaded
+  await runNativeImportChecker(installDir, osType, archType);
 }
 
 async function fakeBuild(installDir: string, osType: util.OS, archType: util.Arch): Promise<void> {

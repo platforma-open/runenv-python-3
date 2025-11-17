@@ -1,0 +1,21 @@
+{
+  "numpy-1.26.4-cp312-cp312-macosx_11_0_arm64.whl": {
+    "numpy.core._umath_tests": "cannot load _umath_tests module"
+  },
+  "numba-0.62.1-cp312-cp312-macosx_11_0_arm64.whl": {
+    "numba.np.ufunc.omppool": "'/Users/runner/miniconda3/envs/test/lib/libomp.dylib' (no such file)"
+  },
+  "rpy2_rinterface-3.6.3-cp312-cp312-macosx_10_13_universal2.whl": {
+    "_rinterface_cffi_api": "'/Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRblas.dylib' (no such file)"
+  },
+  "scipy-1.16.3-cp312-cp312-macosx_12_0_arm64.whl": {
+    "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module"
+  },
+  "scipy-1.16.3-cp312-cp312-macosx_14_0_arm64.whl": {
+    "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module"
+  },
+  "tensorflow-2.20.0-cp312-cp312-macosx_12_0_arm64.whl": {
+    "tensorflow.compiler.tf2xla.ops._xla_ops": "ALREADY_EXISTS: Op with name XlaBroadcastHelper",
+    "tensorflow.lite.python._pywrap_tensorflow_lite_metrics_wrapper": "generic_type: type \"MetricsWrapper\" is already registered"
+  }
+}

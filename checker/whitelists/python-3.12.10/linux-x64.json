@@ -1,0 +1,56 @@
+{
+  "cupy_cuda12x-13.6.0-cp312-cp312-manylinux2014_x86_64.whl": {
+    "cupy.cuda.cufft": "libcufft.so.11: cannot open shared object file: No such file or directory",
+    "cupy.cuda.jitify": "libnvrtc.so.12: cannot open shared object file: No such file or directory",
+    "cupy_backends.cuda.libs.cublas": "libcublas.so.12: cannot open shared object file: No such file or directory",
+    "cupy_backends.cuda.libs.cudnn": "libcudnn.so.8: cannot open shared object file: No such file or directory",
+    "cupy_backends.cuda.libs.curand": "libcurand.so.10: cannot open shared object file: No such file or directory",
+    "cupy_backends.cuda.libs.cusolver": "libcusolver.so.11: cannot open shared object file: No such file or directory",
+    "cupy_backends.cuda.libs.cusparse": "libcusparse.so.12: cannot open shared object file: No such file or directory",
+    "cupy_backends.cuda.libs.cutensor": "libcutensor.so.2: cannot open shared object file: No such file or directory",
+    "cupy_backends.cuda.libs.nccl": "libnccl.so.2: cannot open shared object file: No such file or directory",
+    "cupyx.cudnn": "libcudnn.so.8: cannot open shared object file: No such file or directory",
+    "cupyx.cusolver": "libcusolver.so.11: cannot open shared object file: No such file or directory",
+    "cupyx.cutensor": "libcutensor.so.2: cannot open shared object file: No such file or directory"
+  },
+  "librmm_cu12-25.6.0-py3-none-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl": {
+    "librmm.lib64.librmm": "librapids_logger.so: cannot open shared object file: No such file or directory"
+  },
+  "libcudf_cu12-25.6.0-py3-none-manylinux_2_28_x86_64.whl": {
+    "libcudf.lib64.libcudf": "librmm.so: cannot open shared object file: No such file or directory"
+  },
+  "numba-0.61.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl": {
+    "numba.np.ufunc.tbbpool": "libtbb.so.12: cannot open shared object file: No such file or directory"
+  },
+  "numba-0.62.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl": {
+    "numba.np.ufunc.tbbpool": "libtbb.so.12: cannot open shared object file: No such file or directory"
+  },
+  "pynvjitlink_cu12-0.7.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl": {
+    "pynvjitlink._nvjitlinklib": "libcuda.so.1: cannot open shared object file: No such file or directory"
+  },
+  "scipy-1.16.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl": {
+    "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module"
+  },
+  "torch-2.7.0+cpu-cp312-cp312-manylinux_2_28_x86_64.whl": {
+    "functorch._C": "initialization failed"
+  },
+  "torchaudio-2.7.0+cpu-cp312-cp312-manylinux_2_28_x86_64.whl": {
+    "torchaudio.lib._torchaudio_sox": "libtorchaudio_sox.so: cannot open shared object file: No such file or directory",
+    "torchaudio.lib.libtorchaudio_sox": "libsox.so: cannot open shared object file: No such file or directory",
+    "torio.lib._torio_ffmpeg4": "libtorio_ffmpeg4.so: cannot open shared object file: No such file or directory",
+    "torio.lib._torio_ffmpeg5": "libtorio_ffmpeg5.so: cannot open shared object file: No such file or directory",
+    "torio.lib._torio_ffmpeg6": "libtorio_ffmpeg6.so: cannot open shared object file: No such file or directory",
+    "torio.lib.libtorio_ffmpeg4": "libavutil.so.56: cannot open shared object file: No such file or directory",
+    "torio.lib.libtorio_ffmpeg5": "libavutil.so.57: cannot open shared object file: No such file or directory",
+    "torio.lib.libtorio_ffmpeg6": "libavutil.so.58: cannot open shared object file: No such file or directory"
+  },
+  "torch-2.9.1+cpu-cp312-cp312-manylinux_2_28_x86_64.whl": {
+    "functorch._C": "initialization failed"
+  },
+  "tensorflow-2.19.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl": {
+    "tensorflow.compiler.tf2xla.ops._xla_ops": "ALREADY_EXISTS: Op with name XlaBroadcastHelper"
+  },
+  "tensorflow-2.19.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl": {
+    "tensorflow.compiler.tf2xla.ops._xla_ops": "ALREADY_EXISTS: Op with name XlaBroadcastHelper"
+  }
+}

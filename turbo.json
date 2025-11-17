@@ -3,7 +3,18 @@
   "tasks": {
     "build": {
       "env": [ "RUNNER_OS", "RUNNER_ARCH", "TEST_RUN" ],
-      "inputs": [ "$TURBO_DEFAULT$", "!./pkg-*.tgz", "!./pydist/**", "../shared-config.json", "../scripts/**" ],
+      "inputs": [ 
+        "$TURBO_DEFAULT$", 
+        "!./pkg-*.tgz", 
+        "!./pydist/**", 
+        "../shared-config.json",
+        "../builder/src/**",
+        "../builder/docker/**",
+        "../builder/tsconfig.json",
+        "../builder/package.json",
+        "../checker/check_native_imports.py",
+        "../checker/whitelists/**/*.json"
+      ],
       "outputs": [ "./dist/**" ],
 
       "passThroughEnv": [

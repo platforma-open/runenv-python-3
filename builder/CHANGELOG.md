@@ -1,5 +1,11 @@
 # runenv-python-builder
 
+## 0.0.4
+
+### Patch Changes
+
+- a1962c0: PFrames version bump
+
 ## 0.0.3
 
 ### Patch Changes

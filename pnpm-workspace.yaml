@@ -1,6 +1,7 @@
 packages:
   - builder
   - python-3.12.10
+  - python-3.12.10-empty
   - python-3.12.10-atls
   - python-3.12.10-sccoda
   - python-3.12.10-rapids

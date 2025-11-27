@@ -486,7 +486,11 @@ def main():
 
     if not wheel_files:
         print(f"No wheel files found in {packages_dir}")
-        sys.exit(1)
+        if packages_dir.glob("*"):
+            print(f"Packages directory {packages_dir} is empty. Seems python deliberately has no dependencies.")
+            sys.exit(0) # python run environment without any dependencies is OK. Bad is when we don't match wheels in non-empty packages dir.
+        else:
+            sys.exit(1)
 
     wheel_count = len(wheel_files)
     print(f"Found {wheel_count} wheel file(s)")

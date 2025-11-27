@@ -46,10 +46,8 @@ export function mergeConfig(repoRoot: string, packageRoot: string): any {
             ],
         },
         packages: {
-            // 'dependencies': version-specific list completely replaces shared list if not empty
-            dependencies: versionConfig.packages?.dependencies?.length > 0
-                ? versionConfig.packages.dependencies
-                : (sharedConfig.packages?.dependencies || []),
+            // 'dependencies': no shared dependencies list: specify all packages in particular python config.json
+            dependencies: versionConfig.packages?.dependencies || [],
 
             // Merge 'skip' and 'forceSource' objects - version-specific keys override shared keys
             skip: {

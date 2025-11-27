@@ -103,6 +103,18 @@ importers:
         specifier: 'catalog:'
         version: 4.20.6
 
+  python-3.12.10-empty:
+    devDependencies:
+      '@platforma-sdk/package-builder':
+        specifier: 'catalog:'
+        version: 3.10.7
+      runenv-python-builder:
+        specifier: workspace:*
+        version: link:../builder
+      tsx:
+        specifier: 'catalog:'
+        version: 4.20.6
+
   python-3.12.10-h5ad:
     devDependencies:
       '@platforma-sdk/package-builder':

@@ -1,5 +1,11 @@
 # runenv-python-builder
 
+## 0.0.5
+
+### Patch Changes
+
+- 4686257: Move dependencies list from shared-config to where it should be
+
 ## 0.0.4
 
 ### Patch Changes

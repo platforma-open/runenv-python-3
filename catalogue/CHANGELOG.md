@@ -1,5 +1,18 @@
 # @platforma-open/milaboratories.runenv-python-3
 
+## 1.7.5
+
+### Patch Changes
+
+- ca68d56: Add empty python package without dependencies to the catalogue
+- 4686257: Move dependencies list from shared-config to where it should be
+- Updated dependencies [4686257]
+  - @platforma-open/milaboratories.runenv-python-3.12.10@1.3.4
+  - @platforma-open/milaboratories.runenv-python-3.12.10-atls@1.2.3
+  - @platforma-open/milaboratories.runenv-python-3.12.10-h5ad@1.1.3
+  - @platforma-open/milaboratories.runenv-python-3.12.10-rapids@1.4.3
+  - @platforma-open/milaboratories.runenv-python-3.12.10-sccoda@1.3.4
+
 ## 1.7.4
 
 ### Patch Changes

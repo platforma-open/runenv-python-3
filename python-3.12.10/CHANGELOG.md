@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10
 
+## 1.3.4
+
+### Patch Changes
+
+- 4686257: Move dependencies list from shared-config to where it should be
+
 ## 1.3.3
 
 ### Patch Changes

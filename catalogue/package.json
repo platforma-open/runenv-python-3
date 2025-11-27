@@ -12,6 +12,9 @@
       "3.12.10": {
         "reference": "@platforma-open/milaboratories.runenv-python-3.12.10/dist/tengo/software/main.sw.json"
       },
+      "3.12.10-empty": {
+        "reference": "@platforma-open/milaboratories.runenv-python-3.12.10-empty/dist/tengo/software/main.sw.json"
+      },
       "3.12.10-atls": {
         "reference": "@platforma-open/milaboratories.runenv-python-3.12.10-atls/dist/tengo/software/main.sw.json"
       },

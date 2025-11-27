@@ -1,8 +1,6 @@
 {
   "packages": {
-    "dependencies": [
-      "pip==25.3"
-    ],
+    "dependencies": [],
     "overrides": {}
   }
 }

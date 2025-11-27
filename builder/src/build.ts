@@ -441,6 +441,10 @@ async function loadPackages(installDir: string, osType: util.OS, archType: util.
   console.log(`[DEBUG] Python binary: ${pyBin}`);
   console.log(`[DEBUG] Packages directory: ${packagesDir}`);
 
+  // Ensure packages directory exists even when no packages get installed
+  // (for backward-compatibility with checker scripts and other things)
+  fs.mkdirSync(packagesDir, { recursive: true });
+
   // Log configured registries and packages
   const additionalRegistries = config.registries.additional || [];
   const allRegistries = ['https://pypi.org', ...additionalRegistries];

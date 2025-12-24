@@ -6,6 +6,7 @@ Usage: python check_native_imports.py [whitelist.json]
 """
 
 import argparse
+import fnmatch
 import io
 import json
 import os
@@ -28,7 +29,6 @@ if sys.stderr.encoding != "utf-8":
 
 
 _print_lock = threading.Lock()
-
 
 class PackageTestResult:
     """Container for package test results and logs."""
@@ -141,9 +141,23 @@ def is_whitelisted(
     if not isinstance(whitelist, dict) or not wheel_name or not module or not error:
         return False
 
-    expected_error = whitelist.get(wheel_name, {}).get(module)
+    # First try exact match (for backward compatibility)
+    modules_dict = whitelist.get(wheel_name)
+
+    # If no exact match, try glob pattern matching
+    if modules_dict is None:
+        for pattern, pattern_modules in whitelist.items():
+            if fnmatch.fnmatch(wheel_name, pattern):
+                modules_dict = pattern_modules
+                break
+
+    if not modules_dict:
+        return False
+
+    expected_error = modules_dict.get(module)
     if not expected_error or not isinstance(expected_error, str):
         return False
+
     return expected_error.lower() in error.lower()
 
 
@@ -421,14 +435,19 @@ def find_unused_whitelist_entries(
     """Find unused whitelist entries."""
     unused = {}
 
-    for wheel_name, modules in whitelist.items():
+    for pattern, modules in whitelist.items():
         unused_modules = []
         for module_name in modules.keys():
-            if (wheel_name, module_name) not in used_whitelist:
+            # Check if any actual wheel name matches this pattern and has this module
+            is_used = any(
+                fnmatch.fnmatch(actual_wheel_name, pattern) and actual_module == module_name
+                for actual_wheel_name, actual_module in used_whitelist
+            )
+            if not is_used:
                 unused_modules.append(module_name)
 
         if unused_modules:
-            unused[wheel_name] = unused_modules
+            unused[pattern] = unused_modules
 
     return unused
 
@@ -445,7 +464,7 @@ def generate_whitelist_snippet(failed_wheels: Dict[str, List[Tuple[str, str]]]) 
                 parts = error.split(": ", 1)
                 if parts[0] and (parts[0].endswith("Error") or parts[0].endswith("Exception")):
                     error = parts[1]
-            
+
             truncated_error = error[:100] if len(error) > 100 else error
             snippet[wheel_name][module] = truncated_error.strip()
 
@@ -504,7 +523,7 @@ def main():
     used_whitelist_lock = threading.Lock()
 
     safe_print(f"Using {max_workers} parallel workers")
-    
+
     overall_start_time = time.time()
 
     test_args = [
@@ -546,7 +565,7 @@ def main():
                 failed_wheels[wheel_path.name] = [("exception", str(e))]
 
     unused_whitelist = find_unused_whitelist_entries(whitelist, used_whitelist)
-    
+
     overall_duration = time.time() - overall_start_time
 
     print("\n" + "=" * 50)

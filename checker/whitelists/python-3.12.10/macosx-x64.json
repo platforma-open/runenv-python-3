@@ -11,6 +11,10 @@
   "rpy2_rinterface-3.6.3-cp312-cp312-macosx_10_13_universal2.whl": {
     "_rinterface_cffi_api": "symbol not found in flat namespace '_R_BaseEnv'"
   },
+  "scipy-1.*-macosx_10_13_x86_64.whl": {
+    "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module",
+    "scipy.stats._unuran.unuran_wrapper": "module 'numpy.random.bit_generator' has no attribute 'SeedlessSequence'"
+  },
   "scipy-1.*-macosx_10_14_x86_64.whl": {
     "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module",
     "scipy.stats._unuran.unuran_wrapper": "module 'numpy.random.bit_generator' has no attribute 'SeedlessSequence'"

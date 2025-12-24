@@ -3,7 +3,7 @@
     "numba.np.ufunc.tbbpool": "DLL load failed while importing tbbpool: The specified module could not be found"
   },
   "scipy-1.*-win_amd64.whl": {
-    "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module",,
+    "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module",
     "scipy.stats._unuran.unuran_wrapper": "module 'numpy.random.bit_generator' has no attribute 'SeedlessSequence'"
   },
   "torch-2.7.0+cpu-cp312-cp312-win_amd64.whl": {

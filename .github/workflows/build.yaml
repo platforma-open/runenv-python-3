@@ -20,7 +20,7 @@ jobs:
     needs:
       - init
 
-    uses: milaboratory/github-ci/.github/workflows/node-matrix-pnpm.yaml@v4
+    uses: milaboratory/github-ci/.github/workflows/node-matrix-pnpm.yaml@MILAB-5273_fixup_dependencies
     with:
       app-name: 'Runenv: Python 3'
       app-name-slug: 'runenv-python-3'
@@ -51,39 +51,40 @@ jobs:
       main-metapackage-name: '@platforma-open/milaboratories.runenv-python-3'
       pre-calculated-task-list: |
         [
-          {"os":"ubuntu-large-arm64", "arch":"arm64", "selector":"./python-3.12.10"},
-          {"os":"ubuntu-large-amd64", "arch":"amd64", "selector":"./python-3.12.10"},
-          {"os":"macos-14", "arch":"arm64", "selector":"./python-3.12.10"},
-          {"os":"macos-14-large", "arch":"amd64", "selector":"./python-3.12.10"},
-          {"os":"windows-latest", "arch":"amd64", "selector":"./python-3.12.10"},
-
-          {"os":"ubuntu-large-arm64", "arch":"arm64", "selector":"./python-3.12.10-empty"},
-          {"os":"ubuntu-large-amd64", "arch":"amd64", "selector":"./python-3.12.10-empty"},
-          {"os":"macos-14", "arch":"arm64", "selector":"./python-3.12.10-empty"},
-          {"os":"macos-14-large", "arch":"amd64", "selector":"./python-3.12.10-empty"},
-          {"os":"windows-latest", "arch":"amd64", "selector":"./python-3.12.10-empty"},
-
-          {"os":"ubuntu-large-amd64", "arch":"amd64", "selector":"./python-3.12.10-atls"},
-          {"os":"macos-14", "arch":"arm64", "selector":"./python-3.12.10-atls"},
-
-          {"os":"ubuntu-large-arm64", "arch":"arm64", "selector":"./python-3.12.10-h5ad"},
-          {"os":"ubuntu-large-amd64", "arch":"amd64", "selector":"./python-3.12.10-h5ad"},
-          {"os":"macos-14", "arch":"arm64", "selector":"./python-3.12.10-h5ad"},
-          {"os":"macos-14-large", "arch":"amd64", "selector":"./python-3.12.10-h5ad"},
-          {"os":"windows-latest", "arch":"amd64", "selector":"./python-3.12.10-h5ad"},
-
-          {"os":"ubuntu-large-arm64", "arch":"arm64", "selector":"./python-3.12.10-rapids"},
-          {"os":"ubuntu-large-amd64", "arch":"amd64", "selector":"./python-3.12.10-rapids"},
-          {"os":"macos-14", "arch":"arm64", "selector":"./python-3.12.10-rapids"},
-          {"os":"macos-14-large", "arch":"amd64", "selector":"./python-3.12.10-rapids"},
-          {"os":"windows-latest", "arch":"amd64", "selector":"./python-3.12.10-rapids"},
-
-          {"os":"ubuntu-large-arm64", "arch":"arm64", "selector":"./python-3.12.10-sccoda"},
-          {"os":"ubuntu-large-amd64", "arch":"amd64", "selector":"./python-3.12.10-sccoda"},
-          {"os":"macos-14", "arch":"arm64", "selector":"./python-3.12.10-sccoda"},
-          {"os":"macos-14-large", "arch":"amd64", "selector":"./python-3.12.10-sccoda"},
-          {"os":"windows-latest", "arch":"amd64", "selector":"./python-3.12.10-sccoda"}
+          {"os":"ubuntu-large-amd64", "arch":"amd64", "selector":"./python-3.12.10"}
         ]
+
+    # {"os":"ubuntu-large-arm64", "arch":"arm64", "selector":"./python-3.12.10"},
+    # {"os":"macos-14", "arch":"arm64", "selector":"./python-3.12.10"},
+    # {"os":"macos-14-large", "arch":"amd64", "selector":"./python-3.12.10"},
+    # {"os":"windows-latest", "arch":"amd64", "selector":"./python-3.12.10"},
+
+    # {"os":"ubuntu-large-arm64", "arch":"arm64", "selector":"./python-3.12.10-empty"},
+    # {"os":"ubuntu-large-amd64", "arch":"amd64", "selector":"./python-3.12.10-empty"},
+    # {"os":"macos-14", "arch":"arm64", "selector":"./python-3.12.10-empty"},
+    # {"os":"macos-14-large", "arch":"amd64", "selector":"./python-3.12.10-empty"},
+    # {"os":"windows-latest", "arch":"amd64", "selector":"./python-3.12.10-empty"},
+
+    # {"os":"ubuntu-large-amd64", "arch":"amd64", "selector":"./python-3.12.10-atls"},
+    # {"os":"macos-14", "arch":"arm64", "selector":"./python-3.12.10-atls"},
+
+    # {"os":"ubuntu-large-arm64", "arch":"arm64", "selector":"./python-3.12.10-h5ad"},
+    # {"os":"ubuntu-large-amd64", "arch":"amd64", "selector":"./python-3.12.10-h5ad"},
+    # {"os":"macos-14", "arch":"arm64", "selector":"./python-3.12.10-h5ad"},
+    # {"os":"macos-14-large", "arch":"amd64", "selector":"./python-3.12.10-h5ad"},
+    # {"os":"windows-latest", "arch":"amd64", "selector":"./python-3.12.10-h5ad"},
+
+    # {"os":"ubuntu-large-arm64", "arch":"arm64", "selector":"./python-3.12.10-rapids"},
+    # {"os":"ubuntu-large-amd64", "arch":"amd64", "selector":"./python-3.12.10-rapids"},
+    # {"os":"macos-14", "arch":"arm64", "selector":"./python-3.12.10-rapids"},
+    # {"os":"macos-14-large", "arch":"amd64", "selector":"./python-3.12.10-rapids"},
+    # {"os":"windows-latest", "arch":"amd64", "selector":"./python-3.12.10-rapids"},
+
+    # {"os":"ubuntu-large-arm64", "arch":"arm64", "selector":"./python-3.12.10-sccoda"},
+    # {"os":"ubuntu-large-amd64", "arch":"amd64", "selector":"./python-3.12.10-sccoda"},
+    # {"os":"macos-14", "arch":"arm64", "selector":"./python-3.12.10-sccoda"},
+    # {"os":"macos-14-large", "arch":"amd64", "selector":"./python-3.12.10-sccoda"},
+    # {"os":"windows-latest", "arch":"amd64", "selector":"./python-3.12.10-sccoda"}
 
       sign-binaries: |
         python*/pydist/**/*.so

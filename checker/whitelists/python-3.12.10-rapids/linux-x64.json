@@ -85,13 +85,7 @@
     "libcuml.lib64.libcuml++": "invalid syntax",
     "libcuml.lib64.libcumlprims_mg": "libcublas.so.12: cannot open shared object file: No such file or directory"
   },
-  "numba-0.60.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl": {
-    "numba.np.ufunc.tbbpool": "libtbb.so.12: cannot open shared object file: No such file or directory"
-  },
-  "numba-0.61.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl": {
-    "numba.np.ufunc.tbbpool": "libtbb.so.12: cannot open shared object file: No such file or directory"
-  },
-  "numba-0.62.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl": {
+  "numba-0.*.whl": {
     "numba.np.ufunc.tbbpool": "libtbb.so.12: cannot open shared object file: No such file or directory"
   },
   "cuml_cu12-25.4.0-cp312-cp312-manylinux_2_28_x86_64.whl": {
@@ -187,11 +181,9 @@
     "ucxx.examples.python_future_task_app": "libpython3.12.so.1.0: cannot open shared object file: No such file or directory",
     "ucxx.lib64.libucxx_python": "libpython3.12.so.1.0: cannot open shared object file: No such file or directory"
   },
-  "scipy-1.16.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl": {
-    "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module"
-  },
-  "scipy-1.16.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl": {
-    "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module"
+  "scipy-1.*.whl": {
+    "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module",
+    "scipy.stats._unuran.unuran_wrapper": "module 'numpy.random.bit_generator' has no attribute 'SeedlessSequence'"
   },
   "torch-2.7.0+cpu-cp312-cp312-manylinux_2_28_x86_64.whl": {
     "functorch._C": "initialization failed"

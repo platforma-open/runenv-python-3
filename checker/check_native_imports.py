@@ -138,7 +138,7 @@ def is_whitelisted(
     wheel_name: str, module: str, error: str, whitelist: Dict[str, Dict[str, str]]
 ) -> bool:
     """Check if error matches whitelist pattern."""
-    if not isinstance(whitelist, dict) or not wheel_name or not module or not error:
+    if not isinstance(whitelist, dict) or not wheel_name or not module:
         return False
 
     # First try exact match (for backward compatibility)
@@ -158,7 +158,7 @@ def is_whitelisted(
     if not expected_error or not isinstance(expected_error, str):
         return False
 
-    return expected_error.lower() in error.lower()
+    return expected_error.lower() in error.lower() # error can be empty string. This ignores any load error
 
 
 def get_venv_python(venv_path: Path) -> Path:

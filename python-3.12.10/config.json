@@ -35,7 +35,7 @@
       "torchaudio==2.7.0",
       "igraph==0.11.9",
       "Cython==3.1.4",
-      "fa2_modified"
+      "fa2_modified==0.4"
     ],
     "overrides": {}
   }

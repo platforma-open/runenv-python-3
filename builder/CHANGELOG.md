@@ -1,5 +1,11 @@
 # runenv-python-builder
 
+## 0.0.6
+
+### Patch Changes
+
+- 51b4ffa: Technical release (import checker whitelists update)
+
 ## 0.0.5
 
 ### Patch Changes

@@ -2,11 +2,13 @@
   "torch-2.7.0-cp312-none-macosx_11_0_arm64.whl": {
     "functorch._C": "initialization failed"
   },
-  "scipy-1.16.3-cp312-cp312-macosx_12_0_arm64.whl": {
-    "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module"
+  "scipy-1.*-macosx_12_0_arm64.whl": {
+    "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module",
+    "scipy.stats._unuran.unuran_wrapper": "module 'numpy.random.bit_generator' has no attribute 'SeedlessSequence'"
   },
-  "scipy-1.16.3-cp312-cp312-macosx_14_0_arm64.whl": {
-    "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module"
+  "scipy-1.*-macosx_14_0_arm64.whl": {
+    "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module",
+    "scipy.stats._unuran.unuran_wrapper": "module 'numpy.random.bit_generator' has no attribute 'SeedlessSequence'"
   },
   "torch-2.9.1-cp312-none-macosx_11_0_arm64.whl": {
     "functorch._C": "initialization failed"

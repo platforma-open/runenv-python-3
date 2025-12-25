@@ -1,17 +1,13 @@
 {
-  "numba-0.62.1-cp312-cp312-macosx_10_15_x86_64.whl": {
+  "numba-0.*-macosx_10_15_x86_64.whl": {
     "numba.np.ufunc.omppool": "'/Users/runner/miniconda3/envs/test/lib/libomp.dylib' (no such file)"
   },
-  "scipy-1.16.2-cp312-cp312-macosx_14_0_x86_64.whl": {
-    "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module"
+  "scipy-1.*-macosx_14_0_x86_64.whl": {
+    "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module",
+    "scipy.stats._unuran.unuran_wrapper": "module 'numpy.random.bit_generator' has no attribute 'SeedlessSequence'"
   },
-  "scipy-1.16.3-cp312-cp312-macosx_14_0_x86_64.whl": {
-    "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module"
-  },
-  "scipy-1.16.2-cp312-cp312-macosx_10_14_x86_64.whl": {
-    "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module"
-  },
-  "scipy-1.16.3-cp312-cp312-macosx_10_14_x86_64.whl": {
-    "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module"
+  "scipy-1.*-macosx_10_14_x86_64.whl": {
+    "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module",
+    "scipy.stats._unuran.unuran_wrapper": "module 'numpy.random.bit_generator' has no attribute 'SeedlessSequence'"
   }
 }

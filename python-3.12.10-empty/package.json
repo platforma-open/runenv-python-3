@@ -1,6 +1,6 @@
 {
   "name": "@platforma-open/milaboratories.runenv-python-3.12.10-empty",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Python 3.12.10 run environment without any packages in a bundle",
   "scripts": {
     "cleanup": "rm -rf ./pkg-*.tgz ./pydist ./dist/ ./build/",

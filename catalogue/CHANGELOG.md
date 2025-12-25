@@ -1,5 +1,17 @@
 # @platforma-open/milaboratories.runenv-python-3
 
+## 1.7.6
+
+### Patch Changes
+
+- 51b4ffa: Technical release (import checker whitelists update)
+- Updated dependencies [51b4ffa]
+  - @platforma-open/milaboratories.runenv-python-3.12.10@1.3.5
+  - @platforma-open/milaboratories.runenv-python-3.12.10-atls@1.2.4
+  - @platforma-open/milaboratories.runenv-python-3.12.10-h5ad@1.1.4
+  - @platforma-open/milaboratories.runenv-python-3.12.10-rapids@1.4.4
+  - @platforma-open/milaboratories.runenv-python-3.12.10-sccoda@1.3.5
+
 ## 1.7.5
 
 ### Patch Changes

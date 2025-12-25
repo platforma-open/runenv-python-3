@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10-h5ad
 
+## 1.1.4
+
+### Patch Changes
+
+- 51b4ffa: Technical release (import checker whitelists update)
+
 ## 1.1.3
 
 ### Patch Changes

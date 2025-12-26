@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10
 
+## 1.3.6
+
+### Patch Changes
+
+- 4f1a703: Add Fa2
+
 ## 1.3.5
 
 ### Patch Changes

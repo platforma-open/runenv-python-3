@@ -146,6 +146,12 @@ async function buildFromSources(version: string, osType: util.OS, archType: util
 }
 
 function getPackageName(packageSpec: string): string {
+  // Handle bare git URLs: "git+https://github.com/org/repo.git" or "git+https://...repo.git@commit"
+  // Extract repo name as the package name
+  const gitMatch = packageSpec.match(/^git\+https?:\/\/.*\/([^\/]+?)(?:\.git)?(?:@[^@]+)?$/);
+  if (gitMatch) {
+    return gitMatch[1];
+  }
   // Extract package name from spec (e.g., "parasail==1.3.4" -> "parasail")
   return packageSpec.split(/[<>=!]/)[0].trim();
 }
@@ -210,7 +216,8 @@ function buildPipArgs(packageSpec: string, destinationDir: string): string[] {
     'download',
     packageSpec,
     '--dest',
-    destinationDir
+    destinationDir,
+    '--exists-action', 'w'
   ];
 
   // Add additional registries (pip will use PyPI.org as default)
@@ -260,6 +267,8 @@ async function downloadPackages(pyBin: string, destinationDir: string, osType: u
 
     const packageName = getPackageName(depSpecClean);
     const packageNameNorm = normalizePackageName(packageName);
+    const noDepsList = (config.packages.noDeps || []).map(normalizePackageName);
+    const shouldNoDeps = noDepsList.includes(packageNameNorm);
     console.log(`\nProcessing package: ${depSpecClean}`);
 
     // Check if package should be skipped for this platform
@@ -281,6 +290,9 @@ async function downloadPackages(pyBin: string, destinationDir: string, osType: u
         const pipArgs = buildPipArgs(depSpecClean, destinationDir);
         // Only force source for this package to preserve wheels for its dependencies
         pipArgs.push('--no-binary', packageName);
+        if (shouldNoDeps) {
+          pipArgs.push('--no-deps');
+        }
         await util.runCommand(pyBin, pipArgs);
         console.log(`  ✓ Successfully downloaded source for ${depSpecClean}`);
       } catch (sourceError: any) {
@@ -294,6 +306,9 @@ async function downloadPackages(pyBin: string, destinationDir: string, osType: u
         console.log(`  Attempting to download binary wheel...`);
         const pipArgs = buildPipArgs(depSpecClean, destinationDir);
         pipArgs.push('--only-binary', ':all:');
+        if (shouldNoDeps) {
+          pipArgs.push('--no-deps');
+        }
         await util.runCommand(pyBin, pipArgs);
         console.log(`  ✓ Successfully downloaded binary wheel for ${depSpecClean} (current platform)`);
         for (const platform of additionalPlatforms(osType, archType)) {
@@ -329,6 +344,9 @@ async function downloadPackages(pyBin: string, destinationDir: string, osType: u
           const pipArgs = buildPipArgs(depSpecClean, destinationDir);
           // Only force source for this package, not its dependencies
           pipArgs.push('--no-binary', packageName);
+          if (shouldNoDeps) {
+            pipArgs.push('--no-deps');
+          }
           await util.runCommand(pyBin, pipArgs);
           console.log(`  ✓ Successfully downloaded source for ${depSpecClean}`);
         } catch (sourceError: any) {

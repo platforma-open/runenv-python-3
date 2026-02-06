@@ -68,6 +68,9 @@ importers:
       '@platforma-open/milaboratories.runenv-python-3.12.10-h5ad':
         specifier: workspace:*
         version: link:../python-3.12.10-h5ad
+      '@platforma-open/milaboratories.runenv-python-3.12.10-parapred':
+        specifier: workspace:*
+        version: link:../python-3.12.10-parapred
       '@platforma-open/milaboratories.runenv-python-3.12.10-rapids':
         specifier: workspace:*
         version: link:../python-3.12.10-rapids
@@ -116,6 +119,18 @@ importers:
         version: 4.20.6
 
   python-3.12.10-h5ad:
+    devDependencies:
+      '@platforma-sdk/package-builder':
+        specifier: 'catalog:'
+        version: 3.10.7
+      runenv-python-builder:
+        specifier: workspace:*
+        version: link:../builder
+      tsx:
+        specifier: 'catalog:'
+        version: 4.20.6
+
+  python-3.12.10-parapred:
     devDependencies:
       '@platforma-sdk/package-builder':
         specifier: 'catalog:'
@@ -1123,6 +1138,7 @@ packages:
 
   glob@10.4.5:
     resolution: {integrity: sha512-7Bv8RF0k6xjo7d4A/PxYLbUCfb6c+Vpd2/mB2yRDlew7Jb5hEXiCD9ibfO7wpk8i4sevK6DFny9h7EYbM3/sHg==}
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
     hasBin: true
 
   globby@11.1.0:

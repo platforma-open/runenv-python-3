@@ -59,6 +59,12 @@ export function mergeConfig(repoRoot: string, packageRoot: string): any {
                 ...(versionConfig.packages?.forceSource || {}),
             },
             
+            // 'noDeps': list of package names to install without transitive dependencies
+            noDeps: Array.from(new Set([
+                ...(sharedConfig.packages?.noDeps || []),
+                ...(versionConfig.packages?.noDeps || []),
+            ])),
+
             // 'copyFiles': This is for non-platform-specific files. Concatenate arrays.
             copyFiles: [
                 ...(sharedConfig.packages?.copyFiles || []),

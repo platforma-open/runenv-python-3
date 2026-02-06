@@ -209,7 +209,7 @@ function getResolutionPolicy(osType: util.OS, archType: util.Arch): ResolutionPo
   return mergeResolution(base, plat);
 }
 
-function buildPipArgs(packageSpec: string, destinationDir: string): string[] {
+function buildPipArgs(packageSpec: string, destinationDir: string, noDeps: boolean = false): string[] {
   const args = [
     '-m',
     'pip',
@@ -224,6 +224,10 @@ function buildPipArgs(packageSpec: string, destinationDir: string): string[] {
   const additionalRegistries = config.registries.additional || [];
   for (const url of additionalRegistries) {
     args.push('--extra-index-url=' + url);
+  }
+
+  if (noDeps) {
+    args.push('--no-deps');
   }
 
   return args;
@@ -288,12 +292,9 @@ async function downloadPackages(pyBin: string, destinationDir: string, osType: u
       // Skip binary wheel attempt and go straight to source
       console.log(`  Building from source (forced)...`);
       try {
-        const pipArgs = buildPipArgs(depSpecClean, destinationDir);
+        const pipArgs = buildPipArgs(depSpecClean, destinationDir, shouldNoDeps);
         // Only force source for this package to preserve wheels for its dependencies
         pipArgs.push('--no-binary', packageName);
-        if (shouldNoDeps) {
-          pipArgs.push('--no-deps');
-        }
         await util.runCommand(pyBin, pipArgs);
         console.log(`  ✓ Successfully downloaded source for ${depSpecClean}`);
       } catch (sourceError: any) {
@@ -305,11 +306,8 @@ async function downloadPackages(pyBin: string, destinationDir: string, osType: u
       // Try binary wheel first, then fall back to source
       try {
         console.log(`  Attempting to download binary wheel...`);
-        const pipArgs = buildPipArgs(depSpecClean, destinationDir);
+        const pipArgs = buildPipArgs(depSpecClean, destinationDir, shouldNoDeps);
         pipArgs.push('--only-binary', ':all:');
-        if (shouldNoDeps) {
-          pipArgs.push('--no-deps');
-        }
         await util.runCommand(pyBin, pipArgs);
         console.log(`  ✓ Successfully downloaded binary wheel for ${depSpecClean} (current platform)`);
         for (const platform of additionalPlatforms(osType, archType)) {
@@ -342,12 +340,9 @@ async function downloadPackages(pyBin: string, destinationDir: string, osType: u
 
         console.log(`  ✗ Binary wheel not available for ${depSpecClean}, building from source (policy-allowed)...`);
         try {
-          const pipArgs = buildPipArgs(depSpecClean, destinationDir);
+          const pipArgs = buildPipArgs(depSpecClean, destinationDir, shouldNoDeps);
           // Only force source for this package, not its dependencies
           pipArgs.push('--no-binary', packageName);
-          if (shouldNoDeps) {
-            pipArgs.push('--no-deps');
-          }
           await util.runCommand(pyBin, pipArgs);
           console.log(`  ✓ Successfully downloaded source for ${depSpecClean}`);
         } catch (sourceError: any) {

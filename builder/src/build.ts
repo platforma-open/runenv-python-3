@@ -9,6 +9,9 @@ import * as linux from './linux';
 import * as macos from './macos';
 import * as windows from './windows';
 
+// Matches git URL deps: "git+https://github.com/org/repo.git" or "git+https://...repo.git@commit"
+const GIT_URL_RE = /^git\+https?:\/\/.*\/([^\/]+?)(?:\.git)?(?:@[^@]+)?$/;
+
 /*
  * Argument Parsing and Validation
  */
@@ -145,10 +148,13 @@ async function buildFromSources(version: string, osType: util.OS, archType: util
   );
 }
 
+function isGitUrl(packageSpec: string): boolean {
+  return GIT_URL_RE.test(packageSpec);
+}
+
 function getPackageName(packageSpec: string): string {
-  // Handle bare git URLs: "git+https://github.com/org/repo.git" or "git+https://...repo.git@commit"
-  // Extract repo name as the package name
-  const gitMatch = packageSpec.match(/^git\+https?:\/\/.*\/([^\/]+?)(?:\.git)?(?:@[^@]+)?$/);
+  // Handle bare git URLs — extract repo name as the package name
+  const gitMatch = packageSpec.match(GIT_URL_RE);
   if (gitMatch) {
     return gitMatch[1];
   }
@@ -216,9 +222,14 @@ function buildPipArgs(packageSpec: string, destinationDir: string, noDeps: boole
     'download',
     packageSpec,
     '--dest',
-    destinationDir,
-    '--exists-action', 'w'
+    destinationDir
   ];
+
+  // Git URL deps may produce a file during the binary wheel attempt that still exists
+  // when the source fallback runs. Use --exists-action=w to overwrite silently in that case.
+  if (isGitUrl(packageSpec)) {
+    args.push('--exists-action', 'w');
+  }
 
   // Add additional registries (pip will use PyPI.org as default)
   const additionalRegistries = config.registries.additional || [];

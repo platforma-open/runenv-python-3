@@ -258,6 +258,8 @@ async function downloadPackages(pyBin: string, destinationDir: string, osType: u
   const resolution = getResolutionPolicy(osType, archType);
   console.log(`[DEBUG] Resolution policy: ${JSON.stringify(resolution)}`);
 
+  const noDepsList = (config.packages.noDeps || []).map(normalizePackageName);
+
   for (const depSpec of allDeps) {
     const depSpecClean = depSpec.trim();
     if (!depSpecClean) {
@@ -267,7 +269,6 @@ async function downloadPackages(pyBin: string, destinationDir: string, osType: u
 
     const packageName = getPackageName(depSpecClean);
     const packageNameNorm = normalizePackageName(packageName);
-    const noDepsList = (config.packages.noDeps || []).map(normalizePackageName);
     const shouldNoDeps = noDepsList.includes(packageNameNorm);
     console.log(`\nProcessing package: ${depSpecClean}`);
 

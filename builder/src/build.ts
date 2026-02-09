@@ -215,6 +215,31 @@ function getResolutionPolicy(osType: util.OS, archType: util.Arch): ResolutionPo
   return mergeResolution(base, plat);
 }
 
+// Validate that git URL deps are covered by source-allowing resolution policy.
+// Without allowSourceList/allowSourceAll/forceSource, git deps silently get skipped
+// because the binary wheel attempt always fails and strictMissing defaults to false.
+function validateGitDeps(deps: string[], resolution: ResolutionPolicy, osType: util.OS, archType: util.Arch): void {
+  for (const depSpec of deps) {
+    const spec = depSpec.trim();
+    if (!spec || !isGitUrl(spec)) continue;
+
+    const name = getPackageName(spec);
+    const nameNorm = normalizePackageName(name);
+    const coveredByForceSource = shouldForceSource(name, osType, archType)
+      || resolution.forceNoBinaryList?.includes(nameNorm);
+    const coveredByAllowSource = resolution.allowSourceAll
+      || resolution.allowSourceList?.includes(nameNorm);
+
+    if (!coveredByForceSource && !coveredByAllowSource) {
+      throw new Error(
+        `Git dependency "${spec}" is not in allowSourceList or forceSource. ` +
+        `Without this, the package will be silently skipped after binary wheel lookup fails. ` +
+        `Add "${name}" to packages.resolution.allowSourceList in config.json.`
+      );
+    }
+  }
+}
+
 function buildPipArgs(packageSpec: string, destinationDir: string, noDeps: boolean = false): string[] {
   const args = [
     '-m',
@@ -275,28 +300,7 @@ async function downloadPackages(pyBin: string, destinationDir: string, osType: u
 
   const noDepsList = (config.packages.noDeps || []).map(normalizePackageName);
 
-  // Validate that git URL deps are covered by source-allowing resolution policy.
-  // Without allowSourceList/allowSourceAll/forceSource, git deps silently get skipped
-  // because the binary wheel attempt always fails and strictMissing defaults to false.
-  for (const depSpec of allDeps) {
-    const spec = depSpec.trim();
-    if (!spec || !isGitUrl(spec)) continue;
-
-    const name = getPackageName(spec);
-    const nameNorm = normalizePackageName(name);
-    const coveredByForceSource = shouldForceSource(name, osType, archType)
-      || resolution.forceNoBinaryList?.includes(nameNorm);
-    const coveredByAllowSource = resolution.allowSourceAll
-      || resolution.allowSourceList?.includes(nameNorm);
-
-    if (!coveredByForceSource && !coveredByAllowSource) {
-      throw new Error(
-        `Git dependency "${spec}" is not in allowSourceList or forceSource. ` +
-        `Without this, the package will be silently skipped after binary wheel lookup fails. ` +
-        `Add "${name}" to packages.resolution.allowSourceList in config.json.`
-      );
-    }
-  }
+  validateGitDeps(allDeps, resolution, osType, archType);
 
   for (const depSpec of allDeps) {
     const depSpecClean = depSpec.trim();

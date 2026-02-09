@@ -6,6 +6,7 @@ packages:
   - python-3.12.10-sccoda
   - python-3.12.10-rapids
   - python-3.12.10-h5ad
+  - python-3.12.10-parapred
   - catalogue
 
 catalog:

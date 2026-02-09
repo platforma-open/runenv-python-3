@@ -1,0 +1,25 @@
+{
+  "registries": {
+    "additional": [
+      "https://download.pytorch.org/whl/cpu"
+    ]
+  },
+  "packages": {
+    "dependencies": [
+      "pandas==2.2.3",
+      "numpy==2.2.6",
+      "polars-lts-cpu==1.33.1",
+      "polars-ds-lts-cpu==0.10.2",
+      "torch==2.7.0",
+      "click==8.1.8",
+      "git+https://github.com/alchemab/parapred-pytorch.git@e0548be"
+    ],
+    "noDeps": ["parapred-pytorch"],
+    "skip": {},
+    "overrides": {},
+    "platformSpecific": {},
+    "resolution": {
+      "allowSourceList": ["parapred-pytorch"]
+    }
+  }
+}

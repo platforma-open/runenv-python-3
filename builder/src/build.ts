@@ -9,6 +9,9 @@ import * as linux from './linux';
 import * as macos from './macos';
 import * as windows from './windows';
 
+// Matches git URL deps: "git+https://github.com/org/repo.git" or "git+https://...repo.git@commit"
+const GIT_URL_RE = /^git\+https?:\/\/.*\/([^\/]+?)(?:\.git)?(?:@[^@]+)?$/;
+
 /*
  * Argument Parsing and Validation
  */
@@ -145,7 +148,16 @@ async function buildFromSources(version: string, osType: util.OS, archType: util
   );
 }
 
+function isGitUrl(packageSpec: string): boolean {
+  return GIT_URL_RE.test(packageSpec);
+}
+
 function getPackageName(packageSpec: string): string {
+  // Handle bare git URLs — extract repo name as the package name
+  const gitMatch = packageSpec.match(GIT_URL_RE);
+  if (gitMatch) {
+    return gitMatch[1];
+  }
   // Extract package name from spec (e.g., "parasail==1.3.4" -> "parasail")
   return packageSpec.split(/[<>=!]/)[0].trim();
 }
@@ -203,7 +215,32 @@ function getResolutionPolicy(osType: util.OS, archType: util.Arch): ResolutionPo
   return mergeResolution(base, plat);
 }
 
-function buildPipArgs(packageSpec: string, destinationDir: string): string[] {
+// Validate that git URL deps are covered by source-allowing resolution policy.
+// Without allowSourceList/allowSourceAll/forceSource, git deps silently get skipped
+// because the binary wheel attempt always fails and strictMissing defaults to false.
+function validateGitDeps(deps: string[], resolution: ResolutionPolicy, osType: util.OS, archType: util.Arch): void {
+  for (const depSpec of deps) {
+    const spec = depSpec.trim();
+    if (!spec || !isGitUrl(spec)) continue;
+
+    const name = getPackageName(spec);
+    const nameNorm = normalizePackageName(name);
+    const coveredByForceSource = shouldForceSource(name, osType, archType)
+      || resolution.forceNoBinaryList?.includes(nameNorm);
+    const coveredByAllowSource = resolution.allowSourceAll
+      || resolution.allowSourceList?.includes(nameNorm);
+
+    if (!coveredByForceSource && !coveredByAllowSource) {
+      throw new Error(
+        `Git dependency "${spec}" is not in allowSourceList or forceSource. ` +
+        `Without this, the package will be silently skipped after binary wheel lookup fails. ` +
+        `Add "${name}" to packages.resolution.allowSourceList in config.json.`
+      );
+    }
+  }
+}
+
+function buildPipArgs(packageSpec: string, destinationDir: string, noDeps: boolean = false): string[] {
   const args = [
     '-m',
     'pip',
@@ -213,10 +250,20 @@ function buildPipArgs(packageSpec: string, destinationDir: string): string[] {
     destinationDir
   ];
 
+  // Git URL deps may produce a file during the binary wheel attempt that still exists
+  // when the source fallback runs. Use --exists-action=w to overwrite silently in that case.
+  if (isGitUrl(packageSpec)) {
+    args.push('--exists-action', 'w');
+  }
+
   // Add additional registries (pip will use PyPI.org as default)
   const additionalRegistries = config.registries.additional || [];
   for (const url of additionalRegistries) {
     args.push('--extra-index-url=' + url);
+  }
+
+  if (noDeps) {
+    args.push('--no-deps');
   }
 
   return args;
@@ -251,6 +298,10 @@ async function downloadPackages(pyBin: string, destinationDir: string, osType: u
   const resolution = getResolutionPolicy(osType, archType);
   console.log(`[DEBUG] Resolution policy: ${JSON.stringify(resolution)}`);
 
+  const noDepsList = (config.packages.noDeps || []).map(normalizePackageName);
+
+  validateGitDeps(allDeps, resolution, osType, archType);
+
   for (const depSpec of allDeps) {
     const depSpecClean = depSpec.trim();
     if (!depSpecClean) {
@@ -260,6 +311,7 @@ async function downloadPackages(pyBin: string, destinationDir: string, osType: u
 
     const packageName = getPackageName(depSpecClean);
     const packageNameNorm = normalizePackageName(packageName);
+    const shouldNoDeps = noDepsList.includes(packageNameNorm);
     console.log(`\nProcessing package: ${depSpecClean}`);
 
     // Check if package should be skipped for this platform
@@ -278,7 +330,7 @@ async function downloadPackages(pyBin: string, destinationDir: string, osType: u
       // Skip binary wheel attempt and go straight to source
       console.log(`  Building from source (forced)...`);
       try {
-        const pipArgs = buildPipArgs(depSpecClean, destinationDir);
+        const pipArgs = buildPipArgs(depSpecClean, destinationDir, shouldNoDeps);
         // Only force source for this package to preserve wheels for its dependencies
         pipArgs.push('--no-binary', packageName);
         await util.runCommand(pyBin, pipArgs);
@@ -292,7 +344,7 @@ async function downloadPackages(pyBin: string, destinationDir: string, osType: u
       // Try binary wheel first, then fall back to source
       try {
         console.log(`  Attempting to download binary wheel...`);
-        const pipArgs = buildPipArgs(depSpecClean, destinationDir);
+        const pipArgs = buildPipArgs(depSpecClean, destinationDir, shouldNoDeps);
         pipArgs.push('--only-binary', ':all:');
         await util.runCommand(pyBin, pipArgs);
         console.log(`  ✓ Successfully downloaded binary wheel for ${depSpecClean} (current platform)`);
@@ -326,7 +378,7 @@ async function downloadPackages(pyBin: string, destinationDir: string, osType: u
 
         console.log(`  ✗ Binary wheel not available for ${depSpecClean}, building from source (policy-allowed)...`);
         try {
-          const pipArgs = buildPipArgs(depSpecClean, destinationDir);
+          const pipArgs = buildPipArgs(depSpecClean, destinationDir, shouldNoDeps);
           // Only force source for this package, not its dependencies
           pipArgs.push('--no-binary', packageName);
           await util.runCommand(pyBin, pipArgs);

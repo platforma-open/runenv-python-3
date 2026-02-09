@@ -1,5 +1,17 @@
 # @platforma-open/milaboratories.runenv-python-3
 
+## 1.7.8
+
+### Patch Changes
+
+- Updated dependencies [928b6ab]
+  - @platforma-open/milaboratories.runenv-python-3.12.10-parapred@1.1.0
+  - @platforma-open/milaboratories.runenv-python-3.12.10@1.3.6
+  - @platforma-open/milaboratories.runenv-python-3.12.10-atls@1.2.4
+  - @platforma-open/milaboratories.runenv-python-3.12.10-h5ad@1.1.4
+  - @platforma-open/milaboratories.runenv-python-3.12.10-rapids@1.4.4
+  - @platforma-open/milaboratories.runenv-python-3.12.10-sccoda@1.3.5
+
 ## 1.7.7
 
 ### Patch Changes

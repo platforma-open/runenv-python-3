@@ -1,6 +1,6 @@
 {
   "name": "@platforma-open/milaboratories.runenv-python-3.12.10-parapred",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Python 3.12.10 run environment for Platforma Backend with parapred-pytorch",
   "scripts": {
     "cleanup": "rm -rf ./pkg-*.tgz ./pydist ./dist/ ./build/",

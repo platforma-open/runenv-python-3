@@ -13,6 +13,18 @@
     "cupyx.cusolver": "libcusolver.so.11: cannot open shared object file: No such file or directory",
     "cupyx.cutensor": "libcutensor.so.2: cannot open shared object file: No such file or directory"
   },
+  "cupy_cuda12x-14.0.1-cp312-cp312-manylinux2014_x86_64.whl": {
+    "cupy.cuda.cufft": "libcufft.so.11: cannot open shared object file: No such file or directory",
+    "cupy.cuda.jitify": "libnvrtc.so.12: cannot open shared object file: No such file or directory",
+    "cupy_backends.cuda.libs.cublas": "libcublas.so.12: cannot open shared object file: No such file or directory",
+    "cupy_backends.cuda.libs.curand": "libcurand.so.10: cannot open shared object file: No such file or directory",
+    "cupy_backends.cuda.libs.cusolver": "libcusolver.so.11: cannot open shared object file: No such file or directory",
+    "cupy_backends.cuda.libs.cusparse": "libcusparse.so.12: cannot open shared object file: No such file or directory",
+    "cupy_backends.cuda.libs.cutensor": "libcutensor.so.2: cannot open shared object file: No such file or directory",
+    "cupy_backends.cuda.libs.nccl": "libnccl.so.2: cannot open shared object file: No such file or directory",
+    "cupyx.cusolver": "libcusolver.so.11: cannot open shared object file: No such file or directory",
+    "cupyx.cutensor": "libcutensor.so.2: cannot open shared object file: No such file or directory"
+  },
   "librmm_cu12-25.6.0-py3-none-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl": {
     "librmm.lib64.librmm": "librapids_logger.so: cannot open shared object file: No such file or directory"
   },

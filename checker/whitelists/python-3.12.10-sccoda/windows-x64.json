@@ -18,6 +18,9 @@
   "rpy2_rinterface-3.6.3-cp312-cp312-win_amd64.whl": {
     "_rinterface_cffi_api": "DLL load failed while importing _rinterface_cffi_api: The specified module could not be found"
   },
+  "rpy2_rinterface-3.6.4-cp312-cp312-win_amd64.whl": {
+    "_rinterface_cffi_api": "DLL load failed while importing _rinterface_cffi_api: The specified module could not be found."
+  },
   "scipy-1.*-win_amd64.whl": {
     "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module",
     "scipy.stats._unuran.unuran_wrapper": "module 'numpy.random.bit_generator' has no attribute 'SeedlessSequence'"

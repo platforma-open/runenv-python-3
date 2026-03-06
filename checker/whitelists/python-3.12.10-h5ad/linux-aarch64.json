@@ -1,4 +1,7 @@
 {
+  "charset_normalizer-3.4.5-cp312-cp312-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl": {
+    "81d243bd2c585b0f4821__mypyc": "invalid decimal literal"
+  },
   "scipy-1.*.whl": {
     "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module",
     "scipy.stats._unuran.unuran_wrapper": "module 'numpy.random.bit_generator' has no attribute 'SeedlessSequence'"

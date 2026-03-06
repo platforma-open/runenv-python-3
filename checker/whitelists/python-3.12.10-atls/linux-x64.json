@@ -1,4 +1,7 @@
 {
+  "charset_normalizer-3.4.5-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl": {
+    "81d243bd2c585b0f4821__mypyc": "invalid decimal literal"
+  },
   "torchaudio-2.7.0+cpu-cp312-cp312-manylinux_2_28_x86_64.whl": {
     "torchaudio.lib._torchaudio_sox": "libtorchaudio_sox.so: cannot open shared object file: No such file or directory",
     "torchaudio.lib.libtorchaudio_sox": "libsox.so: cannot open shared object file: No such file or directory",

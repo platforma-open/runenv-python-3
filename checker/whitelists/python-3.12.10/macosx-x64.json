@@ -1,4 +1,7 @@
 {
+  "charset_normalizer-3.4.5-cp312-cp312-macosx_10_13_universal2.whl": {
+    "81d243bd2c585b0f4821__mypyc": "invalid decimal literal"
+  },
   "ml_dtypes-0.3.2-cp312-cp312-macosx_10_9_universal2.whl": {
     "ml_dtypes._ml_dtypes_ext": "numpy.core.umath failed to import"
   },

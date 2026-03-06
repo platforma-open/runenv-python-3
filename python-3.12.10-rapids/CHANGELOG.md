@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10-rapids
 
+## 1.5.0
+
+### Minor Changes
+
+- 11b0816: Added polars
+
 ## 1.4.4
 
 ### Patch Changes

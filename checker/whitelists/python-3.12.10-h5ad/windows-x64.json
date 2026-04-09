@@ -1,5 +1,5 @@
 {
-  "charset_normalizer-3.4.5-cp312-cp312-win_amd64.whl": {
+  "charset_normalizer-3.*.whl": {
     "81d243bd2c585b0f4821__mypyc": "invalid decimal literal"
   },
   "matplotlib-3.*-cp312-cp312-win_amd64.whl": {

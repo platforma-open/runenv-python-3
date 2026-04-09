@@ -1,5 +1,5 @@
 {
-  "charset_normalizer-3.4.5-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl": {
+  "charset_normalizer-3.*.whl": {
     "81d243bd2c585b0f4821__mypyc": "invalid decimal literal"
   },
   "numpy-1.26.4-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl": {

@@ -1,5 +1,5 @@
 {
-  "charset_normalizer-3.4.5-cp312-cp312-macosx_10_13_universal2.whl": {
+  "charset_normalizer-3.*.whl": {
     "81d243bd2c585b0f4821__mypyc": "invalid decimal literal"
   },
   "numba-0.*-macosx_10_15_x86_64.whl": {

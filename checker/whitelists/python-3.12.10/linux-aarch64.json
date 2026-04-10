@@ -1,5 +1,5 @@
 {
-  "charset_normalizer-3.4.5-cp312-cp312-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl": {
+  "charset_normalizer-3.*.whl": {
     "81d243bd2c585b0f4821__mypyc": "invalid decimal literal"
   },
   "torch-2.7.0+cpu-cp312-cp312-manylinux_2_28_aarch64.whl": {

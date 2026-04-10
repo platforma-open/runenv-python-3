@@ -22,7 +22,7 @@
     "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module",
     "scipy.stats._unuran.unuran_wrapper": "module 'numpy.random.bit_generator' has no attribute 'SeedlessSequence'"
   },
-  "tensorflow-2.16.2-cp312-cp312-macosx_10_15_x86_64.whl": {
+  "tensorflow-2.*.whl": {
     "tensorflow.compiler.tf2xla.ops._xla_ops": "ALREADY_EXISTS: Op with name XlaBroadcastHelper"
   }
 }

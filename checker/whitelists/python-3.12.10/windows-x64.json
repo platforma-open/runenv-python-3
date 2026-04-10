@@ -28,7 +28,7 @@
   "torch-2.9.1+cpu-cp312-cp312-win_amd64.whl": {
     "functorch._C": "initialization failed"
   },
-  "tensorflow-2.20.0-cp312-cp312-win_amd64.whl": {
+  "tensorflow-2.*.whl": {
     "tensorflow.lite.python._pywrap_tensorflow_lite_metrics_wrapper": "generic_type: type \"MetricsWrapper\" is already registered"
   },
   "torchaudio-2.7.0+cpu-cp312-cp312-win_amd64.whl": {

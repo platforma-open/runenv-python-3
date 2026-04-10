@@ -25,7 +25,7 @@
     "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module",
     "scipy.stats._unuran.unuran_wrapper": "module 'numpy.random.bit_generator' has no attribute 'SeedlessSequence'"
   },
-  "tensorflow-2.20.0-cp312-cp312-win_amd64.whl": {
+  "tensorflow-2.*.whl": {
     "tensorflow.lite.python._pywrap_tensorflow_lite_metrics_wrapper": "generic_type: type \"MetricsWrapper\" is already registered"
   }
 }

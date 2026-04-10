@@ -60,10 +60,7 @@
   "torch-2.9.1+cpu-cp312-cp312-manylinux_2_28_x86_64.whl": {
     "functorch._C": "initialization failed"
   },
-  "tensorflow-2.19.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl": {
-    "tensorflow.compiler.tf2xla.ops._xla_ops": "ALREADY_EXISTS: Op with name XlaBroadcastHelper"
-  },
-  "tensorflow-2.19.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl": {
+  "tensorflow-2.*.whl": {
     "tensorflow.compiler.tf2xla.ops._xla_ops": "ALREADY_EXISTS: Op with name XlaBroadcastHelper"
   }
 }

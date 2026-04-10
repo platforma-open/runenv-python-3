@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10
 
+## 1.3.7
+
+### Patch Changes
+
+- d5b1787: Add biopython
+
 ## 1.3.6
 
 ### Patch Changes

@@ -78,7 +78,9 @@ import site
   await fixPipRegistryIssue(path.join(pyBinRoot, 'Lib', 'site-packages', 'pip'));
 
   // Install rest of the packages required in all environments
-  await util.runCommand(pythonExe, ['-m', 'pip', 'install', 'virtualenv', 'wheel']);
+  // Pin virtualenv: 21.2.4 breaks the virtualenv->venv copy trick on embedded Python
+  // (venv creation silently fails with non-zero exit code).
+  await util.runCommand(pythonExe, ['-m', 'pip', 'install', 'virtualenv==21.2.1', 'wheel']);
 
   // We have to patch pip embedded into venv package:
   const venvEmbeddedWheelsDir = path.join(pyBinRoot, 'Lib', 'site-packages', 'virtualenv', 'seed', 'wheels', 'embed');

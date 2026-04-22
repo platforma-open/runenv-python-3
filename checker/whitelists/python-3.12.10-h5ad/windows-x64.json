@@ -1,7 +1,4 @@
 {
-  "charset_normalizer-3.*.whl": {
-    "81d243bd2c585b0f4821__mypyc": "invalid decimal literal"
-  },
   "matplotlib-3.*-cp312-cp312-win_amd64.whl": {
     "matplotlib._c_internal_utils": "Could not determine home directory",
     "matplotlib._image": "Could not determine home directory",
@@ -16,7 +13,6 @@
     "numba.np.ufunc.tbbpool": "DLL load failed while importing tbbpool: The specified module could not be found"
   },
   "scipy-1.*-win_amd64.whl": {
-    "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module",
-    "scipy.stats._unuran.unuran_wrapper": "module 'numpy.random.bit_generator' has no attribute 'SeedlessSequence'"
+    "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module"
   }
 }

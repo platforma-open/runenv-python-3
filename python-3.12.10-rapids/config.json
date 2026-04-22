@@ -25,7 +25,10 @@
       "cucim-cu12==25.4.0",
       "pylibraft-cu12==25.4.0",
       "raft-dask-cu12==25.4.0",
-      "cuvs-cu12==25.4.0"
+      "cuvs-cu12==25.4.0",
+      "cupy-cuda12x>=13.0.0",
+      "nvidia-cuda-nvrtc-cu12",
+      "nvidia-cublas-cu12"
     ],
     "skip": {
       "cudf-cu12": {
@@ -95,6 +98,24 @@
         "linux-aarch64": "CUDA packages not supported on Linux ARM64"
       },
       "cuvs-cu12": {
+        "macosx-x64": "CUDA packages not supported on macOS",
+        "macosx-aarch64": "CUDA packages not supported on macOS",
+        "windows-x64": "CUDA packages not supported on Windows",
+        "linux-aarch64": "CUDA packages not supported on Linux ARM64"
+      },
+      "cupy-cuda12x": {
+        "macosx-x64": "CUDA packages not supported on macOS",
+        "macosx-aarch64": "CUDA packages not supported on macOS",
+        "windows-x64": "CUDA packages not supported on Windows",
+        "linux-aarch64": "CUDA packages not supported on Linux ARM64"
+      },
+      "nvidia-cuda-nvrtc-cu12": {
+        "macosx-x64": "CUDA packages not supported on macOS",
+        "macosx-aarch64": "CUDA packages not supported on macOS",
+        "windows-x64": "CUDA packages not supported on Windows",
+        "linux-aarch64": "CUDA packages not supported on Linux ARM64"
+      },
+      "nvidia-cublas-cu12": {
         "macosx-x64": "CUDA packages not supported on macOS",
         "macosx-aarch64": "CUDA packages not supported on macOS",
         "windows-x64": "CUDA packages not supported on Windows",

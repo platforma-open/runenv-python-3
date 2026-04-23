@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10
 
+## 1.3.8
+
+### Patch Changes
+
+- 3a15f37: Update polars-pf to 1.1.25
+
 ## 1.3.7
 
 ### Patch Changes

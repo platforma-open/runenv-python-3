@@ -88,7 +88,13 @@ jobs:
           {"os":"ubuntu-large-amd64", "arch":"amd64", "selector":"./python-3.12.10-parapred"},
           {"os":"macos-14", "arch":"arm64", "selector":"./python-3.12.10-parapred"},
           {"os":"macos-14-large", "arch":"amd64", "selector":"./python-3.12.10-parapred"},
-          {"os":"windows-latest", "arch":"amd64", "selector":"./python-3.12.10-parapred"}
+          {"os":"windows-latest", "arch":"amd64", "selector":"./python-3.12.10-parapred"},
+
+          {"os":"ubuntu-large-arm64", "arch":"arm64", "selector":"./python-3.12.10-scientific-slim"},
+          {"os":"ubuntu-large-amd64", "arch":"amd64", "selector":"./python-3.12.10-scientific-slim"},
+          {"os":"macos-14", "arch":"arm64", "selector":"./python-3.12.10-scientific-slim"},
+          {"os":"macos-14-large", "arch":"amd64", "selector":"./python-3.12.10-scientific-slim"},
+          {"os":"windows-latest", "arch":"amd64", "selector":"./python-3.12.10-scientific-slim"}
         ]
 
       sign-binaries: |

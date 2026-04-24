@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10
 
+## 1.3.9
+
+### Patch Changes
+
+- 7fcd5da: Bump `polars-pf` from 1.1.26 to 1.1.27 in the `python-3.12.10` runenv.
+
 ## 1.3.8
 
 ### Patch Changes

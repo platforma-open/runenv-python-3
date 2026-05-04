@@ -1,7 +1,7 @@
 {
   "name": "@platforma-open/milaboratories.runenv-python-3.12.10-scientific-slim",
   "version": "1.0.1",
-  "description": "Python 3.12.10 run environment bundling polars-lts-cpu, numpy, scipy, and pyarrow for scientific/tabular workloads",
+  "description": "Python 3.12.10 run environment bundling polars-lts-cpu, numpy, scipy, pyarrow, and biopython for scientific/tabular workloads",
   "scripts": {
     "cleanup": "rm -rf ./pkg-*.tgz ./pydist ./dist/ ./build/",
     "reset": "pnpm run cleanup && rm -rf ./node_modules ./.turbo",

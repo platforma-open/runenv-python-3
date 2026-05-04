@@ -4,7 +4,8 @@
       "polars-lts-cpu==1.33.1",
       "numpy==2.2.6",
       "scipy==1.15.3",
-      "pyarrow==21.0.0"
+      "pyarrow==21.0.0",
+      "biopython==1.87"
     ],
     "skip": {},
     "platformSpecific": {}

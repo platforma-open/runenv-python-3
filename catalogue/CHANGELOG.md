@@ -1,5 +1,12 @@
 # @platforma-open/milaboratories.runenv-python-3
 
+## 1.8.2
+
+### Patch Changes
+
+- Updated dependencies [187cf94]
+  - @platforma-open/milaboratories.runenv-python-3.12.10-scientific-slim@1.1.0
+
 ## 1.8.1
 
 ### Patch Changes

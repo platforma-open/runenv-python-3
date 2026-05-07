@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10-atls
 
+## 1.2.6
+
+### Patch Changes
+
+- c0759c1: Fix pdbfixer version
+
 ## 1.2.5
 
 ### Patch Changes

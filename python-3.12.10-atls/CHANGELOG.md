@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10-atls
 
+## 1.2.7
+
+### Patch Changes
+
+- c588982: Build pdbfixer from sdist as wheels are not available
+
 ## 1.2.6
 
 ### Patch Changes

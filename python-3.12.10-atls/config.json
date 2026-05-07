@@ -5,6 +5,9 @@
     ]
   },
   "packages": {
+    "resolution": {
+      "forceNoBinaryList": ["pdbfixer"]
+    },
     "dependencies": [
       "biopython==1.85",
       "openmm==8.3.1",

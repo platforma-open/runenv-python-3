@@ -47,6 +47,11 @@
         "macosx-x64": "Not required on this platform",
         "windows-x64": "Not required on this platform"
       },
+      "pdbfixer": {
+        "linux-aarch64": "Not required on this platform",
+        "macosx-x64": "Not required on this platform",
+        "windows-x64": "Not required on this platform"
+      },
       "prodigy-prot": {
         "linux-aarch64": "Not required on this platform",
         "macosx-x64": "Not required on this platform",

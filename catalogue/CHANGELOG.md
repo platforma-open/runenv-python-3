@@ -1,5 +1,12 @@
 # @platforma-open/milaboratories.runenv-python-3
 
+## 1.8.4
+
+### Patch Changes
+
+- Updated dependencies [1cff05a]
+  - @platforma-open/milaboratories.runenv-python-3.12.10-atls@1.2.5
+
 ## 1.8.3
 
 ### Patch Changes

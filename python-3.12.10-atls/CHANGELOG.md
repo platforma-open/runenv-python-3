@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10-atls
 
+## 1.2.5
+
+### Patch Changes
+
+- 1cff05a: Add pdbfixer dependency
+
 ## 1.2.4
 
 ### Patch Changes

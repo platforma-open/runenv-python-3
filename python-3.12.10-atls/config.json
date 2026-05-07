@@ -12,6 +12,7 @@
       "torchvision==0.22.0",
       "torchaudio==2.7.0",
       "ImmuneBuilder==1.2",
+      "pdbfixer==1.11",
       "prodigy-prot==2.3.0",
       "transformers==4.53.2"
     ],
@@ -42,6 +43,11 @@
         "windows-x64": "Not required on this platform"
       },
       "ImmuneBuilder": {
+        "linux-aarch64": "Not required on this platform",
+        "macosx-x64": "Not required on this platform",
+        "windows-x64": "Not required on this platform"
+      },
+      "pdbfixer": {
         "linux-aarch64": "Not required on this platform",
         "macosx-x64": "Not required on this platform",
         "windows-x64": "Not required on this platform"

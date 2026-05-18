@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10
 
+## 1.3.12
+
+### Patch Changes
+
+- a331be8: PyArrow version update
+
 ## 1.3.11
 
 ### Patch Changes

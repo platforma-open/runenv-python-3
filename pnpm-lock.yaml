@@ -68,6 +68,9 @@ importers:
       '@platforma-open/milaboratories.runenv-python-3.12.10-h5ad':
         specifier: workspace:*
         version: link:../python-3.12.10-h5ad
+      '@platforma-open/milaboratories.runenv-python-3.12.10-humanness':
+        specifier: workspace:*
+        version: link:../python-3.12.10-humanness
       '@platforma-open/milaboratories.runenv-python-3.12.10-parapred':
         specifier: workspace:*
         version: link:../python-3.12.10-parapred
@@ -122,6 +125,18 @@ importers:
         version: 4.20.6
 
   python-3.12.10-h5ad:
+    devDependencies:
+      '@platforma-sdk/package-builder':
+        specifier: 'catalog:'
+        version: 3.10.7
+      runenv-python-builder:
+        specifier: workspace:*
+        version: link:../builder
+      tsx:
+        specifier: 'catalog:'
+        version: 4.20.6
+
+  python-3.12.10-humanness:
     devDependencies:
       '@platforma-sdk/package-builder':
         specifier: 'catalog:'

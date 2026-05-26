@@ -9,21 +9,7 @@
     "cucim.clara.cucim.kit.cumed@25.04.00": "invalid syntax",
     "cucim.clara.cucim.kit.cuslide@25.04.00": "invalid syntax"
   },
-  "cupy_cuda12x-13.6.0-cp312-cp312-manylinux2014_x86_64.whl": {
-    "cupy.cuda.cufft": "libcufft.so.11: cannot open shared object file: No such file or directory",
-    "cupy.cuda.jitify": "libnvrtc.so.12: cannot open shared object file: No such file or directory",
-    "cupy_backends.cuda.libs.cublas": "libcublas.so.12: cannot open shared object file: No such file or directory",
-    "cupy_backends.cuda.libs.cudnn": "libcudnn.so.8: cannot open shared object file: No such file or directory",
-    "cupy_backends.cuda.libs.curand": "libcurand.so.10: cannot open shared object file: No such file or directory",
-    "cupy_backends.cuda.libs.cusolver": "libcusolver.so.11: cannot open shared object file: No such file or directory",
-    "cupy_backends.cuda.libs.cusparse": "libcusparse.so.12: cannot open shared object file: No such file or directory",
-    "cupy_backends.cuda.libs.cutensor": "libcutensor.so.2: cannot open shared object file: No such file or directory",
-    "cupy_backends.cuda.libs.nccl": "libnccl.so.2: cannot open shared object file: No such file or directory",
-    "cupyx.cudnn": "libcudnn.so.8: cannot open shared object file: No such file or directory",
-    "cupyx.cusolver": "libcusolver.so.11: cannot open shared object file: No such file or directory",
-    "cupyx.cutensor": "libcutensor.so.2: cannot open shared object file: No such file or directory"
-  },
-  "cupy_cuda12x-14.0.1-cp312-cp312-manylinux2014_x86_64.whl": {
+  "cupy_cuda12x-*.whl": {
     "cupy.cuda.cufft": "libcufft.so.11: cannot open shared object file: No such file or directory",
     "cupy.cuda.jitify": "libnvrtc.so.12: cannot open shared object file: No such file or directory",
     "cupy_backends.cuda.libs.cublas": "libcublas.so.12: cannot open shared object file: No such file or directory",

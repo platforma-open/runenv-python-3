@@ -1,5 +1,14 @@
 # @platforma-open/milaboratories.runenv-python-3
 
+## 1.8.8
+
+### Patch Changes
+
+- f2d775b: PFrames bump fix
+- Updated dependencies [74702b3]
+- Updated dependencies [0f064f9]
+  - @platforma-open/milaboratories.runenv-python-3.12.10@1.3.13
+
 ## 1.8.7
 
 ### Patch Changes

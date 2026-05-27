@@ -8,8 +8,8 @@
 // expected Zenodo blob size. Partial downloads land in a .part sidecar and
 // are atomically renamed on success.
 
-import { createWriteStream, existsSync, mkdirSync, statSync, unlinkSync } from 'node:fs';
-import { rename } from 'node:fs/promises';
+import { createWriteStream } from 'node:fs';
+import { mkdir, rename, stat, unlink } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { pipeline } from 'node:stream/promises';
@@ -34,32 +34,52 @@ const FILES = [
 
 const BASE = 'https://zenodo.org/record/7258553/files';
 
+// Zenodo can stall mid-transfer. One AbortController covers both the fetch
+// (headers) and the pipeline (streamed body) — clearing the timer right after
+// fetch() resolves would still leave a mid-body stall hanging indefinitely.
+const DOWNLOAD_TIMEOUT_MS = 15 * 60 * 1000;
+
+async function statOrNull(path) {
+  try {
+    return await stat(path);
+  } catch (err) {
+    if (err.code === 'ENOENT') return null;
+    throw err;
+  }
+}
+
 async function downloadOne({ name, size }) {
   const dest = join(targetDir, name);
-  if (existsSync(dest) && statSync(dest).size === size) {
+  const existing = await statOrNull(dest);
+  if (existing && existing.size === size) {
     console.log(`  ✓ ${name} (cached)`);
     return;
   }
   const url = `${BASE}/${name}?download=1`;
   console.log(`  ↓ ${name} from ${url}`);
-  const res = await fetch(url, { redirect: 'follow' });
-  if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), DOWNLOAD_TIMEOUT_MS);
   const tmp = `${dest}.part`;
   try {
+    const res = await fetch(url, { redirect: 'follow', signal: controller.signal });
+    if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
     await pipeline(res.body, createWriteStream(tmp));
-    const got = statSync(tmp).size;
+    const got = (await stat(tmp)).size;
     if (got !== size) {
       throw new Error(`${name}: expected ${size} bytes, got ${got}`);
     }
     await rename(tmp, dest);
     console.log(`  ✓ ${name} (${got} bytes)`);
   } catch (err) {
-    if (existsSync(tmp)) unlinkSync(tmp);
+    // Best-effort cleanup; ENOENT is fine if the .part was never created.
+    await unlink(tmp).catch(() => {});
     throw err;
+  } finally {
+    clearTimeout(timer);
   }
 }
 
-mkdirSync(targetDir, { recursive: true });
+await mkdir(targetDir, { recursive: true });
 console.log(`Fetching ImmuneBuilder weights into ${targetDir}`);
 for (const f of FILES) {
   await downloadOne(f);

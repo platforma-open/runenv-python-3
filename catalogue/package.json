@@ -32,6 +32,9 @@
       },
       "3.12.10-scientific-slim": {
         "reference": "@platforma-open/milaboratories.runenv-python-3.12.10-scientific-slim/dist/tengo/software/main.sw.json"
+      },
+      "3.12.10-humanness": {
+        "reference": "@platforma-open/milaboratories.runenv-python-3.12.10-humanness/dist/tengo/software/main.sw.json"
       }
     }
   },
@@ -46,7 +49,8 @@
     "@platforma-open/milaboratories.runenv-python-3.12.10-rapids": "workspace:*",
     "@platforma-open/milaboratories.runenv-python-3.12.10-h5ad": "workspace:*",
     "@platforma-open/milaboratories.runenv-python-3.12.10-parapred": "workspace:*",
-    "@platforma-open/milaboratories.runenv-python-3.12.10-scientific-slim": "workspace:*"
+    "@platforma-open/milaboratories.runenv-python-3.12.10-scientific-slim": "workspace:*",
+    "@platforma-open/milaboratories.runenv-python-3.12.10-humanness": "workspace:*"
   },
   "devDependencies": {
     "@platforma-sdk/package-builder": "catalog:"

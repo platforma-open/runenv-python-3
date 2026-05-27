@@ -8,3 +8,7 @@ test-dry-run.json
 *.tar.gz
 *.tgz
 *.zip
+
+# ImmuneBuilder model weights are downloaded by python-3.12.10-atls/scripts/
+# download-immunebuilder-weights.mjs at build time; ~700 MB, not for git.
+python-3.12.10-atls/shared/immunebuilder-weights/

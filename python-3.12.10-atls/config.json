@@ -76,6 +76,10 @@
           {
             "from": "linux-x64/site-packages/",
             "to": "{site-packages}/"
+          },
+          {
+            "from": "shared/immunebuilder-weights/",
+            "to": "share/immunebuilder-weights/"
           }
         ]
       },
@@ -92,6 +96,10 @@
           {
             "from": "macosx-aarch64/site-packages/",
             "to": "{site-packages}/"
+          },
+          {
+            "from": "shared/immunebuilder-weights/",
+            "to": "share/immunebuilder-weights/"
           }
         ]
       }

@@ -80,7 +80,6 @@ export const builderDir = path.dirname(scriptDir);
 export const repoRoot = path.dirname(builderDir);
 export const packageRoot = process.cwd();
 export const packageDirName = path.relative(repoRoot, packageRoot);
-export const isInBuilderContainer = process.env['BUILD_CONTAINER'] == 'true';
 
 export async function runCommand(command: string, args: string[]): Promise<void> {
   return new Promise((resolve, reject) => {

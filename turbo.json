@@ -9,7 +9,6 @@
         "!./pydist/**", 
         "../shared-config.json",
         "../builder/src/**",
-        "../builder/docker/**",
         "../builder/tsconfig.json",
         "../builder/package.json",
         "../checker/check_native_imports.py",

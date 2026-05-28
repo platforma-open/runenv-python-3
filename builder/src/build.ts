@@ -2,11 +2,9 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import * as tar from 'tar';
 import * as util from './util';
 import { mergeConfig, validateConfig, ResolutionPolicy } from './config-merger';
-import * as linux from './linux';
-import * as macos from './macos';
+import * as pbs from './pbs';
 import * as windows from './windows';
 
 // Matches git URL deps: "git+https://github.com/org/repo.git" or "git+https://...repo.git@commit"
@@ -59,94 +57,6 @@ console.log(`- Dependencies: ${config.packages.dependencies.length} packages`);
 /*
  * Function definitions
  */
-
-function detectTarGzArchive(searchDir: string): string {
-  const files = fs.readdirSync(searchDir);
-  for (const file of files) {
-    if (file.endsWith('.tar.gz')) {
-      return file;
-    }
-  }
-
-  throw new Error(`No tar.gz archive found in '${searchDir}' directory`);
-}
-
-function untarPythonArchive(archivePath: string, targetDir: string): void {
-  console.log(`using python archive '${archivePath}'`);
-  console.log(`  extracting to '${targetDir}'`);
-
-  tar.x({
-    sync: true,
-    file: archivePath,
-    cwd: targetDir
-  });
-}
-
-async function buildInDocker(): Promise<void> {
-  const tagName = `py-builder-${Math.random().toString(32).substring(2, 6)}:local`;
-  await util.runCommand('docker', ['build', '-t', tagName, path.join(util.builderDir, 'docker')]);
-
-  const runArgs = [
-    '--rm',
-    '--volume', `${util.repoRoot}:/app`,
-    '--env', `FIX_PERMS=${process.getuid!()}:${process.getgid!()}`,
-  ]
-  if (isTestRun) {
-    runArgs.push('--env', 'TEST_RUN=true');
-  }
-
-  await util.runCommand('docker', ['run', ...runArgs, tagName, `/app/${util.packageDirName}`]);
-}
-
-async function buildFromSources(version: string, osType: util.OS, archType: util.Arch, installDir: string): Promise<void> {
-  await util.runCommand('pipx', ['install', 'portable-python']);
-  await util.runCommand('pipx', ['run', 'portable-python', 'build', version]);
-
-  const archiveDir = 'dist'; // portable-python always creates python archive in 'dist' dir
-  const tarGzName = detectTarGzArchive(archiveDir);
-
-  const versionPydist = path.dirname(installDir);
-  const tarGzPath = path.join(versionPydist, tarGzName);
-  fs.renameSync(path.join(archiveDir, tarGzName), tarGzPath);
-
-  // Use a dedicated temporary directory for extraction to avoid relative path issues.
-  const tempExtractDir = path.join(util.repoRoot, 'temp-extract');
-  if (fs.existsSync(tempExtractDir)) {
-    fs.rmSync(tempExtractDir, { recursive: true });
-  }
-  fs.mkdirSync(tempExtractDir, { recursive: true });
-
-  untarPythonArchive(tarGzPath, tempExtractDir);
-
-  // Dynamically find the name of the extracted directory.
-  // We expect portable-python to create a single directory inside the tarball.
-  const files = fs.readdirSync(tempExtractDir, { withFileTypes: true });
-  const directories = files.filter(f => f.isDirectory());
-
-  if (directories.length !== 1) {
-    throw new Error(
-      `Extraction failed: Expected 1 directory in the archive, but found ${directories.length}. ` +
-      `Contents: ${files.map(f => f.name).join(', ')}`
-    );
-  }
-
-  const extractedDirName = directories[0].name;
-  const extractedPythonDir = path.join(tempExtractDir, extractedDirName);
-  console.log(`[DEBUG] Found extracted directory: '${extractedDirName}'`);
-
-  // Ensure the final destination exists and is empty
-  util.emptyDirSync(installDir);
-
-  // Move the extracted python directory to its final destination
-  fs.renameSync(extractedPythonDir, installDir);
-
-  // Clean up the temporary directory
-  fs.rmSync(tempExtractDir, { recursive: true });
-
-  console.log(
-    `\nPython ${version} portable distribution for ${osType}-${archType} was saved to ${installDir}\n`
-  );
-}
 
 function isGitUrl(packageSpec: string): boolean {
   return GIT_URL_RE.test(packageSpec);
@@ -561,38 +471,17 @@ async function fakeBuild(installDir: string, osType: util.OS, archType: util.Arc
 
         break;
       }
-      case 'macosx': {
+      case 'macosx':
+      case 'linux': {
         if (isTestRun) {
-          console.log(`[DEBUG] Skipping MacOS X distribution build in test run`);
+          console.log(`[DEBUG] Skipping ${osType} distribution build in test run`);
           await fakeBuild(installDir, osType, archType);
           break;
         }
 
-        console.log(`[DEBUG] Building macOS distribution...`);
-        await buildFromSources(pythonVersion, osType, archType, installDir);
-        console.log(`[DEBUG] Consolidating macOS libraries...`);
-        await macos.consolidateLibs(installDir);
+        console.log(`[DEBUG] Fetching python-build-standalone distribution...`);
+        await pbs.getPortablePython(pythonVersion, osType, archType, installDir);
         await loadPackages(installDir, osType, archType);
-
-        break;
-      }
-      case 'linux': {
-        if (util.isInBuilderContainer) {
-          if (isTestRun) {
-            console.log(`[DEBUG] Skipping Linux distribution build in test run`);
-            await fakeBuild(installDir, osType, archType);
-            return;
-          }
-
-          console.log(`[DEBUG] Building Linux distribution inside docker container...`);
-          await buildFromSources(pythonVersion, osType, archType, installDir);
-          linux.consolidateLibs(installDir, true);
-          await loadPackages(installDir, osType, archType);
-          return
-        }
-  
-        console.log(`[DEBUG] Initializing docker build...`)
-        await buildInDocker();
 
         break;
       }

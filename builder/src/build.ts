@@ -481,6 +481,16 @@ async function fakeBuild(installDir: string, osType: util.OS, archType: util.Arc
 
         console.log(`[DEBUG] Fetching python-build-standalone distribution...`);
         await pbs.getPortablePython(pythonVersion, osType, archType, installDir);
+
+        // PBS Linux Python's sysconfig records CC=clang. System libraries like R
+        // emit `-fopenmp` in their ldflags (built with gcc+libgomp on Ubuntu), and
+        // clang interprets that as `-lomp` which is not installed on stock runners.
+        // Force gcc to match the system toolchain for source-built C extensions.
+        if (osType === 'linux') {
+          process.env.CC = 'gcc';
+          process.env.CXX = 'g++';
+        }
+
         await loadPackages(installDir, osType, archType);
 
         break;

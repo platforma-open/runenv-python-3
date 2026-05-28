@@ -4,5 +4,11 @@
   },
   "torch-2.7.0+cpu-cp312-cp312-manylinux_2_28_x86_64.whl": {
     "functorch._C": "initialization failed"
+  },
+  "pillow-*.whl": {
+    "PIL._imagingtk": "bad argument type for built-in operation"
+  },
+  "matplotlib-*.whl": {
+    "matplotlib.backends._tkagg": "initialization failed"
   }
 }

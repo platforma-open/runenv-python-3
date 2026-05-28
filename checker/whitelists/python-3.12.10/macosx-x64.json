@@ -31,5 +31,11 @@
   },
   "tensorflow-2.*.whl": {
     "tensorflow.compiler.tf2xla.ops._xla_ops": "ALREADY_EXISTS: Op with name XlaBroadcastHelper"
+  },
+  "pillow-*.whl": {
+    "PIL._imagingtk": "bad argument type for built-in operation"
+  },
+  "matplotlib-*.whl": {
+    "matplotlib.backends._tkagg": "initialization failed"
   }
 }

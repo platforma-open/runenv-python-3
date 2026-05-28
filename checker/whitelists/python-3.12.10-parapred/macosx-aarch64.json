@@ -4,5 +4,11 @@
   },
   "torch-2.7.0-cp312-none-macosx_11_0_arm64.whl": {
     "functorch._C": "initialization failed"
+  },
+  "pillow-*.whl": {
+    "PIL._imagingtk": "bad argument type for built-in operation"
+  },
+  "matplotlib-*.whl": {
+    "matplotlib.backends._tkagg": "initialization failed"
   }
 }

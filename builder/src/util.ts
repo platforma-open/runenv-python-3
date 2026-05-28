@@ -11,7 +11,9 @@ export const exec = promisify(cp.exec);
 export type OS = 'macosx' | 'linux' | 'windows';
 export type Arch = 'x64' | 'aarch64';
 
-const defaultExecOpts = {
+// Snapshot env at spawn time, not at module load, so callers can mutate
+// process.env (e.g. CC=gcc on Linux) before invoking runCommand.
+const defaultExecOpts = () => ({
   env: {
     ...process.env,
     // Disable Python output buffering
@@ -19,7 +21,7 @@ const defaultExecOpts = {
     // Disable pip progress bar buffering
     PIP_PROGRESS_BAR: 'off',
   }
-};
+});
 
 export function currentOS(): OS {
   switch (process.env['RUNNER_OS']?.toLowerCase()) {
@@ -91,7 +93,7 @@ export async function runCommand(command: string, args: string[]): Promise<void>
     }
 
     const child = cp.spawn(command, args, {
-      ...defaultExecOpts,
+      ...defaultExecOpts(),
       stdio: 'inherit',
     });
 

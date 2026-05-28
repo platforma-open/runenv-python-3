@@ -12,6 +12,9 @@
   "tensorflow-2.*.whl": {
     "tensorflow.compiler.tf2xla.ops._xla_ops": "ALREADY_EXISTS: Op with name XlaBroadcastHelper"
   },
+  "numba-0.*.whl": {
+    "numba.np.ufunc.tbbpool": "libtbb.so.12: cannot open shared object file: No such file or directory"
+  },
   "pillow-*.whl": {
     "PIL._imagingtk": "bad argument type for built-in operation"
   },

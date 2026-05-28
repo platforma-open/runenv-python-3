@@ -164,6 +164,11 @@ function buildPipArgs(packageSpec: string, destinationDir: string, noDeps: boole
   // when the source fallback runs. Use --exists-action=w to overwrite silently in that case.
   if (isGitUrl(packageSpec)) {
     args.push('--exists-action', 'w');
+    // Many git-pinned projects (e.g. parapred-pytorch) don't declare setuptools
+    // in [build-system].requires, so PEP 517 build isolation creates an empty
+    // venv that can't import setuptools.build_meta. Reuse the host Python's
+    // setuptools/wheel instead — we ensure they're installed in loadPackages.
+    args.push('--no-build-isolation');
   }
 
   // Add additional registries (pip will use PyPI.org as default)
@@ -412,6 +417,11 @@ async function loadPackages(installDir: string, osType: util.OS, archType: util.
   const allRegistries = ['https://pypi.org', ...additionalRegistries];
   console.log(`\nUsing PyPI registries: ${allRegistries.join(', ')}`);
   console.log(`\nInstalling ${config.packages.dependencies.length} packages from configuration`);
+
+  // Ensure setuptools/wheel are present on the host so --no-build-isolation
+  // pip downloads (for git URL sources) can find a build backend.
+  console.log(`[DEBUG] Ensuring setuptools and wheel on host Python...`);
+  await util.runCommand(pyBin, ['-m', 'pip', 'install', '--upgrade', 'setuptools', 'wheel']);
 
   console.log(`[DEBUG] Starting package downloads...`);
   await downloadPackages(pyBin, packagesDir, osType, archType);

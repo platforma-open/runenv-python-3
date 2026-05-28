@@ -1,5 +1,16 @@
 # @platforma-open/milaboratories.runenv-python-3
 
+## 1.9.0
+
+### Minor Changes
+
+- 4bf5fbf: add env with promb
+
+### Patch Changes
+
+- Updated dependencies [4bf5fbf]
+  - @platforma-open/milaboratories.runenv-python-3.12.10-humanness@0.2.0
+
 ## 1.8.8
 
 ### Patch Changes

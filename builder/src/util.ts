@@ -113,25 +113,37 @@ export async function runCommand(command: string, args: string[]): Promise<void>
   });
 }
 
-export async function downloadFile(url: string, dest: string): Promise<void> {
+export async function downloadFile(url: string, dest: string, maxRedirects: number = 5): Promise<void> {
   return new Promise((resolve, reject) => {
-    const file = fs.createWriteStream(dest);
-    get(url, (response) => {
-      if (response.statusCode !== 200) {
-        reject(new Error(`Failed to get '${url}' (${response.statusCode})`));
+    const request = get(url, (response) => {
+      const status = response.statusCode ?? 0;
+
+      // Follow 3xx redirects (GitHub release assets always 302 to S3).
+      if (status >= 300 && status < 400 && response.headers.location) {
+        response.resume(); // discard body
+        if (maxRedirects <= 0) {
+          reject(new Error(`Too many redirects while downloading '${url}'`));
+          return;
+        }
+        const next = new URL(response.headers.location, url).toString();
+        console.log(`  redirect ${status} -> ${next}`);
+        downloadFile(next, dest, maxRedirects - 1).then(resolve, reject);
+        return;
+      }
+
+      if (status !== 200) {
+        reject(new Error(`Failed to get '${url}' (${status})`));
         return;
       }
 
       console.log(`downloading '${url}' to '${dest}'`);
 
+      const file = fs.createWriteStream(dest);
       response.pipe(file);
-
-      file.on('finish', () => {
-        file.close(() => resolve());
-      });
-    }).on('error', (err) => {
-      reject(err);
+      file.on('finish', () => file.close(() => resolve()));
+      file.on('error', reject);
     });
+    request.on('error', reject);
   });
 }
 

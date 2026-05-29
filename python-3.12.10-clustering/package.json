@@ -1,7 +1,7 @@
 {
   "name": "@platforma-open/milaboratories.runenv-python-3.12.10-clustering",
   "version": "0.0.0",
-  "description": "Python 3.12.10 run environment for the Sequence Clustering block (polars-lts-cpu + polars-ds + pyspoa for POA centroids)",
+  "description": "Python 3.12.10 run environment for the Sequence Clustering block (polars-lts-cpu + polars-ds + kalign-python for MSA consensus centroids)",
   "scripts": {
     "cleanup": "rm -rf ./pkg-*.tgz ./pydist ./dist/ ./build/",
     "reset": "pnpm run cleanup && rm -rf ./node_modules ./.turbo",

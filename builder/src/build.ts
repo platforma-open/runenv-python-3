@@ -188,6 +188,20 @@ function shouldForceSource(packageName: string, osType: util.OS, archType: util.
   return false;
 }
 
+// Returns the buildWheel directive for a package on this platform, or null.
+// When present, the package is COMPILED into a wheel on the (native) runner via `pip wheel`
+// and the resulting .whl is shipped in the runenv — so the target machine needs no toolchain.
+// `configSettings` are passed through to the build backend (e.g. `cmake.define.USE_THREADPOOL=OFF`).
+function getBuildWheel(packageName: string, osType: util.OS, archType: util.Arch):
+  { reason?: string; configSettings?: string[] } | null {
+  const platformKey = `${osType}-${archType}`;
+  const entry = config.packages?.buildWheel?.[packageName];
+  if (entry && entry[platformKey]) {
+    return entry[platformKey] || {};
+  }
+  return null;
+}
+
 // --- Resolution policy (config-driven) ---
 function normalizePackageName(name: string): string {
   return (name || '').toLowerCase().replace(/_/g, '-');
@@ -269,6 +283,35 @@ function buildPipArgs(packageSpec: string, destinationDir: string, noDeps: boole
   return args;
 }
 
+// Build args for `pip wheel`: compile the package from source into a .whl placed in destinationDir.
+// Used for buildWheel packages so the runenv ships a prebuilt wheel (no toolchain needed on target).
+function buildPipWheelArgs(packageSpec: string, destinationDir: string, configSettings: string[]): string[] {
+  const args = [
+    '-m',
+    'pip',
+    'wheel',
+    packageSpec,
+    '--no-deps',
+    '--no-binary',
+    getPackageName(packageSpec),
+    '--wheel-dir',
+    destinationDir
+  ];
+
+  // Add additional registries (pip will use PyPI.org as default)
+  const additionalRegistries = config.registries.additional || [];
+  for (const url of additionalRegistries) {
+    args.push('--extra-index-url=' + url);
+  }
+
+  // Pass build-backend config settings (e.g. cmake.define.USE_THREADPOOL=OFF)
+  for (const setting of configSettings || []) {
+    args.push('--config-settings=' + setting);
+  }
+
+  return args;
+}
+
 // Get list of additional platforms for binary wheels.
 // Makes pip to download wheels for older Mac OS X versions in addition to current one.
 function additionalPlatforms(osType: util.OS, archType: util.Arch): string[] {
@@ -316,6 +359,23 @@ async function downloadPackages(pyBin: string, destinationDir: string, osType: u
 
     // Check if package should be skipped for this platform
     if (shouldSkipPackage(packageName, osType, archType)) {
+      continue;
+    }
+
+    // Check if package must be COMPILED into a wheel on this (native) runner.
+    // This ships a prebuilt .whl in the runenv, so the target machine needs no toolchain.
+    const buildWheel = getBuildWheel(packageName, osType, archType);
+    if (buildWheel) {
+      console.log(`  Building wheel from source on runner${buildWheel.reason ? ` (${buildWheel.reason})` : ''}...`);
+      try {
+        const wheelArgs = buildPipWheelArgs(depSpecClean, destinationDir, buildWheel.configSettings || []);
+        await util.runCommand(pyBin, wheelArgs);
+        console.log(`  ✓ Successfully built wheel for ${depSpecClean}`);
+      } catch (wheelError: any) {
+        const msg = wheelError.message ?? wheelError.toString();
+        console.error(`  ✗ Failed to build wheel for ${depSpecClean}: ${msg}`);
+        throw wheelError;
+      }
       continue;
     }
 

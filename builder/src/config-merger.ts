@@ -58,7 +58,15 @@ export function mergeConfig(repoRoot: string, packageRoot: string): any {
                 ...(sharedConfig.packages?.forceSource || {}),
                 ...(versionConfig.packages?.forceSource || {}),
             },
-            
+            // 'buildWheel': packages that must be COMPILED into a wheel on the (native) build
+            // runner for specific platforms, instead of shipping an sdist. Used when no PyPI
+            // wheel exists for a platform and the target machine has no toolchain. Version-specific
+            // keys override shared keys.
+            buildWheel: {
+                ...(sharedConfig.packages?.buildWheel || {}),
+                ...(versionConfig.packages?.buildWheel || {}),
+            },
+
             // 'noDeps': list of package names to install without transitive dependencies
             noDeps: Array.from(new Set([
                 ...(sharedConfig.packages?.noDeps || []),

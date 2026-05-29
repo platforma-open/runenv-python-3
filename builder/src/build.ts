@@ -193,7 +193,7 @@ function shouldForceSource(packageName: string, osType: util.OS, archType: util.
 // and the resulting .whl is shipped in the runenv — so the target machine needs no toolchain.
 // `configSettings` are passed through to the build backend (e.g. `cmake.define.USE_THREADPOOL=OFF`).
 function getBuildWheel(packageName: string, osType: util.OS, archType: util.Arch):
-  { reason?: string; configSettings?: string[] } | null {
+  { reason?: string; configSettings?: string[]; buildRequires?: string[] } | null {
   const platformKey = `${osType}-${archType}`;
   const entry = config.packages?.buildWheel?.[packageName];
   if (entry && entry[platformKey]) {
@@ -285,7 +285,9 @@ function buildPipArgs(packageSpec: string, destinationDir: string, noDeps: boole
 
 // Build args for `pip wheel`: compile the package from source into a .whl placed in destinationDir.
 // Used for buildWheel packages so the runenv ships a prebuilt wheel (no toolchain needed on target).
-function buildPipWheelArgs(packageSpec: string, destinationDir: string, configSettings: string[]): string[] {
+// When the build backend is pre-installed (buildRequires), pass noBuildIsolation to avoid pip's
+// isolated-env teardown bug on portable Pythons (BackendUnavailable on resolver re-prep).
+function buildPipWheelArgs(packageSpec: string, destinationDir: string, configSettings: string[], noBuildIsolation: boolean): string[] {
   const args = [
     '-m',
     'pip',
@@ -297,6 +299,10 @@ function buildPipWheelArgs(packageSpec: string, destinationDir: string, configSe
     '--wheel-dir',
     destinationDir
   ];
+
+  if (noBuildIsolation) {
+    args.push('--no-build-isolation');
+  }
 
   // Add additional registries (pip will use PyPI.org as default)
   const additionalRegistries = config.registries.additional || [];
@@ -367,14 +373,32 @@ async function downloadPackages(pyBin: string, destinationDir: string, osType: u
     const buildWheel = getBuildWheel(packageName, osType, archType);
     if (buildWheel) {
       console.log(`  Building wheel from source on runner${buildWheel.reason ? ` (${buildWheel.reason})` : ''}...`);
+      const buildRequires = buildWheel.buildRequires || [];
       try {
-        const wheelArgs = buildPipWheelArgs(depSpecClean, destinationDir, buildWheel.configSettings || []);
+        // Pre-install the build backend so we can disable pip's build isolation, which is
+        // unreliable on portable Pythons (BackendUnavailable on the resolver's metadata re-prep).
+        if (buildRequires.length > 0) {
+          console.log(`  Installing build backend: ${buildRequires.join(', ')}`);
+          await util.runCommand(pyBin, ['-m', 'pip', 'install', ...buildRequires]);
+        }
+        const wheelArgs = buildPipWheelArgs(depSpecClean, destinationDir, buildWheel.configSettings || [], buildRequires.length > 0);
         await util.runCommand(pyBin, wheelArgs);
         console.log(`  ✓ Successfully built wheel for ${depSpecClean}`);
       } catch (wheelError: any) {
         const msg = wheelError.message ?? wheelError.toString();
         console.error(`  ✗ Failed to build wheel for ${depSpecClean}: ${msg}`);
         throw wheelError;
+      } finally {
+        // Keep the shipped runenv clean: remove build-only tools from the portable Python.
+        if (buildRequires.length > 0) {
+          const names = buildRequires.map(getPackageName);
+          console.log(`  Removing build backend from runenv: ${names.join(', ')}`);
+          try {
+            await util.runCommand(pyBin, ['-m', 'pip', 'uninstall', '-y', ...names]);
+          } catch (cleanupError: any) {
+            console.warn(`  ⚠️  Failed to remove build backend (${names.join(', ')}): ${cleanupError.message ?? cleanupError}`);
+          }
+        }
       }
       continue;
     }

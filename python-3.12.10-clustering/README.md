@@ -1,0 +1,1 @@
+Python 3.12.10 run environment for the Sequence Clustering block (`clonotype-clustering`): polars-lts-cpu + polars-ds-lts-cpu for results processing, plus pyspoa (SPOA bindings) for the abundance-weighted POA centroid, and transitives.

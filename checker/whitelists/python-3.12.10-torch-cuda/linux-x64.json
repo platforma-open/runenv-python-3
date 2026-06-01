@@ -3,6 +3,7 @@
     "81d243bd2c585b0f4821__mypyc": "invalid decimal literal"
   },
   "torch-2.7.0*.whl": {
-    "functorch._C": "initialization failed"
+    "functorch._C": "initialization failed",
+    "torch.lib.libcaffe2_nvrtc": "libcuda.so.1: cannot open shared object file"
   }
 }

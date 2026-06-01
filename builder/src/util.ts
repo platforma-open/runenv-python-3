@@ -96,14 +96,23 @@ export async function runCommand(command: string, args: string[], opts: { timeou
       stdio: 'inherit',
     });
 
-    // Guard against commands that hang indefinitely (e.g. the MSVC optimizer
-    // stalling on a kalign translation unit), which would otherwise keep the CI
-    // job alive until the global GitHub timeout with no useful output.
+    // Guard against commands that hang indefinitely (e.g. a compiler stalling on
+    // a kalign translation unit), which would otherwise keep the CI job alive
+    // until the global GitHub timeout with no useful output.
+    //
+    // child.kill() only signals the direct child. On Windows that child is cmd.exe,
+    // whose descendants (python -> pip -> cmake -> ninja -> the compiler) survive as
+    // orphans and keep the step hung. Kill the whole process tree instead.
     let timer: NodeJS.Timeout | undefined;
     if (opts.timeoutMs && opts.timeoutMs > 0) {
       timer = setTimeout(() => {
-        console.error(`[ERROR] command '${[command, ...args].join("' '")}' timed out after ${opts.timeoutMs}ms; killing.`);
-        child.kill('SIGKILL');
+        console.error(`[ERROR] command '${[command, ...args].join("' '")}' timed out after ${opts.timeoutMs}ms; killing process tree.`);
+        if (currentOS() === 'windows' && child.pid !== undefined) {
+          // /T = tree (kill children too), /F = force.
+          cp.spawn('taskkill', ['/PID', String(child.pid), '/T', '/F'], { stdio: 'inherit' });
+        } else {
+          child.kill('SIGKILL');
+        }
       }, opts.timeoutMs);
       timer.unref?.();
     }

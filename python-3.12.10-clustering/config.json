@@ -21,7 +21,7 @@
           ]
         },
         "windows-x64": {
-          "reason": "No PyPI wheel for Windows; threadpool uses pthread (absent on MSVC), build serial. MSVC /O2 hangs the cl.exe optimizer on kalign's DP kernels, so drop to /O1, serialize ninja, and turn on verbose to surface the last-compiled file.",
+          "reason": "No PyPI wheel for Windows; threadpool uses pthread (absent on MSVC). The MSVC optimizer hangs on kalign's DP kernels, so build with clang-cl (MSVC-ABI compatible, so the pybind11 wheel still links against CPython, but clang handles kalign's GCC-oriented C and doesn't stall). SIMD blocks are disabled to keep the wheel portable and to skip kalign's run-time check_c_source_runs probes (a crashing probe would pop a WerFault dialog and hang the build again). Threadpool/OpenMP off => serial.",
           "buildRequires": [
             "scikit-build-core>=0.11.4",
             "pybind11>=2.12",
@@ -29,11 +29,13 @@
             "ninja"
           ],
           "configSettings": [
+            "cmake.define.CMAKE_C_COMPILER=clang-cl",
+            "cmake.define.CMAKE_CXX_COMPILER=clang-cl",
             "cmake.define.USE_THREADPOOL=OFF",
             "cmake.define.USE_OPENMP=OFF",
-            "cmake.define.CMAKE_C_FLAGS_RELEASE=/O1",
-            "cmake.define.CMAKE_CXX_FLAGS_RELEASE=/O1",
-            "cmake.define.CMAKE_BUILD_PARALLEL_LEVEL=1",
+            "cmake.define.ENABLE_SSE=OFF",
+            "cmake.define.ENABLE_AVX=OFF",
+            "cmake.define.ENABLE_AVX2=OFF",
             "build.verbose=true",
             "cmake.verbose=true"
           ]

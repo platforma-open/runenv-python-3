@@ -82,7 +82,7 @@ export const packageRoot = process.cwd();
 export const packageDirName = path.relative(repoRoot, packageRoot);
 export const isInBuilderContainer = process.env['BUILD_CONTAINER'] == 'true';
 
-export async function runCommand(command: string, args: string[], opts: { timeoutMs?: number } = {}): Promise<void> {
+export async function runCommand(command: string, args: string[], opts: { timeoutMs?: number; captureToFile?: string } = {}): Promise<void> {
   return new Promise((resolve, reject) => {
     console.log(`[DEBUG] running '${[command, ...args].join("' '")}'...`);
 
@@ -91,10 +91,22 @@ export async function runCommand(command: string, args: string[], opts: { timeou
       command = 'cmd';
     }
 
+    // When capturing, pipe stdout/stderr through this process (so the parent's
+    // log captures grandchild output that 'inherit' would route past it) and
+    // also persist it to a file we can tail if the command hangs/fails.
+    const capture = !!opts.captureToFile;
+    const captureStream = capture ? fs.createWriteStream(opts.captureToFile!, { flags: 'w' }) : undefined;
+
     const child = cp.spawn(command, args, {
       ...defaultExecOpts,
-      stdio: 'inherit',
+      stdio: capture ? ['inherit', 'pipe', 'pipe'] : 'inherit',
     });
+
+    if (capture) {
+      const tee = (chunk: Buffer) => { process.stdout.write(chunk); captureStream!.write(chunk); };
+      child.stdout?.on('data', tee);
+      child.stderr?.on('data', tee);
+    }
 
     // Guard against commands that hang indefinitely (e.g. a compiler stalling on
     // a kalign translation unit), which would otherwise keep the CI job alive
@@ -119,11 +131,13 @@ export async function runCommand(command: string, args: string[], opts: { timeou
 
     child.on('error', (error) => {
       if (timer) clearTimeout(timer);
+      captureStream?.end();
       reject(error);
     });
 
     child.on('close', (code, signal) => {
       if (timer) clearTimeout(timer);
+      captureStream?.end();
       if (signal) {
         reject(new Error(`command '${[command, ...args].join("' '")}' was killed with signal ${signal}`));
       } else if (code === null) {

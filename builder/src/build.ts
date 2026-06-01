@@ -374,6 +374,7 @@ async function downloadPackages(pyBin: string, destinationDir: string, osType: u
     if (buildWheel) {
       console.log(`  Building wheel from source on runner${buildWheel.reason ? ` (${buildWheel.reason})` : ''}...`);
       const buildRequires = buildWheel.buildRequires || [];
+      let wheelBuildLogPath: string | undefined;
       try {
         // Pre-install the build backend so we can disable pip's build isolation, which is
         // unreliable on portable Pythons (BackendUnavailable on the resolver's metadata re-prep).
@@ -382,13 +383,24 @@ async function downloadPackages(pyBin: string, destinationDir: string, osType: u
           await util.runCommand(pyBin, ['-m', 'pip', 'install', ...buildRequires]);
         }
         const wheelArgs = buildPipWheelArgs(depSpecClean, destinationDir, buildWheel.configSettings || [], buildRequires.length > 0);
-        // Cap the compile so a hung toolchain fails the job instead of running until
-        // the global CI timeout (the MSVC optimizer has been observed to stall here).
-        await util.runCommand(pyBin, wheelArgs, { timeoutMs: 20 * 60 * 1000 });
+        // Capture the build output to a file (it goes through this process, so the
+        // CI log also gets it — 'inherit' alone routes the compiler's output past
+        // the turbo capture and we never see where it hangs) and cap the runtime so
+        // a hung toolchain fails fast instead of running to the global CI timeout.
+        const wheelLog = path.join(process.cwd(), `wheel-build-${getPackageName(depSpecClean)}.log`);
+        wheelBuildLogPath = wheelLog;
+        await util.runCommand(pyBin, wheelArgs, { timeoutMs: 12 * 60 * 1000, captureToFile: wheelLog });
         console.log(`  ✓ Successfully built wheel for ${depSpecClean}`);
       } catch (wheelError: any) {
         const msg = wheelError.message ?? wheelError.toString();
         console.error(`  ✗ Failed to build wheel for ${depSpecClean}: ${msg}`);
+        // Surface the tail of the captured build output so the failure/hang point
+        // (configure vs compile, which compiler, which file) is visible in CI.
+        if (wheelBuildLogPath && fs.existsSync(wheelBuildLogPath)) {
+          const out = fs.readFileSync(wheelBuildLogPath, 'utf8');
+          const tail = out.split('\n').slice(-120).join('\n');
+          console.error(`  --- last 120 lines of ${path.basename(wheelBuildLogPath)} ---\n${tail}\n  --- end of build output ---`);
+        }
         throw wheelError;
       } finally {
         // Keep the shipped runenv clean: remove build-only tools from the portable Python.

@@ -297,7 +297,11 @@ function buildPipWheelArgs(packageSpec: string, destinationDir: string, configSe
     '--no-binary',
     getPackageName(packageSpec),
     '--wheel-dir',
-    destinationDir
+    destinationDir,
+    // Stream the build backend's output (cmake/ninja/compiler). Without -v, pip
+    // buffers it and only flushes on failure — so when the build HANGS it is never
+    // printed, leaving us blind to where it stalls (e.g. cmake configure).
+    '-v'
   ];
 
   if (noBuildIsolation) {
@@ -398,8 +402,8 @@ async function downloadPackages(pyBin: string, destinationDir: string, osType: u
         // (configure vs compile, which compiler, which file) is visible in CI.
         if (wheelBuildLogPath && fs.existsSync(wheelBuildLogPath)) {
           const out = fs.readFileSync(wheelBuildLogPath, 'utf8');
-          const tail = out.split('\n').slice(-120).join('\n');
-          console.error(`  --- last 120 lines of ${path.basename(wheelBuildLogPath)} ---\n${tail}\n  --- end of build output ---`);
+          const tail = out.split('\n').slice(-200).join('\n');
+          console.error(`  --- last 200 lines of ${path.basename(wheelBuildLogPath)} ---\n${tail}\n  --- end of build output ---`);
         }
         throw wheelError;
       } finally {

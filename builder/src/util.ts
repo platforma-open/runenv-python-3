@@ -82,7 +82,7 @@ export const packageRoot = process.cwd();
 export const packageDirName = path.relative(repoRoot, packageRoot);
 export const isInBuilderContainer = process.env['BUILD_CONTAINER'] == 'true';
 
-export async function runCommand(command: string, args: string[]): Promise<void> {
+export async function runCommand(command: string, args: string[], opts: { timeoutMs?: number } = {}): Promise<void> {
   return new Promise((resolve, reject) => {
     console.log(`[DEBUG] running '${[command, ...args].join("' '")}'...`);
 
@@ -96,11 +96,25 @@ export async function runCommand(command: string, args: string[]): Promise<void>
       stdio: 'inherit',
     });
 
+    // Guard against commands that hang indefinitely (e.g. the MSVC optimizer
+    // stalling on a kalign translation unit), which would otherwise keep the CI
+    // job alive until the global GitHub timeout with no useful output.
+    let timer: NodeJS.Timeout | undefined;
+    if (opts.timeoutMs && opts.timeoutMs > 0) {
+      timer = setTimeout(() => {
+        console.error(`[ERROR] command '${[command, ...args].join("' '")}' timed out after ${opts.timeoutMs}ms; killing.`);
+        child.kill('SIGKILL');
+      }, opts.timeoutMs);
+      timer.unref?.();
+    }
+
     child.on('error', (error) => {
+      if (timer) clearTimeout(timer);
       reject(error);
     });
 
     child.on('close', (code, signal) => {
+      if (timer) clearTimeout(timer);
       if (signal) {
         reject(new Error(`command '${[command, ...args].join("' '")}' was killed with signal ${signal}`));
       } else if (code === null) {

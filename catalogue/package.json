@@ -35,6 +35,9 @@
       },
       "3.12.10-humanness": {
         "reference": "@platforma-open/milaboratories.runenv-python-3.12.10-humanness/dist/tengo/software/main.sw.json"
+      },
+      "3.12.10-clustering": {
+        "reference": "@platforma-open/milaboratories.runenv-python-3.12.10-clustering/dist/tengo/software/main.sw.json"
       }
     }
   },
@@ -50,7 +53,8 @@
     "@platforma-open/milaboratories.runenv-python-3.12.10-h5ad": "workspace:*",
     "@platforma-open/milaboratories.runenv-python-3.12.10-parapred": "workspace:*",
     "@platforma-open/milaboratories.runenv-python-3.12.10-scientific-slim": "workspace:*",
-    "@platforma-open/milaboratories.runenv-python-3.12.10-humanness": "workspace:*"
+    "@platforma-open/milaboratories.runenv-python-3.12.10-humanness": "workspace:*",
+    "@platforma-open/milaboratories.runenv-python-3.12.10-clustering": "workspace:*"
   },
   "devDependencies": {
     "@platforma-sdk/package-builder": "catalog:"

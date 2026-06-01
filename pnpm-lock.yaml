@@ -65,6 +65,9 @@ importers:
       '@platforma-open/milaboratories.runenv-python-3.12.10-atls':
         specifier: workspace:*
         version: link:../python-3.12.10-atls
+      '@platforma-open/milaboratories.runenv-python-3.12.10-clustering':
+        specifier: workspace:*
+        version: link:../python-3.12.10-clustering
       '@platforma-open/milaboratories.runenv-python-3.12.10-h5ad':
         specifier: workspace:*
         version: link:../python-3.12.10-h5ad

@@ -382,7 +382,9 @@ async function downloadPackages(pyBin: string, destinationDir: string, osType: u
           await util.runCommand(pyBin, ['-m', 'pip', 'install', ...buildRequires]);
         }
         const wheelArgs = buildPipWheelArgs(depSpecClean, destinationDir, buildWheel.configSettings || [], buildRequires.length > 0);
-        await util.runCommand(pyBin, wheelArgs);
+        // Cap the compile so a hung toolchain fails the job instead of running until
+        // the global CI timeout (the MSVC optimizer has been observed to stall here).
+        await util.runCommand(pyBin, wheelArgs, { timeoutMs: 30 * 60 * 1000 });
         console.log(`  ✓ Successfully built wheel for ${depSpecClean}`);
       } catch (wheelError: any) {
         const msg = wheelError.message ?? wheelError.toString();

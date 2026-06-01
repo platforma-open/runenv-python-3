@@ -29,7 +29,7 @@
             "ninja"
           ],
           "configSettings": [
-            "cmake.generator=Ninja",
+            "cmake.args=-GNinja",
             "cmake.define.CMAKE_C_COMPILER=clang-cl",
             "cmake.define.CMAKE_CXX_COMPILER=clang-cl",
             "cmake.define.USE_THREADPOOL=OFF",

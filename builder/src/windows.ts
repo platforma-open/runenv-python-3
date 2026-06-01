@@ -28,6 +28,40 @@ async function patchPipWheel(pythonExe: string, pipWheelPath: string): Promise<v
 }
 
 
+// The Windows embeddable Python ships WITHOUT development files: it has no
+// Include/ headers and no libs/pythonXY.lib import library. C-extension wheels
+// built on the runner (e.g. kalign-python via pybind11) need both to compile and
+// link against CPython, and cmake's FindPythonLibsNew fails with "Python
+// libraries not found" without them. Fetch the matching nuget 'python' package
+// (a full install layout under tools/) and drop its include/ and libs/ next to
+// the interpreter so the build can find them.
+async function addPythonDevFiles(version: string, pyBinRoot: string, packageDist: string): Promise<void> {
+  const nupkgFile = path.join(packageDist, `python-${version}.nupkg`);
+  const extractDir = path.join(packageDist, `python-nuget-${version}`);
+  // Canonical direct package download (flat container API).
+  const nupkgUrl = `https://api.nuget.org/v3-flatcontainer/python/${version}/python.${version}.nupkg`;
+
+  await util.downloadFile(nupkgUrl, nupkgFile);
+  if (fs.existsSync(extractDir)) {
+    fs.rmSync(extractDir, { recursive: true });
+  }
+  await util.unzipFile(nupkgFile, extractDir);
+
+  const toolsInclude = path.join(extractDir, 'tools', 'include');
+  const toolsLibs = path.join(extractDir, 'tools', 'libs');
+  if (!fs.existsSync(toolsInclude) || !fs.existsSync(toolsLibs)) {
+    throw new Error(`Unexpected nuget python package layout: missing 'tools/include' or 'tools/libs' in ${extractDir}`);
+  }
+
+  // FindPythonLibsNew looks for headers in <prefix>/Include and the import library
+  // in <prefix>/libs, where <prefix> is the interpreter directory (pyBinRoot).
+  util.copyDirSync(toolsInclude, path.join(pyBinRoot, 'Include'));
+  util.copyDirSync(toolsLibs, path.join(pyBinRoot, 'libs'));
+
+  fs.rmSync(extractDir, { recursive: true });
+  fs.rmSync(nupkgFile);
+}
+
 export async function getPortablePython(version: string, archType: util.Arch, installDir: string): Promise<void> {
   if (archType != 'x64') {
     throw new Error(`architecture '${archType}' is not supported for windows`);
@@ -109,4 +143,8 @@ import site
     path.join(pyBinRoot, 'Lib', 'site-packages', 'virtualenv'),
     path.join(pyBinRoot, 'Lib', 'site-packages', 'venv')
   );
+
+  // Supply development files (headers + import library) the embeddable build lacks,
+  // so C-extension wheels can be compiled against this interpreter.
+  await addPythonDevFiles(version, pyBinRoot, packageDist);
 }

@@ -151,22 +151,37 @@ export async function runCommand(command: string, args: string[], opts: { timeou
   });
 }
 
-export async function downloadFile(url: string, dest: string): Promise<void> {
+export async function downloadFile(url: string, dest: string, redirectsLeft = 5): Promise<void> {
   return new Promise((resolve, reject) => {
-    const file = fs.createWriteStream(dest);
+    console.log(`downloading '${url}' to '${dest}'`);
     get(url, (response) => {
-      if (response.statusCode !== 200) {
-        reject(new Error(`Failed to get '${url}' (${response.statusCode})`));
+      const status = response.statusCode ?? 0;
+
+      // Follow redirects (e.g. nuget.org -> CDN). The original write stream must not
+      // be created until we have a 200, otherwise a redirect would truncate dest.
+      if ([301, 302, 303, 307, 308].includes(status) && response.headers.location) {
+        response.resume(); // drain the redirect response
+        if (redirectsLeft <= 0) {
+          reject(new Error(`Too many redirects for '${url}'`));
+          return;
+        }
+        const next = new URL(response.headers.location, url).toString();
+        downloadFile(next, dest, redirectsLeft - 1).then(resolve, reject);
         return;
       }
 
-      console.log(`downloading '${url}' to '${dest}'`);
+      if (status !== 200) {
+        response.resume();
+        reject(new Error(`Failed to get '${url}' (${status})`));
+        return;
+      }
 
+      const file = fs.createWriteStream(dest);
       response.pipe(file);
-
       file.on('finish', () => {
         file.close(() => resolve());
       });
+      file.on('error', (err) => reject(err));
     }).on('error', (err) => {
       reject(err);
     });

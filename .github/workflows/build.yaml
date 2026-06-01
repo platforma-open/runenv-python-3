@@ -100,7 +100,10 @@ jobs:
           {"os":"ubuntu-large-amd64", "arch":"amd64", "selector":"./python-3.12.10-humanness"},
           {"os":"macos-14", "arch":"arm64", "selector":"./python-3.12.10-humanness"},
           {"os":"macos-14-large", "arch":"amd64", "selector":"./python-3.12.10-humanness"},
-          {"os":"windows-latest", "arch":"amd64", "selector":"./python-3.12.10-humanness"}
+          {"os":"windows-latest", "arch":"amd64", "selector":"./python-3.12.10-humanness"},
+
+          {"os":"ubuntu-large-amd64", "arch":"amd64", "selector":"./python-3.12.10-torch-cuda"},
+          {"os":"macos-14", "arch":"arm64", "selector":"./python-3.12.10-torch-cuda"}
         ]
 
       sign-binaries: |

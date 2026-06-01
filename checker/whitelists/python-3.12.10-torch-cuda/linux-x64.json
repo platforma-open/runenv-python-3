@@ -1,0 +1,8 @@
+{
+  "charset_normalizer-3.*.whl": {
+    "81d243bd2c585b0f4821__mypyc": "invalid decimal literal"
+  },
+  "torch-2.7.0*.whl": {
+    "functorch._C": "initialization failed"
+  }
+}

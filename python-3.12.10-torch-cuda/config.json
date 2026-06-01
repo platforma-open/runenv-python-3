@@ -1,0 +1,27 @@
+{
+  "registries": {
+    "additional": [
+      "https://download.pytorch.org/whl/cu126"
+    ]
+  },
+  "packages": {
+    "dependencies": [
+      "transformers==4.53.2",
+      "polars-lts-cpu==1.33.1",
+      "numpy==2.2.6",
+      "pyarrow==21.0.0"
+    ],
+    "platformSpecific": {
+      "linux-x64": {
+        "dependencies": [
+          "torch==2.7.0+cu126"
+        ]
+      },
+      "macosx-aarch64": {
+        "dependencies": [
+          "torch==2.7.0"
+        ]
+      }
+    }
+  }
+}

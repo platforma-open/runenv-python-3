@@ -37,33 +37,8 @@
       "Cython==3.1.4",
       "fa2_modified==0.4",
       "biopython==1.87",
-      "tmtools==0.3.0",
-      "freesasa==2.2.1"
+      "tmtools==0.3.0"
     ],
-    "overrides": {},
-    "buildWheel": {
-      "freesasa": {
-        "linux-x64": {
-          "reason": "freesasa publishes no cp312 / Linux wheel; compile the C extension on the runner (sdist ships pre-generated freesasa.c, plain C build)",
-          "buildRequires": ["setuptools", "wheel"]
-        },
-        "linux-aarch64": {
-          "reason": "No cp312 / Linux ARM64 wheel; compile on the native ARM runner",
-          "buildRequires": ["setuptools", "wheel"]
-        },
-        "macosx-x64": {
-          "reason": "No cp312 wheel; compile on the runner",
-          "buildRequires": ["setuptools", "wheel"]
-        },
-        "macosx-aarch64": {
-          "reason": "No cp312 / arm64 wheel; compile on the runner",
-          "buildRequires": ["setuptools", "wheel"]
-        },
-        "windows-x64": {
-          "reason": "No cp312 wheel; compile with MSVC on the runner (dev headers/libs supplied by the Windows builder)",
-          "buildRequires": ["setuptools", "wheel"]
-        }
-      }
-    }
+    "overrides": {}
   }
 }

@@ -1,5 +1,12 @@
 # @platforma-open/milaboratories.runenv-python-3
 
+## 1.9.1
+
+### Patch Changes
+
+- Updated dependencies [2fc0fb3]
+  - @platforma-open/milaboratories.runenv-python-3.12.10-clustering@0.1.0
+
 ## 1.9.0
 
 ### Minor Changes

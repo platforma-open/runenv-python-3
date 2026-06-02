@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10-clustering
 
+## 0.1.1
+
+### Patch Changes
+
+- 4e51c72: Fix incorrect merge with main
+
 ## 0.1.0
 
 ### Minor Changes

@@ -1,5 +1,28 @@
 # @platforma-open/milaboratories.runenv-python-3
 
+## 1.10.0
+
+### Minor Changes
+
+- 2da5c46: New env for GPU torch
+
+### Patch Changes
+
+- 4e51c72: Fix incorrect merge with main
+- Updated dependencies [4e51c72]
+- Updated dependencies [489a5bc]
+- Updated dependencies [2da5c46]
+  - @platforma-open/milaboratories.runenv-python-3.12.10-clustering@0.1.1
+  - @platforma-open/milaboratories.runenv-python-3.12.10-torch-cuda@0.1.0
+  - @platforma-open/milaboratories.runenv-python-3.12.10@1.3.14
+  - @platforma-open/milaboratories.runenv-python-3.12.10-atls@1.2.7
+  - @platforma-open/milaboratories.runenv-python-3.12.10-h5ad@1.1.4
+  - @platforma-open/milaboratories.runenv-python-3.12.10-humanness@0.2.0
+  - @platforma-open/milaboratories.runenv-python-3.12.10-parapred@1.1.0
+  - @platforma-open/milaboratories.runenv-python-3.12.10-rapids@1.6.0
+  - @platforma-open/milaboratories.runenv-python-3.12.10-sccoda@1.3.5
+  - @platforma-open/milaboratories.runenv-python-3.12.10-scientific-slim@1.1.0
+
 ## 1.9.1
 
 ### Patch Changes

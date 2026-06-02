@@ -386,7 +386,14 @@ async function downloadPackages(pyBin: string, destinationDir: string, osType: u
           console.log(`  Installing build backend: ${buildRequires.join(', ')}`);
           await util.runCommand(pyBin, ['-m', 'pip', 'install', ...buildRequires]);
         }
-        const wheelArgs = buildPipWheelArgs(depSpecClean, destinationDir, buildWheel.configSettings || [], buildRequires.length > 0);
+        // Allow config settings to reference the package directory (e.g. a Windows
+        // compat-shim include dir) via {packageRoot}. Use forward slashes so the
+        // path is safe inside cmake flag values.
+        const pkgRootFwd = util.packageRoot.replace(/\\/g, '/');
+        const resolvedSettings = (buildWheel.configSettings || []).map(
+          s => s.replace(/\{packageRoot\}/g, pkgRootFwd)
+        );
+        const wheelArgs = buildPipWheelArgs(depSpecClean, destinationDir, resolvedSettings, buildRequires.length > 0);
         // Capture the build output to a file (it goes through this process, so the
         // CI log also gets it — 'inherit' alone routes the compiler's output past
         // the turbo capture and we never see where it hangs) and cap the runtime so

@@ -10,6 +10,7 @@ packages:
   - python-3.12.10-scientific-slim
   - python-3.12.10-humanness
   - python-3.12.10-torch-cuda
+  - python-3.12.10-clustering
   - catalogue
 
 catalog:

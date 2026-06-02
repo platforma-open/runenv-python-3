@@ -102,6 +102,12 @@ jobs:
           {"os":"macos-14-large", "arch":"amd64", "selector":"./python-3.12.10-humanness"},
           {"os":"windows-latest", "arch":"amd64", "selector":"./python-3.12.10-humanness"},
 
+          {"os":"ubuntu-large-arm64", "arch":"arm64", "selector":"./python-3.12.10-clustering"},
+          {"os":"ubuntu-large-amd64", "arch":"amd64", "selector":"./python-3.12.10-clustering"},
+          {"os":"macos-14", "arch":"arm64", "selector":"./python-3.12.10-clustering"},
+          {"os":"macos-14-large", "arch":"amd64", "selector":"./python-3.12.10-clustering"},
+          {"os":"windows-latest", "arch":"amd64", "selector":"./python-3.12.10-clustering"}
+
           {"os":"ubuntu-large-amd64", "arch":"amd64", "selector":"./python-3.12.10-torch-cuda"},
           {"os":"macos-14", "arch":"arm64", "selector":"./python-3.12.10-torch-cuda"}
         ]

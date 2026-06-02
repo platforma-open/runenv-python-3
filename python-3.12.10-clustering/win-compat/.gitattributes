@@ -1,0 +1,3 @@
+# Keep the stub import library byte-for-byte (no EOL conversion on Windows checkout,
+# which would corrupt the archive magic).
+*.lib binary

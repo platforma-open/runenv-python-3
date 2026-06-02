@@ -188,6 +188,20 @@ function shouldForceSource(packageName: string, osType: util.OS, archType: util.
   return false;
 }
 
+// Returns the buildWheel directive for a package on this platform, or null.
+// When present, the package is COMPILED into a wheel on the (native) runner via `pip wheel`
+// and the resulting .whl is shipped in the runenv — so the target machine needs no toolchain.
+// `configSettings` are passed through to the build backend (e.g. `cmake.define.USE_THREADPOOL=OFF`).
+function getBuildWheel(packageName: string, osType: util.OS, archType: util.Arch):
+  { reason?: string; configSettings?: string[]; buildRequires?: string[] } | null {
+  const platformKey = `${osType}-${archType}`;
+  const entry = config.packages?.buildWheel?.[packageName];
+  if (entry && entry[platformKey]) {
+    return entry[platformKey] || {};
+  }
+  return null;
+}
+
 // --- Resolution policy (config-driven) ---
 function normalizePackageName(name: string): string {
   return (name || '').toLowerCase().replace(/_/g, '-');
@@ -269,6 +283,45 @@ function buildPipArgs(packageSpec: string, destinationDir: string, noDeps: boole
   return args;
 }
 
+// Build args for `pip wheel`: compile the package from source into a .whl placed in destinationDir.
+// Used for buildWheel packages so the runenv ships a prebuilt wheel (no toolchain needed on target).
+// When the build backend is pre-installed (buildRequires), pass noBuildIsolation to avoid pip's
+// isolated-env teardown bug on portable Pythons (BackendUnavailable on resolver re-prep).
+function buildPipWheelArgs(packageSpec: string, destinationDir: string, configSettings: string[], noBuildIsolation: boolean): string[] {
+  const args = [
+    '-m',
+    'pip',
+    'wheel',
+    packageSpec,
+    '--no-deps',
+    '--no-binary',
+    getPackageName(packageSpec),
+    '--wheel-dir',
+    destinationDir,
+    // Stream the build backend's output (cmake/ninja/compiler). Without -v, pip
+    // buffers it and only flushes on failure — so when the build HANGS it is never
+    // printed, leaving us blind to where it stalls (e.g. cmake configure).
+    '-v'
+  ];
+
+  if (noBuildIsolation) {
+    args.push('--no-build-isolation');
+  }
+
+  // Add additional registries (pip will use PyPI.org as default)
+  const additionalRegistries = config.registries.additional || [];
+  for (const url of additionalRegistries) {
+    args.push('--extra-index-url=' + url);
+  }
+
+  // Pass build-backend config settings (e.g. cmake.define.USE_THREADPOOL=OFF)
+  for (const setting of configSettings || []) {
+    args.push('--config-settings=' + setting);
+  }
+
+  return args;
+}
+
 // Get list of additional platforms for binary wheels.
 // Makes pip to download wheels for older Mac OS X versions in addition to current one.
 function additionalPlatforms(osType: util.OS, archType: util.Arch): string[] {
@@ -316,6 +369,62 @@ async function downloadPackages(pyBin: string, destinationDir: string, osType: u
 
     // Check if package should be skipped for this platform
     if (shouldSkipPackage(packageName, osType, archType)) {
+      continue;
+    }
+
+    // Check if package must be COMPILED into a wheel on this (native) runner.
+    // This ships a prebuilt .whl in the runenv, so the target machine needs no toolchain.
+    const buildWheel = getBuildWheel(packageName, osType, archType);
+    if (buildWheel) {
+      console.log(`  Building wheel from source on runner${buildWheel.reason ? ` (${buildWheel.reason})` : ''}...`);
+      const buildRequires = buildWheel.buildRequires || [];
+      let wheelBuildLogPath: string | undefined;
+      try {
+        // Pre-install the build backend so we can disable pip's build isolation, which is
+        // unreliable on portable Pythons (BackendUnavailable on the resolver's metadata re-prep).
+        if (buildRequires.length > 0) {
+          console.log(`  Installing build backend: ${buildRequires.join(', ')}`);
+          await util.runCommand(pyBin, ['-m', 'pip', 'install', ...buildRequires]);
+        }
+        // Allow config settings to reference the package directory (e.g. a Windows
+        // compat-shim include dir) via {packageRoot}. Use forward slashes so the
+        // path is safe inside cmake flag values.
+        const pkgRootFwd = util.packageRoot.replace(/\\/g, '/');
+        const resolvedSettings = (buildWheel.configSettings || []).map(
+          s => s.replace(/\{packageRoot\}/g, pkgRootFwd)
+        );
+        const wheelArgs = buildPipWheelArgs(depSpecClean, destinationDir, resolvedSettings, buildRequires.length > 0);
+        // Capture the build output to a file (it goes through this process, so the
+        // CI log also gets it — 'inherit' alone routes the compiler's output past
+        // the turbo capture and we never see where it hangs) and cap the runtime so
+        // a hung toolchain fails fast instead of running to the global CI timeout.
+        const wheelLog = path.join(process.cwd(), `wheel-build-${getPackageName(depSpecClean)}.log`);
+        wheelBuildLogPath = wheelLog;
+        await util.runCommand(pyBin, wheelArgs, { timeoutMs: 12 * 60 * 1000, captureToFile: wheelLog });
+        console.log(`  ✓ Successfully built wheel for ${depSpecClean}`);
+      } catch (wheelError: any) {
+        const msg = wheelError.message ?? wheelError.toString();
+        console.error(`  ✗ Failed to build wheel for ${depSpecClean}: ${msg}`);
+        // Surface the tail of the captured build output so the failure/hang point
+        // (configure vs compile, which compiler, which file) is visible in CI.
+        if (wheelBuildLogPath && fs.existsSync(wheelBuildLogPath)) {
+          const out = fs.readFileSync(wheelBuildLogPath, 'utf8');
+          const tail = out.split('\n').slice(-200).join('\n');
+          console.error(`  --- last 200 lines of ${path.basename(wheelBuildLogPath)} ---\n${tail}\n  --- end of build output ---`);
+        }
+        throw wheelError;
+      } finally {
+        // Keep the shipped runenv clean: remove build-only tools from the portable Python.
+        if (buildRequires.length > 0) {
+          const names = buildRequires.map(getPackageName);
+          console.log(`  Removing build backend from runenv: ${names.join(', ')}`);
+          try {
+            await util.runCommand(pyBin, ['-m', 'pip', 'uninstall', '-y', ...names]);
+          } catch (cleanupError: any) {
+            console.warn(`  ⚠️  Failed to remove build backend (${names.join(', ')}): ${cleanupError.message ?? cleanupError}`);
+          }
+        }
+      }
       continue;
     }
 

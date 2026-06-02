@@ -1,0 +1,52 @@
+{
+  "packages": {
+    "dependencies": [
+      "pandas==2.2.3",
+      "polars-lts-cpu==1.33.1",
+      "polars-ds-lts-cpu==0.10.2",
+      "kalign-python==3.6.0"
+    ],
+    "skip": {},
+    "overrides": {},
+    "platformSpecific": {},
+    "buildWheel": {
+      "kalign-python": {
+        "linux-aarch64": {
+          "reason": "No PyPI wheel for Linux ARM64; compile on the native runner",
+          "buildRequires": [
+            "scikit-build-core>=0.11.4",
+            "pybind11>=2.12",
+            "cmake>=3.18",
+            "ninja"
+          ]
+        },
+        "windows-x64": {
+          "reason": "No PyPI wheel for Windows. The MSVC optimizer hangs compiling kalign's DP kernels, so build with clang-cl (MSVC-ABI compatible => the pybind11 wheel still links against CPython, but clang handles kalign's GCC-oriented C and doesn't stall). clang-cl requires the Ninja generator: with scikit-build-core's default Visual Studio generator, setting CMAKE_C_COMPILER=clang-cl hangs cmake configure (VS selects the compiler via -T toolset, not CMAKE_C_COMPILER). SIMD blocks are disabled to keep the wheel portable and to skip kalign's run-time check_c_source_runs probes (a crashing probe would pop a WerFault dialog and hang the build). Threadpool/OpenMP off => serial.",
+          "buildRequires": [
+            "scikit-build-core>=0.11.4",
+            "pybind11>=2.12",
+            "cmake>=3.18",
+            "ninja"
+          ],
+          "configSettings": [
+            "cmake.args=-GNinja",
+            "cmake.define.CMAKE_C_COMPILER=clang-cl",
+            "cmake.define.CMAKE_CXX_COMPILER=clang-cl",
+            "cmake.define.USE_THREADPOOL=OFF",
+            "cmake.define.USE_OPENMP=OFF",
+            "cmake.define.ENABLE_SSE=OFF",
+            "cmake.define.ENABLE_AVX=OFF",
+            "cmake.define.ENABLE_AVX2=OFF",
+            "cmake.define.CMAKE_C_FLAGS=/I{packageRoot}/win-compat /FIwin_compat.h",
+            "cmake.define.CMAKE_CXX_FLAGS=/EHsc /I{packageRoot}/win-compat /FIwin_compat.h",
+            "cmake.define.CMAKE_MODULE_LINKER_FLAGS=/LIBPATH:{packageRoot}/win-compat",
+            "cmake.define.CMAKE_SHARED_LINKER_FLAGS=/LIBPATH:{packageRoot}/win-compat",
+            "cmake.define.CMAKE_EXE_LINKER_FLAGS=/LIBPATH:{packageRoot}/win-compat",
+            "build.verbose=true",
+            "cmake.verbose=true"
+          ]
+        }
+      }
+    }
+  }
+}

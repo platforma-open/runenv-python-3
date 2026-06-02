@@ -82,7 +82,7 @@ export const packageRoot = process.cwd();
 export const packageDirName = path.relative(repoRoot, packageRoot);
 export const isInBuilderContainer = process.env['BUILD_CONTAINER'] == 'true';
 
-export async function runCommand(command: string, args: string[]): Promise<void> {
+export async function runCommand(command: string, args: string[], opts: { timeoutMs?: number; captureToFile?: string } = {}): Promise<void> {
   return new Promise((resolve, reject) => {
     console.log(`[DEBUG] running '${[command, ...args].join("' '")}'...`);
 
@@ -91,16 +91,53 @@ export async function runCommand(command: string, args: string[]): Promise<void>
       command = 'cmd';
     }
 
+    // When capturing, pipe stdout/stderr through this process (so the parent's
+    // log captures grandchild output that 'inherit' would route past it) and
+    // also persist it to a file we can tail if the command hangs/fails.
+    const capture = !!opts.captureToFile;
+    const captureStream = capture ? fs.createWriteStream(opts.captureToFile!, { flags: 'w' }) : undefined;
+
     const child = cp.spawn(command, args, {
       ...defaultExecOpts,
-      stdio: 'inherit',
+      stdio: capture ? ['inherit', 'pipe', 'pipe'] : 'inherit',
     });
 
+    if (capture) {
+      const tee = (chunk: Buffer) => { process.stdout.write(chunk); captureStream!.write(chunk); };
+      child.stdout?.on('data', tee);
+      child.stderr?.on('data', tee);
+    }
+
+    // Guard against commands that hang indefinitely (e.g. a compiler stalling on
+    // a kalign translation unit), which would otherwise keep the CI job alive
+    // until the global GitHub timeout with no useful output.
+    //
+    // child.kill() only signals the direct child. On Windows that child is cmd.exe,
+    // whose descendants (python -> pip -> cmake -> ninja -> the compiler) survive as
+    // orphans and keep the step hung. Kill the whole process tree instead.
+    let timer: NodeJS.Timeout | undefined;
+    if (opts.timeoutMs && opts.timeoutMs > 0) {
+      timer = setTimeout(() => {
+        console.error(`[ERROR] command '${[command, ...args].join("' '")}' timed out after ${opts.timeoutMs}ms; killing process tree.`);
+        if (currentOS() === 'windows' && child.pid !== undefined) {
+          // /T = tree (kill children too), /F = force.
+          cp.spawn('taskkill', ['/PID', String(child.pid), '/T', '/F'], { stdio: 'inherit' });
+        } else {
+          child.kill('SIGKILL');
+        }
+      }, opts.timeoutMs);
+      timer.unref?.();
+    }
+
     child.on('error', (error) => {
+      if (timer) clearTimeout(timer);
+      captureStream?.end();
       reject(error);
     });
 
     child.on('close', (code, signal) => {
+      if (timer) clearTimeout(timer);
+      captureStream?.end();
       if (signal) {
         reject(new Error(`command '${[command, ...args].join("' '")}' was killed with signal ${signal}`));
       } else if (code === null) {
@@ -114,22 +151,37 @@ export async function runCommand(command: string, args: string[]): Promise<void>
   });
 }
 
-export async function downloadFile(url: string, dest: string): Promise<void> {
+export async function downloadFile(url: string, dest: string, redirectsLeft = 5): Promise<void> {
   return new Promise((resolve, reject) => {
-    const file = fs.createWriteStream(dest);
+    console.log(`downloading '${url}' to '${dest}'`);
     get(url, (response) => {
-      if (response.statusCode !== 200) {
-        reject(new Error(`Failed to get '${url}' (${response.statusCode})`));
+      const status = response.statusCode ?? 0;
+
+      // Follow redirects (e.g. nuget.org -> CDN). The original write stream must not
+      // be created until we have a 200, otherwise a redirect would truncate dest.
+      if ([301, 302, 303, 307, 308].includes(status) && response.headers.location) {
+        response.resume(); // drain the redirect response
+        if (redirectsLeft <= 0) {
+          reject(new Error(`Too many redirects for '${url}'`));
+          return;
+        }
+        const next = new URL(response.headers.location, url).toString();
+        downloadFile(next, dest, redirectsLeft - 1).then(resolve, reject);
         return;
       }
 
-      console.log(`downloading '${url}' to '${dest}'`);
+      if (status !== 200) {
+        response.resume();
+        reject(new Error(`Failed to get '${url}' (${status})`));
+        return;
+      }
 
+      const file = fs.createWriteStream(dest);
       response.pipe(file);
-
       file.on('finish', () => {
         file.close(() => resolve());
       });
+      file.on('error', (err) => reject(err));
     }).on('error', (err) => {
       reject(err);
     });

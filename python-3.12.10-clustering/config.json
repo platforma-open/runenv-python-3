@@ -38,7 +38,7 @@
             "cmake.define.ENABLE_AVX=OFF",
             "cmake.define.ENABLE_AVX2=OFF",
             "cmake.define.CMAKE_C_FLAGS=/I{packageRoot}/win-compat /FIwin_compat.h",
-            "cmake.define.CMAKE_CXX_FLAGS=/I{packageRoot}/win-compat /FIwin_compat.h",
+            "cmake.define.CMAKE_CXX_FLAGS=/EHsc /I{packageRoot}/win-compat /FIwin_compat.h",
             "build.verbose=true",
             "cmake.verbose=true"
           ]

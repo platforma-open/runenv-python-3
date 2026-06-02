@@ -37,8 +37,14 @@
       "Cython==3.1.4",
       "fa2_modified==0.4",
       "biopython==1.87",
-      "tmtools==0.3.0"
+      "tmtools==0.3.0",
+      "atriegc==0.0.4"
     ],
-    "overrides": {}
+    "overrides": {},
+    "forceSource": {
+      "atriegc": {
+        "linux-aarch64": "No atriegc wheel for Linux ARM64 on PyPI; build from source"
+      }
+    }
   }
 }

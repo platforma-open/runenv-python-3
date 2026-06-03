@@ -108,6 +108,15 @@ function captureVcvarsEnv(vcvarsall: string, arch: string): NodeJS.ProcessEnv {
       delta[key] = val;
     }
   }
+  // Tell distutils' MSVC compiler shim to skip its own VS lookup and trust
+  // the env vars we just set. Without these flags setuptools'
+  // `_get_vcvarsall_path()` runs an independent vswhere/registry probe and,
+  // on the portable Python in this runenv, returns empty , producing the
+  // misleading "Microsoft Visual C++ 14.0 or greater is required" error
+  // even though INCLUDE / LIB / PATH are already populated correctly.
+  // `MSSdk` is the legacy partner flag distutils also checks.
+  delta['DISTUTILS_USE_SDK'] = '1';
+  delta['MSSdk'] = '1';
   return delta;
 }
 

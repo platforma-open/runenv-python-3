@@ -82,7 +82,7 @@ export const packageRoot = process.cwd();
 export const packageDirName = path.relative(repoRoot, packageRoot);
 export const isInBuilderContainer = process.env['BUILD_CONTAINER'] == 'true';
 
-export async function runCommand(command: string, args: string[], opts: { timeoutMs?: number; captureToFile?: string } = {}): Promise<void> {
+export async function runCommand(command: string, args: string[], opts: { timeoutMs?: number; captureToFile?: string; extraEnv?: NodeJS.ProcessEnv } = {}): Promise<void> {
   return new Promise((resolve, reject) => {
     console.log(`[DEBUG] running '${[command, ...args].join("' '")}'...`);
 
@@ -97,8 +97,16 @@ export async function runCommand(command: string, args: string[], opts: { timeou
     const capture = !!opts.captureToFile;
     const captureStream = capture ? fs.createWriteStream(opts.captureToFile!, { flags: 'w' }) : undefined;
 
+    // `extraEnv` lets a caller (e.g. the buildWheel branch for an MSVC-needing
+    // package on Windows) layer additional env vars on top of the inherited
+    // process env without rewriting it. Merged here so the child sees the
+    // delta (INCLUDE / LIB / LIBPATH / PATH after vcvarsall) while every other
+    // runCommand call stays on the default env.
+    const execOpts = opts.extraEnv
+      ? { ...defaultExecOpts, env: { ...defaultExecOpts.env, ...opts.extraEnv } }
+      : defaultExecOpts;
     const child = cp.spawn(command, args, {
-      ...defaultExecOpts,
+      ...execOpts,
       stdio: capture ? ['inherit', 'pipe', 'pipe'] : 'inherit',
     });
 

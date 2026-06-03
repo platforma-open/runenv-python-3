@@ -8,6 +8,7 @@ import { mergeConfig, validateConfig, ResolutionPolicy } from './config-merger';
 import * as linux from './linux';
 import * as macos from './macos';
 import * as windows from './windows';
+import { resolveMsvcEnv } from './msvc';
 
 // Matches git URL deps: "git+https://github.com/org/repo.git" or "git+https://...repo.git@commit"
 const GIT_URL_RE = /^git\+https?:\/\/.*\/([^\/]+?)(?:\.git)?(?:@[^@]+)?$/;
@@ -193,7 +194,7 @@ function shouldForceSource(packageName: string, osType: util.OS, archType: util.
 // and the resulting .whl is shipped in the runenv — so the target machine needs no toolchain.
 // `configSettings` are passed through to the build backend (e.g. `cmake.define.USE_THREADPOOL=OFF`).
 function getBuildWheel(packageName: string, osType: util.OS, archType: util.Arch):
-  { reason?: string; configSettings?: string[]; buildRequires?: string[] } | null {
+  { reason?: string; configSettings?: string[]; buildRequires?: string[]; needsMsvc?: boolean } | null {
   const platformKey = `${osType}-${archType}`;
   const entry = config.packages?.buildWheel?.[packageName];
   if (entry && entry[platformKey]) {
@@ -378,13 +379,23 @@ async function downloadPackages(pyBin: string, destinationDir: string, osType: u
     if (buildWheel) {
       console.log(`  Building wheel from source on runner${buildWheel.reason ? ` (${buildWheel.reason})` : ''}...`);
       const buildRequires = buildWheel.buildRequires || [];
+      // Resolve MSVC env on Windows when the entry opts in. Done once per
+      // (arch, build) and memoized by `resolveMsvcEnv`. Returns {} on every
+      // other platform and for packages that don't set needsMsvc, so kalign's
+      // clang-cl/cmake path stays unaffected (cmake handles its own toolchain
+      // discovery). Activated for both the build-backend install and the
+      // wheel build so a build backend that recompiles a C extension on
+      // install (rare, but happens) finds cl.exe too.
+      const msvcEnv = (osType === 'windows' && buildWheel.needsMsvc)
+        ? await resolveMsvcEnv(archType)
+        : {};
       let wheelBuildLogPath: string | undefined;
       try {
         // Pre-install the build backend so we can disable pip's build isolation, which is
         // unreliable on portable Pythons (BackendUnavailable on the resolver's metadata re-prep).
         if (buildRequires.length > 0) {
           console.log(`  Installing build backend: ${buildRequires.join(', ')}`);
-          await util.runCommand(pyBin, ['-m', 'pip', 'install', ...buildRequires]);
+          await util.runCommand(pyBin, ['-m', 'pip', 'install', ...buildRequires], { extraEnv: msvcEnv });
         }
         // Allow config settings to reference the package directory (e.g. a Windows
         // compat-shim include dir) via {packageRoot}. Use forward slashes so the
@@ -400,7 +411,7 @@ async function downloadPackages(pyBin: string, destinationDir: string, osType: u
         // a hung toolchain fails fast instead of running to the global CI timeout.
         const wheelLog = path.join(process.cwd(), `wheel-build-${getPackageName(depSpecClean)}.log`);
         wheelBuildLogPath = wheelLog;
-        await util.runCommand(pyBin, wheelArgs, { timeoutMs: 12 * 60 * 1000, captureToFile: wheelLog });
+        await util.runCommand(pyBin, wheelArgs, { timeoutMs: 12 * 60 * 1000, captureToFile: wheelLog, extraEnv: msvcEnv });
         console.log(`  ✓ Successfully built wheel for ${depSpecClean}`);
       } catch (wheelError: any) {
         const msg = wheelError.message ?? wheelError.toString();

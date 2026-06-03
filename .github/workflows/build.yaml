@@ -20,7 +20,9 @@ jobs:
     needs:
       - init
 
-    uses: milaboratory/github-ci/.github/workflows/node-matrix-pnpm.yaml@v4
+    # TEMP: point at v4-beta to pick up the Setup MSVC Dev Cmd step before
+    # v4-beta -> v4 merges (milaboratory/github-ci#178). Revert to @v4 after.
+    uses: milaboratory/github-ci/.github/workflows/node-matrix-pnpm.yaml@v4-beta
     with:
       app-name: 'Runenv: Python 3'
       app-name-slug: 'runenv-python-3'

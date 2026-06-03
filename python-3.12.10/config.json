@@ -41,6 +41,11 @@
       "freesasa==2.2.1"
     ],
     "overrides": {},
+    "skip": {
+      "freesasa": {
+        "macosx-x64": "Skipped on Intel mac: macos-14-large runner pool flakes during CPython 3.12 PGO build (intermittent _testcapi failures), and Apple has stopped selling Intel Macs (2023) with macOS 15+ dropping Intel support, so the Intel-mac user base is shrinking. macOS aarch64 (Apple Silicon) still builds freesasa normally."
+      }
+    },
     "buildWheel": {
       "freesasa": {
         "linux-x64": {
@@ -49,10 +54,6 @@
         },
         "linux-aarch64": {
           "reason": "No cp312 / Linux ARM64 wheel; compile on the native ARM runner.",
-          "buildRequires": ["setuptools", "wheel"]
-        },
-        "macosx-x64": {
-          "reason": "No cp312 / macOS x64 wheel; compile on the runner with clang.",
           "buildRequires": ["setuptools", "wheel"]
         },
         "macosx-aarch64": {

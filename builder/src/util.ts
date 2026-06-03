@@ -11,15 +11,38 @@ export const exec = promisify(cp.exec);
 export type OS = 'macosx' | 'linux' | 'windows';
 export type Arch = 'x64' | 'aarch64';
 
-const defaultExecOpts = {
-  env: {
+// Build the env for a spawned subprocess. Constructed per-call so it
+// reflects the current `process.env` (a module-level constant would
+// capture process.env at import time and miss later mutations). When
+// `extraEnv` is supplied AND we're on Windows, merge case-insensitively:
+// Windows env vars are case-insensitive at the OS level but JavaScript
+// object keys aren't, so naively spreading `{ ...process.env, ...extra }`
+// can leave both `Path` and `PATH` in the resulting env and the child
+// process may read whichever one OS lookup happens to find first.
+function buildExecEnv(extraEnv?: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
+  const env: NodeJS.ProcessEnv = {
     ...process.env,
     // Disable Python output buffering
     PYTHONUNBUFFERED: '1',
     // Disable pip progress bar buffering
     PIP_PROGRESS_BAR: 'off',
+  };
+  if (!extraEnv) return env;
+  const winDedupe = currentOS() === 'windows';
+  for (const [k, v] of Object.entries(extraEnv)) {
+    if (v === undefined) continue;
+    if (winDedupe) {
+      const upper = k.toUpperCase();
+      for (const existing of Object.keys(env)) {
+        if (existing !== k && existing.toUpperCase() === upper) {
+          delete env[existing];
+        }
+      }
+    }
+    env[k] = v;
   }
-};
+  return env;
+}
 
 export function currentOS(): OS {
   switch (process.env['RUNNER_OS']?.toLowerCase()) {
@@ -99,14 +122,10 @@ export async function runCommand(command: string, args: string[], opts: { timeou
 
     // `extraEnv` lets a caller (e.g. the buildWheel branch for an MSVC-needing
     // package on Windows) layer additional env vars on top of the inherited
-    // process env without rewriting it. Merged here so the child sees the
-    // delta (INCLUDE / LIB / LIBPATH / PATH after vcvarsall) while every other
-    // runCommand call stays on the default env.
-    const execOpts = opts.extraEnv
-      ? { ...defaultExecOpts, env: { ...defaultExecOpts.env, ...opts.extraEnv } }
-      : defaultExecOpts;
+    // process env. `buildExecEnv` handles Windows case-insensitive dedup so
+    // a vcvars-supplied PATH does not coexist with an inherited `Path`.
     const child = cp.spawn(command, args, {
-      ...execOpts,
+      env: buildExecEnv(opts.extraEnv),
       stdio: capture ? ['inherit', 'pipe', 'pipe'] : 'inherit',
     });
 

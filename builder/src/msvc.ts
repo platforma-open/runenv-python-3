@@ -37,10 +37,17 @@ const VCVARS_ARCH: Record<Arch, string> = {
 };
 
 // vswhere is shipped with VS Installer 2017+ and is on every GitHub
-// Actions windows-* runner. Standard install path; no PATH dependency.
-const VSWHERE = 'C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vswhere.exe';
+// Actions windows-* runner. Resolve via the `ProgramFiles(x86)` env var
+// rather than hardcoding `C:\` since the system drive may differ (e.g.
+// self-hosted runners with Windows on D:); fall back to the conventional
+// path only when the env var is missing.
+function vswherePath(): string {
+  const programFilesX86 = process.env['ProgramFiles(x86)'] || 'C:\\Program Files (x86)';
+  return path.join(programFilesX86, 'Microsoft Visual Studio', 'Installer', 'vswhere.exe');
+}
 
 function findVcvarsallBat(): string {
+  const VSWHERE = vswherePath();
   if (!fs.existsSync(VSWHERE)) {
     throw new Error(`vswhere.exe not found at ${VSWHERE}; cannot activate MSVC.`);
   }
@@ -71,9 +78,16 @@ function findVcvarsallBat(): string {
 // keeps the merge clean: cmd's env values that don't change roundtrip
 // through `set` would otherwise overwrite identical entries from
 // process.env, occasionally with subtly different casing/quoting.
+//
+// `cp.execSync` runs the command via the system shell (cmd.exe on
+// Windows). Pass the command directly: wrapping in `cmd /c
+// JSON.stringify(...)` breaks quoting because cmd does not honor JSON's
+// backslash-quote escapes. Stderr is intentionally inherited so any
+// vcvarsall.bat error (e.g. unsupported arch on a host without that
+// toolset) surfaces in the CI log instead of getting swallowed by 2>&1.
 function captureVcvarsEnv(vcvarsall: string, arch: string): NodeJS.ProcessEnv {
-  const cmd = `"${vcvarsall}" ${arch} >NUL 2>&1 && set`;
-  const out = cp.execSync(`cmd /c ${JSON.stringify(cmd)}`, {
+  const cmd = `"${vcvarsall}" ${arch} >NUL && set`;
+  const out = cp.execSync(cmd, {
     encoding: 'utf8',
     maxBuffer: 8 * 1024 * 1024,
   });

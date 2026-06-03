@@ -11,38 +11,15 @@ export const exec = promisify(cp.exec);
 export type OS = 'macosx' | 'linux' | 'windows';
 export type Arch = 'x64' | 'aarch64';
 
-// Build the env for a spawned subprocess. Constructed per-call so it
-// reflects the current `process.env` (a module-level constant would
-// capture process.env at import time and miss later mutations). When
-// `extraEnv` is supplied AND we're on Windows, merge case-insensitively:
-// Windows env vars are case-insensitive at the OS level but JavaScript
-// object keys aren't, so naively spreading `{ ...process.env, ...extra }`
-// can leave both `Path` and `PATH` in the resulting env and the child
-// process may read whichever one OS lookup happens to find first.
-function buildExecEnv(extraEnv?: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
-  const env: NodeJS.ProcessEnv = {
+const defaultExecOpts = {
+  env: {
     ...process.env,
     // Disable Python output buffering
     PYTHONUNBUFFERED: '1',
     // Disable pip progress bar buffering
     PIP_PROGRESS_BAR: 'off',
-  };
-  if (!extraEnv) return env;
-  const winDedupe = currentOS() === 'windows';
-  for (const [k, v] of Object.entries(extraEnv)) {
-    if (v === undefined) continue;
-    if (winDedupe) {
-      const upper = k.toUpperCase();
-      for (const existing of Object.keys(env)) {
-        if (existing !== k && existing.toUpperCase() === upper) {
-          delete env[existing];
-        }
-      }
-    }
-    env[k] = v;
   }
-  return env;
-}
+};
 
 export function currentOS(): OS {
   switch (process.env['RUNNER_OS']?.toLowerCase()) {
@@ -105,7 +82,7 @@ export const packageRoot = process.cwd();
 export const packageDirName = path.relative(repoRoot, packageRoot);
 export const isInBuilderContainer = process.env['BUILD_CONTAINER'] == 'true';
 
-export async function runCommand(command: string, args: string[], opts: { timeoutMs?: number; captureToFile?: string; extraEnv?: NodeJS.ProcessEnv } = {}): Promise<void> {
+export async function runCommand(command: string, args: string[], opts: { timeoutMs?: number; captureToFile?: string } = {}): Promise<void> {
   return new Promise((resolve, reject) => {
     console.log(`[DEBUG] running '${[command, ...args].join("' '")}'...`);
 
@@ -120,12 +97,8 @@ export async function runCommand(command: string, args: string[], opts: { timeou
     const capture = !!opts.captureToFile;
     const captureStream = capture ? fs.createWriteStream(opts.captureToFile!, { flags: 'w' }) : undefined;
 
-    // `extraEnv` lets a caller (e.g. the buildWheel branch for an MSVC-needing
-    // package on Windows) layer additional env vars on top of the inherited
-    // process env. `buildExecEnv` handles Windows case-insensitive dedup so
-    // a vcvars-supplied PATH does not coexist with an inherited `Path`.
     const child = cp.spawn(command, args, {
-      env: buildExecEnv(opts.extraEnv),
+      ...defaultExecOpts,
       stdio: capture ? ['inherit', 'pipe', 'pipe'] : 'inherit',
     });
 

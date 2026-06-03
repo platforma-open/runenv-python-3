@@ -61,9 +61,8 @@
           "buildRequires": ["setuptools", "wheel"]
         },
         "windows-x64": {
-          "reason": "No cp312 / Windows wheel; compile with MSVC. freesasa's setup.py uses plain distutils which finds cl.exe via the VS installer registry, so the builder runs vcvarsall.bat before pip wheel and merges the resulting INCLUDE / LIB / LIBPATH / PATH delta into the subprocess. Gated by needsMsvc so other Windows buildWheel paths (kalign-python via scikit-build-core + clang-cl) stay on their own toolchain discovery.",
-          "buildRequires": ["setuptools", "wheel"],
-          "needsMsvc": true
+          "reason": "No cp312 / Windows wheel; compile with MSVC. The shared runner workflow activates vcvars via milaboratory/github-ci/actions/setup-msvc-dev-cmd@v4 before this step runs, so the env (INCLUDE / LIB / LIBPATH / PATH plus DISTUTILS_USE_SDK) is in scope when pip wheel invokes setuptools.",
+          "buildRequires": ["setuptools", "wheel"]
         }
       }
     }

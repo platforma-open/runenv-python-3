@@ -40,12 +40,37 @@
       "tmtools==0.3.0",
       "atriegc==0.0.4",
       "Levenshtein==0.27.3",
-      "rapidfuzz==3.14.5"
+      "rapidfuzz==3.14.5",
+      "freesasa==2.2.1"
     ],
     "overrides": {},
     "forceSource": {
       "atriegc": {
         "linux-aarch64": "No atriegc wheel for Linux ARM64 on PyPI; build from source"
+      }
+    },
+    "buildWheel": {
+      "freesasa": {
+        "linux-x64": {
+          "reason": "No cp312 / Linux wheel on PyPI; compile the SWIG-generated freesasa.c on the runner (sdist ships pre-generated C, plain C build via setuptools).",
+          "buildRequires": ["setuptools", "wheel"]
+        },
+        "linux-aarch64": {
+          "reason": "No cp312 / Linux ARM64 wheel; compile on the native ARM runner.",
+          "buildRequires": ["setuptools", "wheel"]
+        },
+        "macosx-x64": {
+          "reason": "No cp312 / macOS x86_64 wheel; compile on the runner with clang.",
+          "buildRequires": ["setuptools", "wheel"]
+        },
+        "macosx-aarch64": {
+          "reason": "No cp312 / macOS arm64 wheel; compile on the runner with clang.",
+          "buildRequires": ["setuptools", "wheel"]
+        },
+        "windows-x64": {
+          "reason": "No cp312 / Windows wheel; compile with MSVC. The shared runner workflow activates vcvars via milaboratory/github-ci/actions/setup-msvc-dev-cmd@v4 before this step runs, so the env (INCLUDE / LIB / LIBPATH / PATH plus DISTUTILS_USE_SDK) is in scope when pip wheel invokes setuptools.",
+          "buildRequires": ["setuptools", "wheel"]
+        }
       }
     }
   }

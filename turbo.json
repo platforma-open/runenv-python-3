@@ -22,7 +22,23 @@
         "AWS_DEFAULT_REGION",
         "AWS_ACCESS_KEY_ID",
         "AWS_SECRET_ACCESS_KEY",
-        "AWS_SESSION_TOKEN"
+        "AWS_SESSION_TOKEN",
+        "DISTUTILS_USE_SDK",
+        "MSSdk",
+        "INCLUDE",
+        "LIB",
+        "LIBPATH",
+        "VCINSTALLDIR",
+        "VCToolsInstallDir",
+        "VCToolsRedistDir",
+        "VCToolsVersion",
+        "VSINSTALLDIR",
+        "VisualStudioVersion",
+        "WindowsSdkBinPath",
+        "WindowsSdkDir",
+        "WindowsSDKLibVersion",
+        "WindowsSdkVerBinPath",
+        "WindowsSDKVersion"
       ]
     },
     "after-prebuild": {

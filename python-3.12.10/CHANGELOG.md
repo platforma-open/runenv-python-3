@@ -1,5 +1,12 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10
 
+## 1.3.15
+
+### Patch Changes
+
+- 6797fc5: Add atriegc==0.0.4 for the clonotype-convergence block. linux-aarch64 has no upstream wheel; built from source there (same pattern as parasail).
+- e0aa0a5: Add Levenshtein==0.27.3 + rapidfuzz==3.14.5 for the clonotype-convergence block's cluster filter (vendored `output_HC.py` uses `from Levenshtein import distance`).
+
 ## 1.3.14
 
 ### Patch Changes

@@ -22,7 +22,11 @@
             "registry": "platforma-open",
             "python-version": "3.12.10",
             "envVars": [
-              "RPY2_CFFI_MODE=ABI"
+              "RPY2_CFFI_MODE=ABI",
+              "NVIDIA_VISIBLE_DEVICES=all",
+              "NVIDIA_DRIVER_CAPABILITIES=compute,utility",
+              "LD_LIBRARY_PATH=/usr/local/nvidia/lib64:/usr/local/nvidia/lib",
+              "PATH=/usr/local/nvidia/bin:${PATH}"
             ],
             "roots": {
               "linux-x64": "./pydist/linux-x64",

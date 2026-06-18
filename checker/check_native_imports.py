@@ -430,12 +430,26 @@ def test_wheel_wrapper(args):
 
 
 def find_unused_whitelist_entries(
-    whitelist: Dict[str, Dict[str, str]], used_whitelist: Set[Tuple[str, str]]
+    whitelist: Dict[str, Dict[str, str]],
+    used_whitelist: Set[Tuple[str, str]],
+    applicable_patterns: Optional[Set[str]] = None,
 ) -> Dict[str, List[str]]:
-    """Find unused whitelist entries."""
+    """Find unused whitelist entries.
+
+    With a global (per-platform) whitelist, most patterns will not match any
+    wheel in a given variant build -- that is by design, not "unused". A
+    pattern is reported only when at least one wheel in this build matched
+    it but its module entry was not exercised: that is the actionable
+    case ("the wheel imports cleanly now, drop the entry").
+
+    If ``applicable_patterns`` is None, falls back to the old global
+    semantics for backwards compatibility.
+    """
     unused = {}
 
     for pattern, modules in whitelist.items():
+        if applicable_patterns is not None and pattern not in applicable_patterns:
+            continue
         unused_modules = []
         for module_name in modules.keys():
             # Check if any actual wheel name matches this pattern and has this module
@@ -564,7 +578,14 @@ def main():
                 safe_print(f"\n❌ Error processing {wheel_path.name}: {e}")
                 failed_wheels[wheel_path.name] = [("exception", str(e))]
 
-    unused_whitelist = find_unused_whitelist_entries(whitelist, used_whitelist)
+    applicable_patterns = {
+        pattern
+        for pattern in whitelist
+        if any(fnmatch.fnmatch(w.name, pattern) for w in wheel_files)
+    }
+    unused_whitelist = find_unused_whitelist_entries(
+        whitelist, used_whitelist, applicable_patterns
+    )
 
     overall_duration = time.time() - overall_start_time
 
@@ -609,12 +630,19 @@ def main():
 
     if unused_whitelist:
         print("=" * 50)
-        print("⚠️  Unused whitelist entries (can be removed):")
+        print("⚠️  Unused whitelist entries (candidates for removal):")
         print("=" * 50)
         for wheel_name, modules in unused_whitelist.items():
             print(f"  {wheel_name}")
             for module in modules:
                 print(f"    - {module}")
+        print()
+        print(
+            "Note: this whitelist file is shared across every runenv variant on "
+            "this platform. An entry that this build imported cleanly may still "
+            "be needed by another variant whose dependency graph triggers the "
+            "failure. Verify across all variants on this platform before removing."
+        )
         print()
 
     sys.exit(1 if failed_wheels else 0)

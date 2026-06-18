@@ -572,9 +572,11 @@ async function runNativeImportChecker(installDir: string, osType: util.OS, archT
   const pyBin = path.join(installDir, 'bin', 'python');
   const checkerScript = path.join(util.repoRoot, 'checker', 'check_native_imports.py');
   
-  // Determine whitelist path based on package name and platform
+  // Global whitelist per platform: a wheel's import-failure modes are a
+  // property of the wheel + platform, not of the runenv variant that
+  // happens to include it. Every variant consumes from the same file.
   const platformKey = `${osType}-${archType}`;
-  const whitelistPath = path.join(util.repoRoot, 'checker', 'whitelists', util.packageDirName, `${platformKey}.json`);
+  const whitelistPath = path.join(util.repoRoot, 'checker', 'whitelists', `${platformKey}.json`);
   
   console.log(`[DEBUG] Checker script: ${checkerScript}`);
   console.log(`[DEBUG] Whitelist: ${whitelistPath}`);

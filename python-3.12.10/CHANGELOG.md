@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10
 
+## 1.3.19
+
+### Patch Changes
+
+- 4a3167b: PFrames bump
+
 ## 1.3.18
 
 ### Patch Changes

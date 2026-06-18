@@ -60,21 +60,27 @@ def should_skip_module(module: str) -> bool:
 
 _ENV_KEYS = (
     "HOME", "USERPROFILE", "MPLCONFIGDIR", "NUMBA_CACHE_DIR",
-    "XDG_CACHE_HOME", "FONTCONFIG_PATH",
+    "XDG_CACHE_HOME",
 )
 
 
 def normalize_env() -> None:
     """Set env vars whose absence makes legitimate wheels fail to import.
 
-    Several wheels (matplotlib, numba, fontconfig, etc.) read HOME / USERPROFILE /
-    MPLCONFIGDIR / NUMBA_CACHE_DIR / XDG_CACHE_HOME at import time and refuse to
-    load if they are unset (common in sandboxed CI runners). The build target
-    will always have these set at runtime, so unsetting them in the checker
-    just produces false-positive failures. Point them at a fresh temp dir.
+    These wheels (matplotlib, numba) read HOME / USERPROFILE /
+    MPLCONFIGDIR / NUMBA_CACHE_DIR / XDG_CACHE_HOME at IMPORT TIME and
+    raise if they are unset -- common in sandboxed CI runners. The build
+    target will always have these set at runtime, so unsetting them in
+    the checker just produces false-positive failures.
 
-    Skips temp-dir allocation if every key is already set, and registers an
-    atexit cleanup for the dir we create.
+    FONTCONFIG_PATH is deliberately NOT here: fontconfig falls back
+    silently and just returns no fonts at runtime when its config dir
+    can't be found, so pointing it at an empty tempdir would shadow
+    /etc/fonts and break any wheel that draws text -- without ever
+    fixing an import-time failure.
+
+    Skips temp-dir allocation if every key is already set, and
+    registers an atexit cleanup for the dir we create.
     """
     if all(os.environ.get(k) for k in _ENV_KEYS):
         return
@@ -91,7 +97,6 @@ def normalize_env() -> None:
         "MPLCONFIGDIR": str(cache_root / "mpl"),
         "NUMBA_CACHE_DIR": str(cache_root / "numba"),
         "XDG_CACHE_HOME": str(cache_root / "xdg"),
-        "FONTCONFIG_PATH": str(cache_root / "fontconfig"),
     }
     for key, value in defaults.items():
         if not os.environ.get(key):

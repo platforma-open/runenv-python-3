@@ -14,20 +14,9 @@
   "rpy2_rinterface-3.*.whl": {
     "_rinterface_cffi_api": "symbol not found in flat namespace '_R_BaseEnv'"
   },
-  "scipy-1.*-macosx_10_13_x86_64.whl": {
-    "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module",
-    "scipy.stats._unuran.unuran_wrapper": "module 'numpy.random.bit_generator' has no attribute 'SeedlessSequence'"
-  },
-  "scipy-1.*-macosx_10_14_x86_64.whl": {
-    "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module",
-    "scipy.stats._unuran.unuran_wrapper": "module 'numpy.random.bit_generator' has no attribute 'SeedlessSequence'"
-  },
-  "scipy-1.*-macosx_14_0_x86_64.whl": {
-    "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module",
-    "scipy.stats._unuran.unuran_wrapper": "module 'numpy.random.bit_generator' has no attribute 'SeedlessSequence'"
-  },
   "scipy-1.*.whl": {
-    "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module"
+    "scipy.linalg._matfuncs_sqrtm_triu": "cannot import name 'within_block_loop' from partially initialized module",
+    "scipy.stats._unuran.unuran_wrapper": "module 'numpy.random.bit_generator' has no attribute 'SeedlessSequence'"
   },
   "tensorflow-2.*.whl": {
     "tensorflow.compiler.tf2xla.ops._xla_ops": "ALREADY_EXISTS: Op with name XlaBroadcastHelper"

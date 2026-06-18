@@ -630,12 +630,19 @@ def main():
 
     if unused_whitelist:
         print("=" * 50)
-        print("⚠️  Unused whitelist entries (can be removed):")
+        print("⚠️  Unused whitelist entries (candidates for removal):")
         print("=" * 50)
         for wheel_name, modules in unused_whitelist.items():
             print(f"  {wheel_name}")
             for module in modules:
                 print(f"    - {module}")
+        print()
+        print(
+            "Note: this whitelist file is shared across every runenv variant on "
+            "this platform. An entry that this build imported cleanly may still "
+            "be needed by another variant whose dependency graph triggers the "
+            "failure. Verify across all variants on this platform before removing."
+        )
         print()
 
     sys.exit(1 if failed_wheels else 0)

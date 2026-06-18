@@ -65,7 +65,12 @@ def merge(
     if len(unique_errors) > 1:
         for error, variant in entries:
             if error != canonical:
-                conflicts.append((variant, error))
+                # is_whitelisted checks substring containment, so the merge
+                # only stays safe when the canonical is a substring of every
+                # other variant's error. When that's not the case the merge
+                # silently stops matching the other variant -- flag it loudly.
+                suffix = "" if canonical.lower() in error.lower() else " (UNSAFE: not a substring!)"
+                conflicts.append((variant, f"{error}{suffix}"))
     return canonical, conflicts
 
 
@@ -127,8 +132,9 @@ def main(argv: List[str]) -> int:
     paths = write_global(global_data)
     for p in paths:
         rel = p.relative_to(REPO_ROOT)
-        n_wheels = len(json.loads(p.read_text()))
-        n_modules = sum(len(m) for m in json.loads(p.read_text()).values())
+        data = json.loads(p.read_text())
+        n_wheels = len(data)
+        n_modules = sum(len(m) for m in data.values())
         print(f"wrote {rel}: {n_wheels} wheel pattern(s), {n_modules} module(s)")
     return 0
 

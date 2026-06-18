@@ -49,8 +49,19 @@ SKIP_MODULE_PATTERNS: List[str] = [
 
 
 def should_skip_module(module: str) -> bool:
-    """True if module is internal/test scaffolding and must not be imported."""
-    return any(fnmatch.fnmatch(module, pat) for pat in SKIP_MODULE_PATTERNS)
+    """True if module is internal/test scaffolding and must not be imported.
+
+    Uses fnmatchcase: Python module names are case-sensitive, but plain
+    fnmatch is case-insensitive on Windows/macOS, which would incorrectly
+    skip user modules whose names differ only in case.
+    """
+    return any(fnmatch.fnmatchcase(module, pat) for pat in SKIP_MODULE_PATTERNS)
+
+
+_ENV_KEYS = (
+    "HOME", "USERPROFILE", "MPLCONFIGDIR", "NUMBA_CACHE_DIR",
+    "XDG_CACHE_HOME", "FONTCONFIG_PATH",
+)
 
 
 def normalize_env() -> None:
@@ -61,8 +72,19 @@ def normalize_env() -> None:
     load if they are unset (common in sandboxed CI runners). The build target
     will always have these set at runtime, so unsetting them in the checker
     just produces false-positive failures. Point them at a fresh temp dir.
+
+    Skips temp-dir allocation if every key is already set, and registers an
+    atexit cleanup for the dir we create.
     """
+    if all(os.environ.get(k) for k in _ENV_KEYS):
+        return
+
+    import atexit
+    import shutil
+
     cache_root = Path(tempfile.mkdtemp(prefix="pl-checker-env-"))
+    atexit.register(shutil.rmtree, str(cache_root), ignore_errors=True)
+
     defaults = {
         "HOME": str(cache_root),
         "USERPROFILE": str(cache_root),
@@ -380,8 +402,11 @@ def test_wheel_with_logging(
             result.finish(True, [], [])
             return result
 
-        skipped_modules = [m for m in modules_to_test if should_skip_module(m)]
-        modules_to_test = [m for m in modules_to_test if not should_skip_module(m)]
+        kept: List[str] = []
+        skipped_modules: List[str] = []
+        for m in modules_to_test:
+            (skipped_modules if should_skip_module(m) else kept).append(m)
+        modules_to_test = kept
 
         result.add_log(f"  Found {len(modules_to_test)} native module(s) to test")
         if skipped_modules:

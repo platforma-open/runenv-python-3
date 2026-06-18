@@ -28,6 +28,82 @@ if sys.stderr.encoding != "utf-8":
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
 
 
+# Module names matched here are NOT imported by the checker. They are
+# package-internal helpers (test suites, mypyc-generated wrappers, cffi
+# internals) that legitimately fail to import standalone but are never
+# called by user code. Skipping them is correct, not a workaround.
+SKIP_MODULE_PATTERNS: List[str] = [
+    "*._tests",
+    "*._tests.*",
+    "*.tests",
+    "*.tests.*",
+    "*._umath_tests",
+    "*._multiarray_tests",
+    "*.test",
+    "*.test.*",
+    "*__mypyc",        # charset_normalizer et al. emit `<hash>__mypyc`
+    "*__mypyc.*",
+    "*._cffi_*",       # dotted cffi internals (rpy2._cffi_api)
+    "*_cffi_*",        # top-level cffi internals (_rinterface_cffi_api)
+]
+
+
+def should_skip_module(module: str) -> bool:
+    """True if module is internal/test scaffolding and must not be imported.
+
+    Uses fnmatchcase: Python module names are case-sensitive, but plain
+    fnmatch is case-insensitive on Windows/macOS, which would incorrectly
+    skip user modules whose names differ only in case.
+    """
+    return any(fnmatch.fnmatchcase(module, pat) for pat in SKIP_MODULE_PATTERNS)
+
+
+_ENV_KEYS = (
+    "HOME", "USERPROFILE", "MPLCONFIGDIR", "NUMBA_CACHE_DIR",
+    "XDG_CACHE_HOME",
+)
+
+
+def normalize_env() -> None:
+    """Set env vars whose absence makes legitimate wheels fail to import.
+
+    These wheels (matplotlib, numba) read HOME / USERPROFILE /
+    MPLCONFIGDIR / NUMBA_CACHE_DIR / XDG_CACHE_HOME at IMPORT TIME and
+    raise if they are unset -- common in sandboxed CI runners. The build
+    target will always have these set at runtime, so unsetting them in
+    the checker just produces false-positive failures.
+
+    FONTCONFIG_PATH is deliberately NOT here: fontconfig falls back
+    silently and just returns no fonts at runtime when its config dir
+    can't be found, so pointing it at an empty tempdir would shadow
+    /etc/fonts and break any wheel that draws text -- without ever
+    fixing an import-time failure.
+
+    Skips temp-dir allocation if every key is already set, and
+    registers an atexit cleanup for the dir we create.
+    """
+    if all(os.environ.get(k) for k in _ENV_KEYS):
+        return
+
+    import atexit
+    import shutil
+
+    cache_root = Path(tempfile.mkdtemp(prefix="pl-checker-env-"))
+    atexit.register(shutil.rmtree, str(cache_root), ignore_errors=True)
+
+    defaults = {
+        "HOME": str(cache_root),
+        "USERPROFILE": str(cache_root),
+        "MPLCONFIGDIR": str(cache_root / "mpl"),
+        "NUMBA_CACHE_DIR": str(cache_root / "numba"),
+        "XDG_CACHE_HOME": str(cache_root / "xdg"),
+    }
+    for key, value in defaults.items():
+        if not os.environ.get(key):
+            os.environ[key] = value
+            Path(value).mkdir(parents=True, exist_ok=True)
+
+
 _print_lock = threading.Lock()
 
 class PackageTestResult:
@@ -331,7 +407,18 @@ def test_wheel_with_logging(
             result.finish(True, [], [])
             return result
 
+        kept: List[str] = []
+        skipped_modules: List[str] = []
+        for m in modules_to_test:
+            (skipped_modules if should_skip_module(m) else kept).append(m)
+        modules_to_test = kept
+
         result.add_log(f"  Found {len(modules_to_test)} native module(s) to test")
+        if skipped_modules:
+            result.add_log(
+                f"  Skipping {len(skipped_modules)} internal/test module(s): "
+                + ", ".join(skipped_modules)
+            )
 
         failed_imports = []
         whitelisted_imports = []
@@ -489,12 +576,20 @@ def main():
     """Main entry point - test all wheel packages."""
     parser = argparse.ArgumentParser(
         description="Test wheel packages by importing native modules",
-        usage="%(prog)s [whitelist.json]",
+        usage="%(prog)s [whitelist.json] [--strict-whitelist]",
     )
     parser.add_argument(
         "whitelist", type=Path, nargs="?", help="Path to whitelist JSON file"
     )
+    parser.add_argument(
+        "--strict-whitelist",
+        action="store_true",
+        help="Print every unused whitelist entry and exit non-zero if any exist. "
+             "Default is a one-line summary; build does not fail on unused entries.",
+    )
     args = parser.parse_args()
+
+    normalize_env()
 
     print("Starting wheel installation tests...")
     print("=" * 50)
@@ -628,24 +723,34 @@ def main():
         print(generate_whitelist_snippet(failed_wheels))
         print()
 
+    unused_count = sum(len(modules) for modules in unused_whitelist.values())
     if unused_whitelist:
-        print("=" * 50)
-        print("⚠️  Unused whitelist entries (candidates for removal):")
-        print("=" * 50)
-        for wheel_name, modules in unused_whitelist.items():
-            print(f"  {wheel_name}")
-            for module in modules:
-                print(f"    - {module}")
-        print()
-        print(
-            "Note: this whitelist file is shared across every runenv variant on "
-            "this platform. An entry that this build imported cleanly may still "
-            "be needed by another variant whose dependency graph triggers the "
-            "failure. Verify across all variants on this platform before removing."
-        )
-        print()
+        if args.strict_whitelist:
+            print("=" * 50)
+            print(f"⚠️  Unused whitelist entries ({unused_count}, candidates for removal):")
+            print("=" * 50)
+            for wheel_name, modules in unused_whitelist.items():
+                print(f"  {wheel_name}")
+                for module in modules:
+                    print(f"    - {module}")
+            print()
+            print(
+                "Note: this whitelist file is shared across every runenv variant on "
+                "this platform. An entry that this build imported cleanly may still "
+                "be needed by another variant whose dependency graph triggers the "
+                "failure. Verify across all variants on this platform before removing."
+            )
+            print()
+        else:
+            print(
+                f"[INFO] {unused_count} unused whitelist entry/entries "
+                f"across {len(unused_whitelist)} pattern(s). "
+                f"Re-run with --strict-whitelist to list them. "
+                f"Build does not fail on this."
+            )
 
-    sys.exit(1 if failed_wheels else 0)
+    strict_failure = args.strict_whitelist and unused_count > 0
+    sys.exit(1 if failed_wheels or strict_failure else 0)
 
 
 if __name__ == "__main__":

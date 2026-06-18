@@ -1,5 +1,12 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10
 
+## 1.3.18
+
+### Patch Changes
+
+- f487928: Fix whitelists on windows
+- 6ad7aee: PFrames bump
+
 ## 1.3.17
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10-rapids
 
+## 1.7.0
+
+### Minor Changes
+
+- 92eae77: NVIDIA env vars
+
 ## 1.6.0
 
 ### Minor Changes

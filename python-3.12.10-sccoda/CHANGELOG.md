@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10-sccoda
 
+## 1.3.6
+
+### Patch Changes
+
+- f487928: Fix whitelists on windows
+
 ## 1.3.5
 
 ### Patch Changes

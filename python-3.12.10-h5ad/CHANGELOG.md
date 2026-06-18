@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10-h5ad
 
+## 1.1.5
+
+### Patch Changes
+
+- f487928: Fix whitelists on windows
+
 ## 1.1.4
 
 ### Patch Changes

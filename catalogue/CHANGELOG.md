@@ -1,5 +1,12 @@
 # @platforma-open/milaboratories.runenv-python-3
 
+## 1.10.7
+
+### Patch Changes
+
+- Updated dependencies [06121fd]
+  - @platforma-open/milaboratories.runenv-python-3.12.10-torch-cuda@0.2.0
+
 ## 1.10.6
 
 ### Patch Changes

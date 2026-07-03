@@ -1,6 +1,6 @@
 {
   "name": "@platforma-open/milaboratories.runenv-python-3.12.10-pgen",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Python 3.12.10 run environment for the Generation Probability block (olga for CDR3 generation probability + numpy + polars-lts-cpu)",
   "scripts": {
     "cleanup": "rm -rf ./pkg-*.tgz ./pydist ./dist/ ./build/",

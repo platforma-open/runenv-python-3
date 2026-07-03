@@ -1,6 +1,0 @@
----
-'@platforma-open/milaboratories.runenv-python-3.12.10-pgen': minor
-'@platforma-open/milaboratories.runenv-python-3': minor
----
-
-Add Python 3.12.10 run environment for the Generation Probability block: olga (CDR3 generation probability + its bundled recombination models) with numpy and polars-lts-cpu. macOS-Intel is not built (no llvmlite cp312 wheel).

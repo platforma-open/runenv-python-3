@@ -1,5 +1,12 @@
 # @platforma-open/milaboratories.runenv-python-3
 
+## 1.11.1
+
+### Patch Changes
+
+- Updated dependencies [e3d044e]
+  - @platforma-open/milaboratories.runenv-python-3.12.10@1.3.21
+
 ## 1.11.0
 
 ### Minor Changes

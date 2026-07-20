@@ -12,6 +12,7 @@
       "parasail==1.3.4",
       "numpy==2.2.6",
       "umap-learn==0.5.7",
+      "hdbscan==0.8.44",
       "PyYAML==6.0.3",
       "cudf-cu12==25.6.0",
       "scanpy==1.10.1",
@@ -70,6 +71,12 @@
         "windows-x64": {
           "reason": "No cp312 / Windows wheel; compile with MSVC. The shared runner workflow activates vcvars via milaboratory/github-ci/actions/setup-msvc-dev-cmd@v4 before this step runs, so the env (INCLUDE / LIB / LIBPATH / PATH plus DISTUTILS_USE_SDK) is in scope when pip wheel invokes setuptools.",
           "buildRequires": ["setuptools", "wheel"]
+        }
+      },
+      "hdbscan": {
+        "linux-aarch64": {
+          "reason": "No cp312 / Linux ARM64 wheel on PyPI for hdbscan 0.8.44 (wheels exist for linux-x64, macOS universal2, and win-x64); compile the Cython sources on the native ARM runner.",
+          "buildRequires": ["setuptools", "wheel", "Cython", "numpy"]
         }
       }
     }

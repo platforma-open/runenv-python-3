@@ -1,5 +1,12 @@
 # @platforma-open/milaboratories.runenv-python-3
 
+## 1.11.5
+
+### Patch Changes
+
+- Updated dependencies [b210ec1]
+  - @platforma-open/milaboratories.runenv-python-3.12.10-rapids@1.7.1
+
 ## 1.11.4
 
 ### Patch Changes

@@ -26,7 +26,7 @@
               "NVIDIA_VISIBLE_DEVICES=all",
               "NVIDIA_DRIVER_CAPABILITIES=compute,utility",
               "LD_LIBRARY_PATH=/usr/local/nvidia/lib64:/usr/local/nvidia/lib",
-              "PATH=/usr/local/nvidia/bin:${PATH}",
+              "PATH=/usr/local/nvidia/bin:$PATH",
               "PTXCOMPILER_CHECK_NUMBA_CODEGEN_PATCH_NEEDED=0"
             ],
             "roots": {

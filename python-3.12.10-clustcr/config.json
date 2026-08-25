@@ -11,7 +11,7 @@
       "parmap==1.7.0",
       "python-louvain==0.16",
       "matplotlib==3.11.1",
-      "faiss-cpu==1.15.0",
+      "faiss-cpu==1.10.0",
       "polars-lts-cpu==1.33.1"
     ],
     "noDeps": [

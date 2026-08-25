@@ -1,12 +1,17 @@
 ---
-"@platforma-open/milaboratories.runenv-python-3.12.10-clustcr": minor
+"@platforma-open/milaboratories.runenv-python-3.10.21-clustcr": minor
 "@platforma-open/milaboratories.runenv-python-3": minor
 ---
 
-Add the `3.12.10-clustcr` Python run environment: clusTCR (`immunewatch-clustcr`, module `imw_clustcr`)
+Add the `3.10.21-clustcr` Python run environment: clusTCR (`immunewatch-clustcr`, module `imw_clustcr`)
 plus its runtime closure, faiss-cpu and polars-lts-cpu, for the clusTCR Clustering block.
 
-clusTCR's own metadata is skipped via `noDeps` because it hard-pins `scipy==1.8`, which is unsatisfiable on
-Python 3.12 (every 1.8.x release declares `Requires-Python >=3.8,<3.11`) and unnecessary — clusTCR runs on
-scipy 1.11/1.18. numpy is held below 2.0 because clusTCR's faiss path (the `two-step` method and
-`include_vgene`) breaks under numpy 2.x. See the package README for the full rationale.
+Python 3.10 rather than the repo's usual 3.12.10, deliberately: clusTCR requires SciPy 1.8, which no
+Python 3.11+ release supports, and that requirement is load-bearing — on SciPy 1.8 a sparse array is still
+an `spmatrix`, which is what makes clusTCR's Markov-clustering step work, while newer SciPy breaks it and
+NumPy 2 breaks its FAISS-backed paths. Targeting 3.10 lets the package be installed and used unmodified:
+no dependency metadata skipped, no numpy ceiling, and no runtime patching in the consuming block. Intended
+to be temporary — see the package README. Python 3.10 is EOL 2026-10-31.
+
+`python-louvain` ships no wheel for any version and is built on the runner via `buildWheel` with an
+explicit setuptools backend, since pip's build isolation cannot reach an index for one.

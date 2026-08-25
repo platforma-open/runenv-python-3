@@ -2,20 +2,17 @@
   "packages": {
     "dependencies": [
       "immunewatch-clustcr==1.0.1",
-      "numpy==1.26.4",
-      "scipy==1.11.4",
-      "pandas==2.2.3",
-      "networkx==3.6.1",
-      "scikit-learn==1.9.0",
+      "scipy==1.8.0",
+      "numpy==1.24.4",
+      "pandas==2.3.3",
+      "networkx==3.4.2",
+      "scikit-learn==1.7.2",
       "markov_clustering==0.0.6.dev0",
       "parmap==1.7.0",
       "python-louvain==0.16",
-      "matplotlib==3.11.1",
-      "faiss-cpu==1.10.0",
+      "matplotlib==3.10.9",
+      "faiss-cpu==1.8.0.post1",
       "polars-lts-cpu==1.33.1"
-    ],
-    "noDeps": [
-      "immunewatch-clustcr"
     ],
     "skip": {},
     "overrides": {},

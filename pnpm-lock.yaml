@@ -59,15 +59,15 @@ importers:
 
   catalogue:
     dependencies:
+      '@platforma-open/milaboratories.runenv-python-3.10.21-clustcr':
+        specifier: workspace:*
+        version: link:../python-3.10.21-clustcr
       '@platforma-open/milaboratories.runenv-python-3.12.10':
         specifier: workspace:*
         version: link:../python-3.12.10
       '@platforma-open/milaboratories.runenv-python-3.12.10-atls':
         specifier: workspace:*
         version: link:../python-3.12.10-atls
-      '@platforma-open/milaboratories.runenv-python-3.12.10-clustcr':
-        specifier: workspace:*
-        version: link:../python-3.12.10-clustcr
       '@platforma-open/milaboratories.runenv-python-3.12.10-clustering':
         specifier: workspace:*
         version: link:../python-3.12.10-clustering
@@ -100,6 +100,18 @@ importers:
         specifier: 'catalog:'
         version: 3.10.7
 
+  python-3.10.21-clustcr:
+    devDependencies:
+      '@platforma-sdk/package-builder':
+        specifier: 'catalog:'
+        version: 3.10.7
+      runenv-python-builder:
+        specifier: workspace:*
+        version: link:../builder
+      tsx:
+        specifier: 'catalog:'
+        version: 4.20.6
+
   python-3.12.10:
     devDependencies:
       '@platforma-sdk/package-builder':
@@ -113,18 +125,6 @@ importers:
         version: 4.20.6
 
   python-3.12.10-atls:
-    devDependencies:
-      '@platforma-sdk/package-builder':
-        specifier: 'catalog:'
-        version: 3.10.7
-      runenv-python-builder:
-        specifier: workspace:*
-        version: link:../builder
-      tsx:
-        specifier: 'catalog:'
-        version: 4.20.6
-
-  python-3.12.10-clustcr:
     devDependencies:
       '@platforma-sdk/package-builder':
         specifier: 'catalog:'

@@ -1,0 +1,59 @@
+{
+  "packages": {
+    "dependencies": [
+      "immunewatch-clustcr==1.0.1",
+      "scipy==1.8.0",
+      "numpy==1.24.4",
+      "pandas==2.3.3",
+      "networkx==3.4.2",
+      "scikit-learn==1.7.2",
+      "markov_clustering==0.0.6.dev0",
+      "parmap==1.7.0",
+      "python-louvain==0.16",
+      "matplotlib==3.10.9",
+      "faiss-cpu==1.8.0.post1",
+      "polars-lts-cpu==1.33.1"
+    ],
+    "noDeps": [
+      "immunewatch-clustcr"
+    ],
+    "skip": {},
+    "overrides": {},
+    "platformSpecific": {},
+    "resolution": {
+      "strictMissing": true
+    },
+    "buildWheel": {
+      "python-louvain": {
+        "linux-x64": {
+          "reason": "python-louvain ships NO wheel for any version (0.1-0.16 are all sdist), so it must be built on the runner. It is pure Python, so no compiler is needed - but pip's build isolation tries to fetch the setuptools backend, and the build runs with --find-links pointing only at the local package dir, so that fetch fails. Pre-installing the backend via buildRequires makes the builder pass --no-build-isolation, which avoids the isolated env entirely.",
+          "buildRequires": [
+            "setuptools>=40.8.0",
+            "wheel"
+          ]
+        },
+        "linux-aarch64": {
+          "reason": "python-louvain ships NO wheel for any version (0.1-0.16 are all sdist), so it must be built on the runner. It is pure Python, so no compiler is needed - but pip's build isolation tries to fetch the setuptools backend, and the build runs with --find-links pointing only at the local package dir, so that fetch fails. Pre-installing the backend via buildRequires makes the builder pass --no-build-isolation, which avoids the isolated env entirely.",
+          "buildRequires": [
+            "setuptools>=40.8.0",
+            "wheel"
+          ]
+        },
+        "macosx-x64": {
+          "reason": "python-louvain ships NO wheel for any version (0.1-0.16 are all sdist), so it must be built on the runner. It is pure Python, so no compiler is needed - but pip's build isolation tries to fetch the setuptools backend, and the build runs with --find-links pointing only at the local package dir, so that fetch fails. Pre-installing the backend via buildRequires makes the builder pass --no-build-isolation, which avoids the isolated env entirely.",
+          "buildRequires": [
+            "setuptools>=40.8.0",
+            "wheel"
+          ]
+        },
+        "macosx-aarch64": {
+          "reason": "python-louvain ships NO wheel for any version (0.1-0.16 are all sdist), so it must be built on the runner. It is pure Python, so no compiler is needed - but pip's build isolation tries to fetch the setuptools backend, and the build runs with --find-links pointing only at the local package dir, so that fetch fails. Pre-installing the backend via buildRequires makes the builder pass --no-build-isolation, which avoids the isolated env entirely.",
+          "buildRequires": [
+            "setuptools>=40.8.0",
+            "wheel"
+          ]
+        }
+      }
+    }
+  }
+}

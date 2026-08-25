@@ -1,6 +1,6 @@
 {
   "name": "@platforma-open/milaboratories.runenv-python-3.10.21-clustcr",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Python 3.10.21 run environment for the clusTCR Clustering block (immunewatch-clustcr on the SciPy 1.8 generation it requires)",
   "scripts": {
     "cleanup": "rm -rf ./pkg-*.tgz ./pydist ./dist/ ./build/",

@@ -47,6 +47,9 @@
       },
       "3.10.21-clustcr": {
         "reference": "@platforma-open/milaboratories.runenv-python-3.10.21-clustcr/dist/tengo/software/main.sw.json"
+      },
+      "3.12.10-hilary": {
+        "reference": "@platforma-open/milaboratories.runenv-python-3.12.10-hilary/dist/tengo/software/main.sw.json"
       }
     }
   },
@@ -66,7 +69,8 @@
     "@platforma-open/milaboratories.runenv-python-3.12.10-torch-cuda": "workspace:*",
     "@platforma-open/milaboratories.runenv-python-3.12.10-clustering": "workspace:*",
     "@platforma-open/milaboratories.runenv-python-3.12.10-pgen": "workspace:*",
-    "@platforma-open/milaboratories.runenv-python-3.10.21-clustcr": "workspace:*"
+    "@platforma-open/milaboratories.runenv-python-3.10.21-clustcr": "workspace:*",
+    "@platforma-open/milaboratories.runenv-python-3.12.10-hilary": "workspace:*"
   },
   "devDependencies": {
     "@platforma-sdk/package-builder": "catalog:"

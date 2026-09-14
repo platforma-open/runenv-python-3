@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10
 
+## 1.3.25
+
+### Patch Changes
+
+- 00a4080: PFrames bump: polars-pf 1.1.60. Wide joins of hundreds of same-axis columns no longer overflow the engine thread stack.
+
 ## 1.3.24
 
 ### Patch Changes

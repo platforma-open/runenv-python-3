@@ -141,6 +141,9 @@
     "cuspatial._lib.types": "CUDA driver version is insufficient for CUDA runtime version",
     "cuspatial._lib.utils": "CUDA driver version is insufficient for CUDA runtime version"
   },
+  "faiss_cpu-*.whl": {
+    "faiss._swigfaiss_avx512": "Unknown error"
+  },
   "libcudf_cu12-25.4.0-py3-none-manylinux_2_28_x86_64.whl": {
     "libcudf.lib64.libcudf": "libkvikio.so: cannot open shared object file: No such file or directory"
   },
@@ -197,6 +200,17 @@
   "tensorflow-2.*.whl": {
     "tensorflow.compiler.tf2xla.ops._xla_ops": "ALREADY_EXISTS: Op with name XlaBroadcastHelper"
   },
+  "torch-*+cpu-cp312-cp312-manylinux_2_28_x86_64.whl": {
+    "functorch._C": "initialization failed"
+  },
+  "torch-*+cu126-cp312-cp312-manylinux_2_28_x86_64.whl": {
+    "functorch._C": "initialization failed",
+    "torch.lib.libcaffe2_nvrtc": "libcuda.so.1: cannot open shared object file"
+  },
+  "torch-2.12.1+cu126-cp312-cp312-manylinux_2_28_x86_64.whl": {
+    "functorch._C": "initialization failed",
+    "torch.lib.libcaffe2_nvrtc": "libcuda.so.1: cannot open shared object file"
+  },
   "torch-2.7.0+cpu-cp312-cp312-manylinux_2_28_x86_64.whl": {
     "functorch._C": "initialization failed"
   },
@@ -206,10 +220,6 @@
   },
   "torch-2.9.1+cpu-cp312-cp312-manylinux_2_28_x86_64.whl": {
     "functorch._C": "initialization failed"
-  },
-  "torch-2.12.1+cu126-cp312-cp312-manylinux_2_28_x86_64.whl": {
-    "functorch._C": "initialization failed",
-    "torch.lib.libcaffe2_nvrtc": "libcuda.so.1: cannot open shared object file"
   },
   "torchaudio-2.7.0+cpu-cp312-cp312-manylinux_2_28_x86_64.whl": {
     "torchaudio.lib._torchaudio_sox": "libtorchaudio_sox.so: cannot open shared object file: No such file or directory",

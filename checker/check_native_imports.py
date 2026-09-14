@@ -55,6 +55,11 @@ def should_skip_module(module: str) -> bool:
     fnmatch is case-insensitive on Windows/macOS, which would incorrectly
     skip user modules whose names differ only in case.
     """
+    if not all(part.isidentifier() for part in module.split(".")):
+        # A path segment that is not a valid identifier (for example
+        # triton's `lib/cupti-blackwell/`) can never be imported as a
+        # module. Such files are plain shared libraries, not extensions.
+        return True
     return any(fnmatch.fnmatchcase(module, pat) for pat in SKIP_MODULE_PATTERNS)
 
 

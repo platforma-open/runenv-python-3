@@ -1,0 +1,134 @@
+{
+  "packages": {
+    "dependencies": [
+      "biopython==1.83",
+      "biotite==0.39.0",
+      "certifi==2026.7.22",
+      "charset-normalizer==3.5.1",
+      "cloudpickle==3.1.2",
+      "colorama==0.4.6",
+      "filelock==3.32.6",
+      "freesasa==2.2.1",
+      "fsspec==2026.7.0",
+      "hf-xet==1.6.0",
+      "huggingface-hub==0.36.2",
+      "idna==3.19",
+      "jinja2==3.1.6",
+      "joblib==1.6.0",
+      "markupsafe==3.0.3",
+      "mpmath==1.3.0",
+      "msgpack==1.2.2",
+      "narwhals==2.26.0",
+      "networkx==3.6.1",
+      "numpy==1.26.4",
+      "packaging==26.3",
+      "pandas==2.3.3",
+      "promb==1.0.2",
+      "psutil==7.2.2",
+      "pyparsing==3.3.2",
+      "python-dateutil==2.9.0.post0",
+      "pytz==2026.3.post1",
+      "pyyaml==6.0.3",
+      "regex==2026.9.10",
+      "requests==2.34.2",
+      "safetensors==0.8.0",
+      "sapiens==1.1.0",
+      "scikit-learn==1.9.1",
+      "scipy==1.16.3",
+      "six==1.17.0",
+      "sympy==1.14.0",
+      "threadpoolctl==3.6.0",
+      "tokenizers==0.19.1",
+      "torch-geometric==2.4.0",
+      "tqdm==4.70.1",
+      "transformers==4.44.2",
+      "typing-extensions==4.16.0",
+      "tzdata==2026.4",
+      "urllib3==2.7.0"
+    ],
+    "noDeps": [],
+    "skip": {},
+    "overrides": {},
+    "platformSpecific": {
+      "linux-x64": {
+        "dependencies": [
+          "torch==2.2.2+cpu"
+        ]
+      },
+      "linux-aarch64": {
+        "dependencies": [
+          "torch==2.2.2"
+        ]
+      },
+      "macosx-x64": {
+        "dependencies": [
+          "torch==2.2.2"
+        ]
+      },
+      "macosx-aarch64": {
+        "dependencies": [
+          "torch==2.2.2"
+        ]
+      },
+      "windows-x64": {
+        "dependencies": [
+          "torch==2.2.2"
+        ]
+      }
+    },
+    "resolution": {
+      "strictMissing": false
+    },
+    "forceSource": {},
+    "buildWheel": {
+      "freesasa": {
+        "linux-x64": {
+          "reason": "No cp312 / Linux wheel on PyPI; compile the SWIG-generated freesasa.c on the runner (sdist ships pre-generated C, plain C build via setuptools).",
+          "buildRequires": [
+            "setuptools",
+            "wheel"
+          ]
+        },
+        "linux-aarch64": {
+          "reason": "No cp312 / Linux ARM64 wheel; compile on the native ARM runner.",
+          "buildRequires": [
+            "setuptools",
+            "wheel"
+          ]
+        },
+        "macosx-x64": {
+          "reason": "No cp312 / macOS x86_64 wheel; compile on the runner with clang.",
+          "buildRequires": [
+            "setuptools",
+            "wheel"
+          ]
+        },
+        "macosx-aarch64": {
+          "reason": "No cp312 / macOS arm64 wheel; compile on the runner with clang.",
+          "buildRequires": [
+            "setuptools",
+            "wheel"
+          ]
+        },
+        "windows-x64": {
+          "reason": "No cp312 / Windows wheel; compile with MSVC. The shared runner workflow activates vcvars via milaboratory/github-ci/actions/setup-msvc-dev-cmd@v4 before this step runs, so the env (INCLUDE / LIB / LIBPATH / PATH plus DISTUTILS_USE_SDK) is in scope when pip wheel invokes setuptools.",
+          "buildRequires": [
+            "setuptools",
+            "wheel"
+          ]
+        }
+      },
+      "biotite": {
+        "linux-aarch64": {
+          "reason": "biotite publishes no Linux ARM64 wheel for any version; compile its Cython sources on the native ARM runner. The other four platforms have cp312 wheels for 0.39.0.",
+          "buildRequires": [
+            "setuptools",
+            "wheel",
+            "Cython",
+            "numpy==1.26.4"
+          ]
+        }
+      }
+    }
+  }
+}

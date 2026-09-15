@@ -224,5 +224,8 @@
     "ucxx._lib.libucxx": "libpython3.12.so.1.0: cannot open shared object file: No such file or directory",
     "ucxx.examples.python_future_task_app": "libpython3.12.so.1.0: cannot open shared object file: No such file or directory",
     "ucxx.lib64.libucxx_python": "libpython3.12.so.1.0: cannot open shared object file: No such file or directory"
+  },
+  "torch-2.2.2+cpu-cp312-cp312-linux_x86_64.whl": {
+    "functorch._C": "initialization failed"
   }
 }

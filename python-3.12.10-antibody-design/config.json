@@ -46,7 +46,11 @@
       "tzdata==2026.4",
       "urllib3==2.7.0"
     ],
-    "noDeps": [],
+    "noDeps": [
+      "biopython",
+      "promb",
+      "sapiens"
+    ],
     "skip": {},
     "overrides": {},
     "platformSpecific": {

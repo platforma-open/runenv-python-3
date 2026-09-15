@@ -7,6 +7,13 @@ environment's dependency list, so the whole runtime closure is named here — it
 was resolved with `uv pip compile --universal` from the block's two exported
 requirement sets and then written out flat.
 
+`biopython`, `promb` and `sapiens` are under `noDeps`. The builder resolves each
+declared package's closure on its own, and none of these three pins anything, so
+each pulled the newest of everything on top of the pins and vendored a second
+copy: numpy 2.5.3 beside 1.26.4, scipy 1.18.1, pandas 3.0.5, torch 2.14, and
+transformers 5. The import checker then installed the newest of each and every
+numpy-1-ABI extension failed, biotite first.
+
 torch is declared per platform rather than in the shared list. On linux-x64 the
 PyPI wheel depends on twelve `nvidia-*` CUDA packages worth roughly 2 GiB that
 this block never uses, so that platform takes `torch==2.2.2+cpu` from

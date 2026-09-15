@@ -34,5 +34,8 @@
     "torio.lib.libtorio_ffmpeg4": "Reason: no LC_RPATH's found",
     "torio.lib.libtorio_ffmpeg5": "Reason: no LC_RPATH's found",
     "torio.lib.libtorio_ffmpeg6": "Reason: no LC_RPATH's found"
+  },
+  "torch-2.2.2-cp312-none-macosx_11_0_arm64.whl": {
+    "functorch._C": "initialization failed"
   }
 }

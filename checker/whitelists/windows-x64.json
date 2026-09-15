@@ -31,5 +31,8 @@
   "torchvision-0.22.0+cpu-cp312-cp312-win_amd64.whl": {
     "torchvision._C": "initialization of _C failed without raising an exception",
     "torchvision.image": "initialization of image failed without raising an exception"
+  },
+  "torch-2.2.2+cpu-cp312-cp312-win_amd64.whl": {
+    "functorch._C": "initialization failed"
   }
 }

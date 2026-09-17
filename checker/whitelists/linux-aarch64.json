@@ -24,5 +24,34 @@
     "torio.lib.libtorio_ffmpeg4": "libavutil.so.56: cannot open shared object file: No such file or directory",
     "torio.lib.libtorio_ffmpeg5": "libavutil.so.57: cannot open shared object file: No such file or directory",
     "torio.lib.libtorio_ffmpeg6": "libavutil.so.58: cannot open shared object file: No such file or directory"
+  },
+  "torch-2.2.2-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl": {
+    "functorch._C": "initialization failed"
+  },
+  "biotite-0.39.0-cp312-cp312-linux_aarch64.whl": {
+    "biotite.sequence.align.banded": "numpy.core.multiarray failed to import (auto-generated because you didn't call 'numpy.import_array()",
+    "biotite.sequence.align.kmeralphabet": "numpy.core.multiarray failed to import (auto-generated because you didn't call 'numpy.import_array()",
+    "biotite.sequence.align.kmersimilarity": "numpy.core.multiarray failed to import (auto-generated because you didn't call 'numpy.import_array()",
+    "biotite.sequence.align.kmertable": "numpy.core.multiarray failed to import (auto-generated because you didn't call 'numpy.import_array()",
+    "biotite.sequence.align.localgapped": "numpy.core.multiarray failed to import (auto-generated because you didn't call 'numpy.import_array()",
+    "biotite.sequence.align.localungapped": "numpy.core.multiarray failed to import (auto-generated because you didn't call 'numpy.import_array()",
+    "biotite.sequence.align.multiple": "numpy.core.multiarray failed to import (auto-generated because you didn't call 'numpy.import_array()",
+    "biotite.sequence.align.pairwise": "numpy.core.multiarray failed to import (auto-generated because you didn't call 'numpy.import_array()",
+    "biotite.sequence.align.permutation": "numpy.core.multiarray failed to import (auto-generated because you didn't call 'numpy.import_array()",
+    "biotite.sequence.align.selector": "numpy.core.multiarray failed to import (auto-generated because you didn't call 'numpy.import_array()",
+    "biotite.sequence.align.tracetable": "numpy.core.multiarray failed to import (auto-generated because you didn't call 'numpy.import_array()",
+    "biotite.sequence.codec": "numpy.core.multiarray failed to import (auto-generated because you didn't call 'numpy.import_array()",
+    "biotite.sequence.phylo.nj": "numpy.core.multiarray failed to import (auto-generated because you didn't call 'numpy.import_array()",
+    "biotite.sequence.phylo.tree": "numpy.core.multiarray failed to import (auto-generated because you didn't call 'numpy.import_array()",
+    "biotite.sequence.phylo.upgma": "numpy.core.multiarray failed to import (auto-generated because you didn't call 'numpy.import_array()",
+    "biotite.structure.bonds": "numpy.core.multiarray failed to import (auto-generated because you didn't call 'numpy.import_array()",
+    "biotite.structure.celllist": "numpy.core.multiarray failed to import (auto-generated because you didn't call 'numpy.import_array()",
+    "biotite.structure.charges": "numpy.core.multiarray failed to import (auto-generated because you didn't call 'numpy.import_array()",
+    "biotite.structure.io.mmtf.convertarray": "numpy.core.multiarray failed to import (auto-generated because you didn't call 'numpy.import_array()",
+    "biotite.structure.io.mmtf.convertfile": "numpy.core.multiarray failed to import (auto-generated because you didn't call 'numpy.import_array()",
+    "biotite.structure.io.mmtf.decode": "numpy.core.multiarray failed to import (auto-generated because you didn't call 'numpy.import_array()",
+    "biotite.structure.io.mmtf.encode": "numpy.core.multiarray failed to import (auto-generated because you didn't call 'numpy.import_array()",
+    "biotite.structure.io.pdb.hybrid36": "numpy.core.multiarray failed to import (auto-generated because you didn't call 'numpy.import_array()",
+    "biotite.structure.sasa": "numpy.core.multiarray failed to import (auto-generated because you didn't call 'numpy.import_array()"
   }
 }

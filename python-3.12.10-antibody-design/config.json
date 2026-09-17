@@ -48,8 +48,19 @@
     ],
     "noDeps": [
       "biopython",
+      "biotite",
+      "freesasa",
+      "huggingface-hub",
+      "pandas",
       "promb",
-      "sapiens"
+      "requests",
+      "sapiens",
+      "scikit-learn",
+      "scipy",
+      "tokenizers",
+      "torch",
+      "torch-geometric",
+      "transformers"
     ],
     "skip": {},
     "overrides": {},

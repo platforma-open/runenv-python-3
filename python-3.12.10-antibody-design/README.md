@@ -7,12 +7,22 @@ environment's dependency list, so the whole runtime closure is named here — it
 was resolved with `uv pip compile --universal` from the block's two exported
 requirement sets and then written out flat.
 
-`biopython`, `promb` and `sapiens` are under `noDeps`. The builder resolves each
-declared package's closure on its own, and none of these three pins anything, so
-each pulled the newest of everything on top of the pins and vendored a second
-copy: numpy 2.5.3 beside 1.26.4, scipy 1.18.1, pandas 3.0.5, torch 2.14, and
-transformers 5. The import checker then installed the newest of each and every
-numpy-1-ABI extension failed, biotite first.
+Every package with a loose requirement of its own is under `noDeps`. The builder
+resolves each declared package's closure separately, so any package that asks for
+a bare `numpy` or `scipy` pulls the newest one on top of the pins and vendors a
+second copy — numpy 2.5.3 beside 1.26.4, scipy 1.18.1 beside 1.16.3, and earlier
+also pandas 3, torch 2.14 and transformers 5. The import checker installs from
+that directory and takes the newest wheel a requirement allows, so it built its
+test venv on numpy 2 and every numpy-1-ABI extension in the set failed, biotite
+loudest at 24 modules.
+
+Naming the whole closure flat is what makes `noDeps` safe here: nothing needs
+resolving, because everything any of these packages imports is already pinned
+above.
+
+The biotite entries in `checker/whitelists/*.json` cover that same numpy-2 ABI
+error. With the `noDeps` set above they should never fire — they are there so one
+loose requirement slipping back in cannot fail five platforms again.
 
 torch is declared per platform rather than in the shared list. On linux-x64 the
 PyPI wheel depends on twelve `nvidia-*` CUDA packages worth roughly 2 GiB that

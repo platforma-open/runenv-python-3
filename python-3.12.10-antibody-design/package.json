@@ -1,6 +1,6 @@
 {
   "name": "@platforma-open/milaboratories.runenv-python-3.12.10-antibody-design",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Python 3.12.10 run environment for the Antibody Variant Designer block (AntiFold inverse folding, Sapiens humanness, SASA exposure and promb)",
   "scripts": {
     "cleanup": "rm -rf ./pkg-*.tgz ./pydist ./dist/ ./build/",

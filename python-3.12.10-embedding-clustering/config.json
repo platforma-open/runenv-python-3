@@ -77,7 +77,7 @@
       "hdbscan": {
         "linux-aarch64": {
           "reason": "No cp312 / Linux ARM64 wheel on PyPI for hdbscan 0.8.44 (wheels exist for linux-x64, macOS universal2, and win-x64); compile the Cython sources on the native ARM runner.",
-          "buildRequires": ["setuptools", "wheel", "Cython", "numpy"]
+          "buildRequires": ["setuptools==84.0.0", "wheel==0.48.0", "Cython==3.3.0", "numpy==2.2.6"]
         }
       }
     }

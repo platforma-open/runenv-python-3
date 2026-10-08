@@ -1,6 +1,6 @@
 {
   "name": "@platforma-open/milaboratories.runenv-python-3.12.10-embedding-clustering",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Python 3.12.10 run environment for the Embedding Clustering block (fast_hdbscan + pynndescent on numba, with scikit-learn, polars and pyarrow)",
   "scripts": {
     "cleanup": "rm -rf ./pkg-*.tgz ./pydist ./dist/ ./build/",

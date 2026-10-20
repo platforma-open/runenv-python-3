@@ -1,4 +1,4 @@
-Python 3.12.10 run environment for the Embedding Clustering block (`embedding-clustering`): `fast_hdbscan` and `pynndescent` on `numba`, plus `scikit-learn` (PCA, medoid distances), `polars` and `pyarrow` (Parquet loading and output) and `pandas`.
+Python 3.12.10 run environment for the Embedding Clustering block (`embedding-clustering`): `fast_hdbscan` and `pynndescent` on `numba`, plus `scikit-learn` (PCA, medoid distances), `polars` and `pyarrow` (Parquet loading and output), `pandas` and `rapidfuzz` (string distances such as normalized Levenshtein).
 
 The set is pinned flat and matches the block's `requirements.txt`. The block installs it with `pip --no-index --find-links <runenv packages>`, so each pin in the block must exist here as a wheel. Change the pins here and in the block together.
 

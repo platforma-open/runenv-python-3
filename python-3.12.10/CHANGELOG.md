@@ -1,5 +1,11 @@
 # @platforma-open/milaboratories.runenv-python-3.12.10
 
+## 1.3.28
+
+### Patch Changes
+
+- 286159b: PFrames bump: polars-pf 1.3.1. Fixes Rust advisories in arrow, rustix and zstd (RUSTSEC-2026-0442, RUSTSEC-2026-0486, RUSTSEC-2026-0391, RUSTSEC-2026-0398, RUSTSEC-2026-0403); no functional change.
+
 ## 1.3.27
 
 ### Patch Changes
